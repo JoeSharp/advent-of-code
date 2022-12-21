@@ -1,5 +1,6 @@
-import { processFile } from "../common/processFile";
+import { processFile, processFileInChunks } from "../common/processFile";
 import simpleLogger from "../common/simpleLogger";
+import { AdventFunction } from "../common/types";
 
 export const splitInHalf = (inputStr: string): [string, string] => {
   if (inputStr.length === 0)
@@ -50,10 +51,10 @@ export const getPriority = (item: string): number => {
   }
 };
 
-export default () => {
-  let total = 0;
+const day3: AdventFunction = async () => {
+  let totalStepOne = 0;
 
-  processFile(
+  await processFile(
     "./src/day3/input.txt",
     (line) => {
       const [p1, p2] = splitInHalf(line);
@@ -61,11 +62,36 @@ export default () => {
       const commonElement = findCommonElement([p1, p2]);
 
       if (!!commonElement) {
-        total += getPriority(commonElement);
+        totalStepOne += getPriority(commonElement);
       }
     },
     () => {
-      simpleLogger.info(`Total of Priorties = ${total}`);
+      simpleLogger.debug(`Total of Priorties = ${totalStepOne}`);
     }
   );
+
+  let totalStepTwo = 0;
+  await processFileInChunks(
+    "./src/day3/input.txt",
+    3,
+    (lines) => {
+      const badgeElement = findCommonElement(lines);
+
+      if (!!badgeElement) {
+        let badgePriority = getPriority(badgeElement);
+        simpleLogger.debug(
+          `Common Items in ${lines} is ${badgeElement} with priority ${badgePriority}`
+        );
+        totalStepTwo += badgePriority;
+      }
+    },
+
+    () => {
+      simpleLogger.debug(`Total of Badges = ${totalStepTwo}`);
+    }
+  );
+
+  return [totalStepOne, totalStepTwo];
 };
+
+export default day3;

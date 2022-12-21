@@ -6,8 +6,39 @@ export const processFile = (
   onLine: (line: string) => void,
   onClose: () => void
 ) => {
-  var r = readline.createInterface({
-    input: fs.createReadStream(filename),
+  return new Promise<void>((resolve) => {
+    var r = readline.createInterface({
+      input: fs.createReadStream(filename),
+    });
+    r.on("line", onLine).on("close", () => {
+      onClose();
+      resolve();
+    });
   });
-  r.on("line", onLine).on("close", onClose);
+};
+
+export const processFileInChunks = (
+  filename: string,
+  chunkSize: number,
+  onLines: (lines: string[]) => void,
+  onClose: () => void
+) => {
+  return new Promise<void>((resolve) => {
+    let lines: string[] = [];
+
+    processFile(
+      filename,
+      (line: string) => {
+        lines.push(line);
+        if (lines.length === chunkSize) {
+          onLines(lines);
+          lines = [];
+        }
+      },
+      () => {
+        onClose();
+        resolve();
+      }
+    );
+  });
 };

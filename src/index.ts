@@ -19,5 +19,8 @@ if (fn === undefined) {
   simpleLogger.error(`Could not find advent functions for day ${DAY_TO_RUN}`);
 } else {
   simpleLogger.info(`Advent of Code - Challenge ${DAY_TO_RUN}`);
-  fn();
+  fn().then(([part1Answer, part2Answer]) => {
+    simpleLogger.info(`Part 1 Answer: ${part1Answer}`);
+    simpleLogger.info(`Part 2 Answer: ${part2Answer}`);
+  });
 }

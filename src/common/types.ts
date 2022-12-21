@@ -1,1 +1,1 @@
-export type AdventFunction = () => void;
+export type AdventFunction = () => Promise<[string | number, string | number]>;
