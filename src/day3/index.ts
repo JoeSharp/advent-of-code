@@ -51,11 +51,11 @@ export const getPriority = (item: string): number => {
   }
 };
 
-const day3: AdventFunction = async () => {
+const day3: AdventFunction = async (filename = "./src/day3/input.txt") => {
   let totalStepOne = 0;
 
   await processFile(
-    "./src/day3/input.txt",
+    filename,
     (line) => {
       const [p1, p2] = splitInHalf(line);
 
@@ -72,7 +72,7 @@ const day3: AdventFunction = async () => {
 
   let totalStepTwo = 0;
   await processFileInChunks(
-    "./src/day3/input.txt",
+    filename,
     3,
     (lines) => {
       const badgeElement = findCommonElement(lines);

@@ -3,14 +3,14 @@ import simpleLogger from "../common/simpleLogger";
 import { processFile } from "../common/processFile";
 import { AdventFunction } from "../common/types";
 
-const day1: AdventFunction = async () =>
+const day1: AdventFunction = async (filename = "./src/day1/input.txt") =>
   new Promise((resolve) => {
     let elfCalories: number[] = [];
 
     let calories = 0;
 
     processFile(
-      "./src/day1/input.txt",
+      filename,
       (line) => {
         if (line === "") {
           elfCalories.push(calories);
@@ -21,9 +21,12 @@ const day1: AdventFunction = async () =>
         }
       },
       () => {
-        elfCalories.sort((a, b) => a - b);
+        elfCalories.push(calories);
 
-        let highestCalories = elfCalories[elfCalories.length - 1];
+        // Reverse sort
+        elfCalories.sort((a, b) => b - a);
+
+        let highestCalories = elfCalories[0];
 
         simpleLogger.debug("All Calories", elfCalories);
         simpleLogger.debug("Highest Calories", highestCalories);
@@ -31,7 +34,8 @@ const day1: AdventFunction = async () =>
         const TOP_X_ELFS = 3;
         let topXCalories = 0;
         for (let i = 0; i < TOP_X_ELFS; i++) {
-          topXCalories += elfCalories[elfCalories.length - 1 - i];
+          simpleLogger.debug(`Elf ${elfCalories[i]}`);
+          topXCalories += elfCalories[i];
         }
 
         simpleLogger.debug(`Top ${TOP_X_ELFS} carry ${topXCalories} calories`);

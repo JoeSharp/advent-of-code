@@ -1,4 +1,4 @@
-import {
+import day2, {
   Outcome,
   Selection,
   getPlayerOutcome,
@@ -6,6 +6,14 @@ import {
 } from "./index";
 
 describe("Day 2", () => {
+  describe("Day 2", () => {
+    it("Calculates the example correctly", async () => {
+      const [part1, part2] = await day2("./src/day2/testInput.txt");
+      expect(part1).toBe(15);
+      expect(part2).toBe(12);
+    });
+  });
+
   describe("getPlayerOutcome", () => {
     it.each`
       opponentOutcome       | playerOutcome         | expected

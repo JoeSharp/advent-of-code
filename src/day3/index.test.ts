@@ -1,6 +1,13 @@
-import { splitInHalf, getPriority, findCommonElement } from ".";
+import day3, { splitInHalf, getPriority, findCommonElement } from ".";
 
 describe("Day 3", () => {
+  describe("Day 3", () => {
+    it("Calculates the example correctly", async () => {
+      const [part1, part2] = await day3("./src/day3/testInput.txt");
+      expect(part1).toBe(157);
+      expect(part2).toBe(70);
+    });
+  });
   describe("splitInHalf", () => {
     it("Throws error for zero length string", () => {
       expect(() => splitInHalf("")).toThrowError();

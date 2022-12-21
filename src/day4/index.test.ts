@@ -1,12 +1,20 @@
-import {
+import day4, {
   anyRangeOverlap,
   oneRangeContainsAnother,
   parseRange,
   parseRanges,
   rangeIsContainedBy,
-} from ".";
+} from "./index";
 
 describe("day4", () => {
+  describe("Day 4", () => {
+    it("Calculates the example correctly", async () => {
+      const [part1, part2] = await day4("./src/day4/testInput.txt");
+      expect(part1).toBe(2);
+      expect(part2).toBe(4);
+    });
+  });
+
   describe("parseRange", () => {
     it("parses range correctly", () => {
       const result = parseRange("5-8");

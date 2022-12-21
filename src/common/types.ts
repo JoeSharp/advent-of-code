@@ -1,1 +1,3 @@
-export type AdventFunction = () => Promise<[string | number, string | number]>;
+export type AdventFunction = (
+  filename?: string
+) => Promise<[string | number, string | number]>;

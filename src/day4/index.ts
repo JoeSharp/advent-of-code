@@ -41,12 +41,12 @@ export const anyRangeOverlap = (rangeA: Range, rangeB: Range): boolean => {
   return true;
 };
 
-const day4: AdventFunction = () =>
+const day4: AdventFunction = (filename = "./src/day4/input.txt") =>
   new Promise((resolve) => {
     let numberThatHaveContainment = 0;
     let numberThatHaveOverlap = 0;
     processFile(
-      "./src/day4/input.txt",
+      filename,
       (line) => {
         const ranges = parseRanges(line);
 

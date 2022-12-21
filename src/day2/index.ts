@@ -77,13 +77,13 @@ SELECTION_SCORES.set(Selection.ROCK, 1);
 SELECTION_SCORES.set(Selection.PAPER, 2);
 SELECTION_SCORES.set(Selection.SCISSORS, 3);
 
-const day2: AdventFunction = () =>
+const day2: AdventFunction = (filename = "./src/day2/input.txt") =>
   new Promise((resolve, reject) => {
     let scorePartOne: number = 0;
     let scorePartTwo: number = 0;
 
     processFile(
-      "./src/day2/input.txt",
+      filename,
       (line) => {
         const parts = line.split(" ");
 
