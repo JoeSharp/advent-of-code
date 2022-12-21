@@ -1,25 +1,20 @@
-import * as fs from "fs";
-import readline from "readline";
+import simpleLogger from "../common/simpleLogger";
 
-const FILENAME = "./src/day2/input.txt";
+import { processFile } from "../common/processFile";
 
-var r = readline.createInterface({
-  input: fs.createReadStream(FILENAME),
-});
-
-enum Outcome {
+export enum Outcome {
   WIN = 6,
   DRAW = 3,
   LOSE = 0,
 }
 
-enum Selection {
+export enum Selection {
   ROCK,
   PAPER,
   SCISSORS,
 }
 
-const getPlayerOutcome = (
+export const getPlayerOutcome = (
   opponentSelection: Selection,
   playerSelection: Selection
 ): Outcome => {
@@ -40,7 +35,7 @@ const getPlayerOutcome = (
   }
 };
 
-const getPlayerSelectionForOutcome = (
+export const getPlayerSelectionForOutcome = (
   opponentSelection: Selection,
   intendedOutcome: Outcome
 ): Selection => {
@@ -81,59 +76,72 @@ SELECTION_SCORES.set(Selection.ROCK, 1);
 SELECTION_SCORES.set(Selection.PAPER, 2);
 SELECTION_SCORES.set(Selection.SCISSORS, 3);
 
-let scorePartOne: number = 0;
-let scorePartTwo: number = 0;
+export default () => {
+  let scorePartOne: number = 0;
+  let scorePartTwo: number = 0;
 
-r.on("line", (line) => {
-  const parts = line.split(" ");
+  processFile(
+    "./src/day2/input.txt",
+    (line) => {
+      const parts = line.split(" ");
 
-  if (parts.length === 2) {
-    const opponentSelection = OPPONENT_SELECTIONS.get(parts[0]);
-    const partOnePlayerSelection = PLAYER_SELECTIONS.get(parts[1]);
-    const partTwoIntendedOutcome = INTENDED_OUTCOME.get(parts[1]);
+      if (parts.length === 2) {
+        const opponentSelection = OPPONENT_SELECTIONS.get(parts[0]);
+        const partOnePlayerSelection = PLAYER_SELECTIONS.get(parts[1]);
+        const partTwoIntendedOutcome = INTENDED_OUTCOME.get(parts[1]);
 
-    // If we can't determien any aspect of the game, just print warning and skip line
-    if (
-      opponentSelection === undefined ||
-      partOnePlayerSelection === undefined ||
-      partTwoIntendedOutcome === undefined
-    ) {
-      console.warn(
-        `Could not determine player and opponent selections from line: ${line}`
-      );
-      return;
+        // If we can't determien any aspect of the game, just print warning and skip line
+        if (
+          opponentSelection === undefined ||
+          partOnePlayerSelection === undefined ||
+          partTwoIntendedOutcome === undefined
+        ) {
+          simpleLogger.warn(
+            `Could not determine player and opponent selections from line: ${line}`
+          );
+          return;
+        }
+
+        // Part 1 Calculation
+        const outcome = getPlayerOutcome(
+          opponentSelection,
+          partOnePlayerSelection
+        );
+        const partOneSelectionScore = SELECTION_SCORES.get(
+          partOnePlayerSelection
+        );
+        if (partOneSelectionScore === undefined) {
+          simpleLogger.warn(
+            `Could not determine selection score for player selection: ${partOnePlayerSelection}`
+          );
+          return;
+        }
+        scorePartOne += outcome;
+        scorePartOne += partOneSelectionScore;
+
+        // Part 2 Calculation
+        const partTwoPlayerSelection = getPlayerSelectionForOutcome(
+          opponentSelection,
+          partTwoIntendedOutcome
+        );
+        const partTwoSelectionScore = SELECTION_SCORES.get(
+          partTwoPlayerSelection
+        );
+        if (partTwoSelectionScore === undefined) {
+          simpleLogger.warn(
+            `Could not determine selection score for player selection: ${partTwoPlayerSelection}`
+          );
+          return;
+        }
+        scorePartTwo += partTwoIntendedOutcome;
+        scorePartTwo += partTwoSelectionScore;
+      } else {
+        simpleLogger.warn(`Invalid line, required 2 parts: ${line}`);
+      }
+    },
+    () => {
+      simpleLogger.info("Score for Part One: ", scorePartOne);
+      simpleLogger.info("Score for Part Two: ", scorePartTwo);
     }
-
-    // Part 1 Calculation
-    const outcome = getPlayerOutcome(opponentSelection, partOnePlayerSelection);
-    const partOneSelectionScore = SELECTION_SCORES.get(partOnePlayerSelection);
-    if (partOneSelectionScore === undefined) {
-      console.warn(
-        `Could not determine selection score for player selection: ${partOnePlayerSelection}`
-      );
-      return;
-    }
-    scorePartOne += outcome;
-    scorePartOne += partOneSelectionScore;
-
-    // Part 2 Calculation
-    const partTwoPlayerSelection = getPlayerSelectionForOutcome(
-      opponentSelection,
-      partTwoIntendedOutcome
-    );
-    const partTwoSelectionScore = SELECTION_SCORES.get(partTwoPlayerSelection);
-    if (partTwoSelectionScore === undefined) {
-      console.warn(
-        `Could not determine selection score for player selection: ${partTwoPlayerSelection}`
-      );
-      return;
-    }
-    scorePartTwo += partTwoIntendedOutcome;
-    scorePartTwo += partTwoSelectionScore;
-  } else {
-    console.warn(`Invalid line, required 2 parts: ${line}`);
-  }
-}).on("close", () => {
-  console.log("Score for Part One: ", scorePartOne);
-  console.log("Score for Part Two: ", scorePartTwo);
-});
+  );
+};
