@@ -1,11 +1,16 @@
 import day8, {
   countVisibleTrees,
+  goDown,
+  goLeft,
+  goRight,
+  goUp,
   isTreeVisible,
   isTreeVisibleFromBottom,
   isTreeVisibleFromLeft,
   isTreeVisibleFromRight,
   isTreeVisibleFromTop,
   readGridOfNumbers,
+  calculateScenicScore,
 } from "./index";
 
 describe("day8", () => {
@@ -19,7 +24,7 @@ describe("day8", () => {
     it("handles demo input for part 2 correctly", async () => {
       const [, part2] = await day8("./src/day8/testInput.txt");
 
-      expect(part2).toBe(1);
+      expect(part2).toBe(8);
     });
   });
 
@@ -48,6 +53,35 @@ describe("day8", () => {
           [3, 5, 3, 9, 0],
         ],
       });
+    });
+  });
+
+  describe("goInDirection", () => {
+    it.each`
+      direction  | fn         | row  | column | expecting
+      ${"right"} | ${goRight} | ${1} | ${2}   | ${[1, 2]}
+      ${"left"}  | ${goLeft}  | ${1} | ${2}   | ${[5, 2]}
+      ${"up"}    | ${goUp}    | ${1} | ${2}   | ${[3]}
+      ${"down"}  | ${goDown}  | ${1} | ${2}   | ${[3, 5, 3]}
+    `(
+      "$direction from $row, $column should give $expecting",
+      async ({ fn, row, column, expecting }) => {
+        const grid = await readGridOfNumbers("./src/day8/testInput.txt");
+        const result = [...fn(grid, row, column)];
+        expect(result).toStrictEqual(expecting);
+      }
+    );
+  });
+
+  describe("calculateScenicScore", () => {
+    it.each`
+      row  | column | score
+      ${1} | ${2}   | ${4}
+      ${3} | ${2}   | ${8}
+    `("$row, $column = $score", async ({ row, column, score }) => {
+      const grid = await readGridOfNumbers("./src/day8/testInput.txt");
+      const result = calculateScenicScore(grid, row, column);
+      expect(result).toBe(score);
     });
   });
 

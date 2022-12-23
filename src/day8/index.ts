@@ -1,5 +1,6 @@
 import * as fs from "fs";
 import readline from "readline";
+import simpleLogger from "../common/simpleLogger";
 import { AdventFunction } from "../common/types";
 
 export type TreeGrid = {
@@ -50,7 +51,7 @@ export function* goRight(
   row: number,
   column: number
 ): Generator<number> {
-  for (let c = grid.columns - 1; c > column; c--) {
+  for (let c = column + 1; c < grid.columns; c++) {
     yield grid.content[row][c];
   }
 }
@@ -70,7 +71,7 @@ export function* goDown(
   row: number,
   column: number
 ): Generator<number> {
-  for (let r = grid.rows - 1; r > row; r--) {
+  for (let r = row + 1; r < grid.rows; r++) {
     yield grid.content[r][column];
   }
 }
@@ -89,6 +90,34 @@ export const isTreeVisibleFromRight = findBlockingTree(goRight);
 export const isTreeVisibleFromTop = findBlockingTree(goUp);
 export const isTreeVisibleFromBottom = findBlockingTree(goDown);
 
+export const scenicScore =
+  (
+    generator: TreeGenerator
+  ): ((grid: TreeGrid, row: number, column: number) => number) =>
+  (grid, row, column) => {
+    let thisTree = grid.content[row][column];
+    simpleLogger.debug(`Scoring Tree ${row}, ${column}, value: ${thisTree}`);
+    let score = 0;
+    var iter = generator(grid, row, column);
+
+    for (let c of [...iter]) {
+      simpleLogger.debug(`Seen Tree ${c}`);
+      score++;
+
+      if (c >= thisTree) {
+        simpleLogger.debug("This tree blocks any further ones");
+        return score;
+      }
+    }
+    simpleLogger.debug(`Score: ${score}`);
+    return score;
+  };
+
+export const scenicScoreLeft = scenicScore(goLeft);
+export const scenicScoreRight = scenicScore(goRight);
+export const scenicScoreUp = scenicScore(goUp);
+export const scenicScoreDown = scenicScore(goDown);
+
 export const isTreeVisible = (
   grid: TreeGrid,
   row: number,
@@ -102,28 +131,51 @@ export const isTreeVisible = (
   );
 };
 
-export const countVisibleTrees = (grid: TreeGrid): number => {
-  let visibleTrees = 0;
-
+export function* yieldVisibleTrees(
+  grid: TreeGrid
+): Generator<{ row: number; column: number }> {
   for (let row = 0; row < grid.rows; row++) {
     for (let column = 0; column < grid.columns; column++) {
       if (isTreeVisible(grid, row, column)) {
-        visibleTrees++;
+        yield { row, column };
       }
     }
   }
+}
 
-  return visibleTrees;
-};
+/**
+ * A tree's scenic score is found by multiplying together its viewing distance
+ * in each of the four directions.
+ * @param grid The tree grid
+ * @param row The row of the tree under consiration
+ * @param column The column of the tree under consideration
+ * @returns The score
+ */
+export const calculateScenicScore = (
+  grid: TreeGrid,
+  row: number,
+  column: number
+): number =>
+  [scenicScoreLeft, scenicScoreRight, scenicScoreUp, scenicScoreDown].reduce(
+    (acc, curr) => acc * curr(grid, row, column),
+    1
+  );
 
 // How many visible from outside the grid?
+export const countVisibleTrees = (grid: TreeGrid) =>
+  [...yieldVisibleTrees(grid)].length;
 
 const day8: AdventFunction = async (filename = "./src/day8/input.txt") => {
   const grid = await readGridOfNumbers(filename);
 
-  const partOne = countVisibleTrees(grid);
+  const visibleTrees = [...yieldVisibleTrees(grid)];
+  const partOne = visibleTrees.length;
 
-  return [partOne, 1];
+  const scenicScores = visibleTrees
+    .map(({ row, column }) => calculateScenicScore(grid, row, column))
+    .sort((a, b) => b - a);
+
+  return [partOne, scenicScores[0]];
 };
 
 export default day8;
