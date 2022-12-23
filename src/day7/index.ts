@@ -207,7 +207,7 @@ export function* findDirectories(
   dir: DirectoryStructure,
   filter: DirectoryFilter
 ): Generator<DirectoryStructure> {
-  simpleLogger.info(
+  simpleLogger.debug(
     `Checking Dir ${dir.name} SubDirs: ${dir.subDirectories
       .map(({ name }) => name)
       .join(",")}, Files: ${dir.files.map(({ name }) => name).join(",")}`
@@ -248,9 +248,23 @@ const dayX: AdventFunction = async (filename = "./src/day7/input.txt") => {
 
   const dirs = findDirectories(rootDir, ({ size }) => size <= MAX_SIZE);
 
-  const totalSize = [...dirs].reduce((acc, curr) => acc + curr.size, 0);
+  const partOne = [...dirs].reduce((acc, curr) => acc + curr.size, 0);
 
-  return [totalSize, 1];
+  const TOTAL_DISK_SPACE = 70000000;
+  const UNUSED_REQUIRED = 30000000;
+
+  const amountToDelete = UNUSED_REQUIRED - (TOTAL_DISK_SPACE - rootDir.size);
+  const dirsToDelete = findDirectories(
+    rootDir,
+    ({ size }) => size >= amountToDelete
+  );
+  const sorted = [...dirsToDelete].sort((a, b) => a.size - b.size);
+  simpleLogger.debug(
+    "Sorted Dirs to Delete",
+    sorted.map(({ name, size }) => `${name} - ${size}`)
+  );
+
+  return [partOne, sorted[0].size];
 };
 
 export default dayX;

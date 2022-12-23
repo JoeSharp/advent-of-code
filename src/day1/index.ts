@@ -2,6 +2,7 @@ import simpleLogger from "../common/simpleLogger";
 
 import { processFile } from "../common/processFile";
 import { AdventFunction } from "../common/types";
+import { reverseNumericSort } from "../common/numericUtils";
 
 const day1: AdventFunction = async (filename = "./src/day1/input.txt") =>
   new Promise((resolve) => {
@@ -24,7 +25,7 @@ const day1: AdventFunction = async (filename = "./src/day1/input.txt") =>
         elfCalories.push(calories);
 
         // Reverse sort
-        elfCalories.sort((a, b) => b - a);
+        elfCalories.sort(reverseNumericSort);
 
         let highestCalories = elfCalories[0];
 
