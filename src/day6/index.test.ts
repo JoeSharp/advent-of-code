@@ -35,7 +35,7 @@ describe("day6", () => {
     it("handles demo input for part 2 correctly", async () => {
       const [, part2] = await day6("./src/day6/testInput.txt");
 
-      expect(part2).toBe(1);
+      expect(part2).toBe(19);
     });
   });
 });
