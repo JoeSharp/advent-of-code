@@ -2,7 +2,7 @@
 
 This repo contains my code solution for the Advent of Code challenges
 
-[https://adventofcode.com/2022](Advent of Code 2022)
+[Advent of Code 2022](https://adventofcode.com/2022)
 
 ## To run
 
