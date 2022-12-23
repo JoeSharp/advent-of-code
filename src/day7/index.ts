@@ -1,4 +1,5 @@
-import { processFile } from "../common/processFile";
+import * as fs from "fs";
+import readline from "readline";
 import simpleLogger from "../common/simpleLogger";
 import { AdventFunction } from "../common/types";
 
@@ -226,19 +227,18 @@ export const createDirectoryStructureFromFile = async (
   new Promise((resolve) => {
     let currentDirectory = createRootDirectory();
 
-    processFile(
-      filename,
-      (line) => {
-        currentDirectory = processLine(currentDirectory, line);
-      },
-      () => {
-        // Go back to root
-        const rootDir = goBackToRootDir(currentDirectory);
+    var r = readline.createInterface({
+      input: fs.createReadStream(filename),
+    });
+    r.on("line", (line) => {
+      currentDirectory = processLine(currentDirectory, line);
+    }).on("close", () => {
+      // Go back to root
+      const rootDir = goBackToRootDir(currentDirectory);
 
-        populateDirectorySizes(rootDir);
-        resolve(rootDir);
-      }
-    );
+      populateDirectorySizes(rootDir);
+      resolve(rootDir);
+    });
   });
 
 const dayX: AdventFunction = async (filename = "./src/day7/input.txt") => {

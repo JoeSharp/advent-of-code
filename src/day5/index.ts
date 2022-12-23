@@ -1,4 +1,5 @@
-import { processFile } from "../common/processFile";
+import * as fs from "fs";
+import readline from "readline";
 import simpleLogger from "../common/simpleLogger";
 import { splitStringIntoChunks } from "../common/stringUtils";
 import { AdventFunction } from "../common/types";
@@ -110,62 +111,62 @@ const day5: AdventFunction = (filename = "./src/day5/input.txt") => {
     let stacksPartTwo: string[][] = [];
     let expectedStackCountLine = "";
     let numberOfStacks = 0;
-    processFile(
-      filename,
-      (line) => {
-        switch (phase) {
-          case Phase.start:
-            const crates = parseStackLine(line);
-            numberOfStacks = crates.length;
-            expectedStackCountLine =
-              constructExpectedStackCountLine(numberOfStacks);
-            phase = Phase.findingCrates;
-            stackLines.push(crates);
-            simpleLogger.debug(
-              `Expected Stack Count Line for ${numberOfStacks} stacks: "${expectedStackCountLine}"`
-            );
-            break;
-          case Phase.findingCrates:
-            if (line.trim() === expectedStackCountLine) {
-              phase = Phase.skippingEmptyLine;
-            } else {
-              stackLines.push(parseStackLine(line));
-            }
-            break;
-          case Phase.skippingEmptyLine:
-            if (line.trim().length === 0) {
-              // Take the stacks and switch their dimension so we have the actual stacks
-              stacksPartOne = processStackLines(numberOfStacks, stackLines);
-              stacksPartTwo = processStackLines(numberOfStacks, stackLines);
 
-              simpleLogger.debug(`Stacks Created ${stacksPartOne.length}`);
-              stacksPartOne.forEach((s) => simpleLogger.debug(s));
+    var r = readline.createInterface({
+      input: fs.createReadStream(filename),
+    });
+    r.on("line", (line) => {
+      switch (phase) {
+        case Phase.start:
+          const crates = parseStackLine(line);
+          numberOfStacks = crates.length;
+          expectedStackCountLine =
+            constructExpectedStackCountLine(numberOfStacks);
+          phase = Phase.findingCrates;
+          stackLines.push(crates);
+          simpleLogger.debug(
+            `Expected Stack Count Line for ${numberOfStacks} stacks: "${expectedStackCountLine}"`
+          );
+          break;
+        case Phase.findingCrates:
+          if (line.trim() === expectedStackCountLine) {
+            phase = Phase.skippingEmptyLine;
+          } else {
+            stackLines.push(parseStackLine(line));
+          }
+          break;
+        case Phase.skippingEmptyLine:
+          if (line.trim().length === 0) {
+            // Take the stacks and switch their dimension so we have the actual stacks
+            stacksPartOne = processStackLines(numberOfStacks, stackLines);
+            stacksPartTwo = processStackLines(numberOfStacks, stackLines);
 
-              phase = Phase.processingInstructions;
-            } else {
-              simpleLogger.warn("Found something other than empty line");
-            }
-            break;
-          case Phase.processingInstructions:
-            const step = parseStep(line);
+            simpleLogger.debug(`Stacks Created ${stacksPartOne.length}`);
+            stacksPartOne.forEach((s) => simpleLogger.debug(s));
 
-            executeStepPartOne(step, stacksPartOne);
-            executeStepPartTwo(step, stacksPartTwo);
+            phase = Phase.processingInstructions;
+          } else {
+            simpleLogger.warn("Found something other than empty line");
+          }
+          break;
+        case Phase.processingInstructions:
+          const step = parseStep(line);
 
-            break;
-        }
-      },
-      () => {
-        if (phase !== Phase.processingInstructions) {
-          simpleLogger.warn("We never reached processing instructions");
-        }
+          executeStepPartOne(step, stacksPartOne);
+          executeStepPartTwo(step, stacksPartTwo);
 
-        const partOneAnswer = stacksPartOne.map((s) => s[0]).join("");
-        const partTwoAnswer = stacksPartTwo.map((s) => s[0]).join("");
-
-        resolve([partOneAnswer, partTwoAnswer]);
+          break;
       }
-    );
+    }).on("close", () => {
+      if (phase !== Phase.processingInstructions) {
+        simpleLogger.warn("We never reached processing instructions");
+      }
+
+      const partOneAnswer = stacksPartOne.map((s) => s[0]).join("");
+      const partTwoAnswer = stacksPartTwo.map((s) => s[0]).join("");
+
+      resolve([partOneAnswer, partTwoAnswer]);
+    });
   });
 };
 

@@ -1,4 +1,6 @@
-import { processFile, processFileInChunks } from "../common/processFile";
+import * as fs from "fs";
+import readline from "readline";
+import { processFileInChunks } from "../common/processFile";
 import simpleLogger from "../common/simpleLogger";
 import { AdventFunction } from "../common/types";
 
@@ -54,9 +56,11 @@ export const getPriority = (item: string): number => {
 const day3: AdventFunction = async (filename = "./src/day3/input.txt") => {
   let totalStepOne = 0;
 
-  await processFile(
-    filename,
-    (line) => {
+  await new Promise<void>((resolve) => {
+    var r = readline.createInterface({
+      input: fs.createReadStream(filename),
+    });
+    r.on("line", (line) => {
       const [p1, p2] = splitInHalf(line);
 
       const commonElement = findCommonElement([p1, p2]);
@@ -64,11 +68,11 @@ const day3: AdventFunction = async (filename = "./src/day3/input.txt") => {
       if (!!commonElement) {
         totalStepOne += getPriority(commonElement);
       }
-    },
-    () => {
+    }).on("close", () => {
       simpleLogger.debug(`Total of Priorties = ${totalStepOne}`);
-    }
-  );
+      resolve();
+    });
+  });
 
   let totalStepTwo = 0;
   await processFileInChunks(
@@ -85,7 +89,6 @@ const day3: AdventFunction = async (filename = "./src/day3/input.txt") => {
         totalStepTwo += badgePriority;
       }
     },
-
     () => {
       simpleLogger.debug(`Total of Badges = ${totalStepTwo}`);
     }

@@ -1,4 +1,5 @@
-import { processFile } from "../common/processFile";
+import * as fs from "fs";
+import readline from "readline";
 import simpleLogger from "../common/simpleLogger";
 import { AdventFunction } from "../common/types";
 
@@ -34,16 +35,15 @@ export const findEndOfFirstXDifferent = (
 
 const dayX: AdventFunction = (filename = "./src/day6/input.txt") => {
   return new Promise((resolve) => {
-    processFile(
-      filename,
-      (line) => {
-        let part1 = findEndOfFirstXDifferent(line, 4);
-        let part2 = findEndOfFirstXDifferent(line, 14);
+    var r = readline.createInterface({
+      input: fs.createReadStream(filename),
+    });
+    r.on("line", (line) => {
+      let part1 = findEndOfFirstXDifferent(line, 4);
+      let part2 = findEndOfFirstXDifferent(line, 14);
 
-        resolve([part1, part2]);
-      },
-      () => {}
-    );
+      resolve([part1, part2]);
+    });
   });
 };
 

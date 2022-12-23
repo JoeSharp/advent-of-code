@@ -1,4 +1,5 @@
-import { processFile } from "../common/processFile";
+import * as fs from "fs";
+import readline from "readline";
 import simpleLogger from "../common/simpleLogger";
 import { AdventFunction } from "../common/types";
 
@@ -45,28 +46,28 @@ const day4: AdventFunction = (filename = "./src/day4/input.txt") =>
   new Promise((resolve) => {
     let numberThatHaveContainment = 0;
     let numberThatHaveOverlap = 0;
-    processFile(
-      filename,
-      (line) => {
-        const ranges = parseRanges(line);
 
-        if (ranges.length !== 2) {
-          simpleLogger.warn("A line contained unexpected number of ranges");
-          return;
-        }
+    var r = readline.createInterface({
+      input: fs.createReadStream(filename),
+    });
+    r.on("line", (line) => {
+      const ranges = parseRanges(line);
 
-        if (oneRangeContainsAnother(ranges[0], ranges[1])) {
-          numberThatHaveContainment++;
-        }
-
-        if (anyRangeOverlap(ranges[0], ranges[1])) {
-          numberThatHaveOverlap++;
-        }
-      },
-      () => {
-        resolve([numberThatHaveContainment, numberThatHaveOverlap]);
+      if (ranges.length !== 2) {
+        simpleLogger.warn("A line contained unexpected number of ranges");
+        return;
       }
-    );
+
+      if (oneRangeContainsAnother(ranges[0], ranges[1])) {
+        numberThatHaveContainment++;
+      }
+
+      if (anyRangeOverlap(ranges[0], ranges[1])) {
+        numberThatHaveOverlap++;
+      }
+    }).on("close", () => {
+      resolve([numberThatHaveContainment, numberThatHaveOverlap]);
+    });
   });
 
 export default day4;
