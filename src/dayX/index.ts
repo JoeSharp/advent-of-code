@@ -1,6 +1,6 @@
 import { AdventFunction } from "../common/types";
 
-const dayX: AdventFunction = () => {
+const dayX: AdventFunction = (filename = "./src/dayX/input.txt") => {
   return new Promise((resolve) => {
     resolve([1, 1]);
   });
