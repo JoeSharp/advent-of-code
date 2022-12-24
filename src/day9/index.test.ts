@@ -1,4 +1,5 @@
 import day9, {
+  countTailPositions,
   denormalisePosition,
   Direction,
   followHead,
@@ -10,15 +11,29 @@ import day9, {
 describe("day9", () => {
   describe("Day 9", () => {
     it("handles demo input for part 1 correctly", async () => {
-      const [part1] = await day9("./src/day9/testInput.txt");
+      const [part1] = await day9("./src/day9/testInput1.txt");
 
       expect(part1).toBe(13);
     });
 
     it("handles demo input for part 2 correctly", async () => {
-      const [, part2] = await day9("./src/day9/testInput.txt");
+      const [, part2] = await day9("./src/day9/testInput2.txt");
 
-      expect(part2).toBe(1);
+      expect(part2).toBe(36);
+    });
+  });
+
+  describe("countTailPositions", () => {
+    it("handles demo input for part 1 correctly", async () => {
+      const part1 = await countTailPositions("./src/day9/testInput1.txt", 2);
+
+      expect(part1).toBe(13);
+    });
+
+    it("handles demo input for part 2 correctly", async () => {
+      const part2 = await countTailPositions("./src/day9/testInput2.txt", 10);
+
+      expect(part2).toBe(36);
     });
   });
 
@@ -67,6 +82,7 @@ describe("day9", () => {
       ${{ x: 1, y: 3 }} | ${{ x: 1, y: 1 }} | ${{ x: 1, y: 2 }}
       ${{ x: 2, y: 1 }} | ${{ x: 1, y: 2 }} | ${{ x: 1, y: 2 }}
       ${{ x: 3, y: 2 }} | ${{ x: 1, y: 3 }} | ${{ x: 2, y: 2 }}
+      ${{ x: 3, y: 3 }} | ${{ x: 5, y: 5 }} | ${{ x: 4, y: 4 }}
     `("H: $head, T: $tail -> $expected", ({ head, tail, expected }) => {
       const result = followHead(head, tail);
       expect(result).toStrictEqual(expected);

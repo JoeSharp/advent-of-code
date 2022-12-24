@@ -1,5 +1,6 @@
 import * as fs from "fs";
 import readline from "readline";
+import { numericSort } from "../common/numericUtils";
 import simpleLogger from "../common/simpleLogger";
 
 import { AdventFunction } from "../common/types";
@@ -43,28 +44,64 @@ export interface Position {
 
 export const createInitialPosition = (): Position => ({ x: 0, y: 0 });
 
-export const positionToString = ({ x, y }: Position): string => `${x}-${y}`;
+export const positionToString = ({ x, y }: Position): string => `${x},${y}`;
 
 export interface RopeState {
-  head: Position;
-  tail: Position;
+  knots: Position[];
   tailHistory: Position[];
 }
 
-export const ropeStateToString = ({
-  head,
-  tail,
-  tailHistory,
-}: RopeState): string =>
-  `H: ${head.x},${head.y}, T: ${tail.x},${tail.y}, History: ${tailHistory
-    .map(positionToString)
-    .join("->")}`;
+export const positionsToGridString = (
+  tailHistory: Position[],
+  useNumbers: boolean = false,
+  bottomLeft: Position = { x: 0, y: 0 },
+  topRight: Position = { x: 10, y: 10 }
+): string => {
+  const xValues = tailHistory.map(({ x }) => x).sort(numericSort);
+  const yValues = tailHistory.map(({ y }) => y).sort(numericSort);
 
-const createInitialRopeState = (): RopeState => ({
-  head: createInitialPosition(),
-  tail: createInitialPosition(),
-  tailHistory: [createInitialPosition()],
-});
+  const minX = Math.min(bottomLeft.x, xValues[0]);
+  const minY = Math.min(bottomLeft.y, yValues[0]);
+
+  const maxX = Math.max(topRight.x, xValues[xValues.length - 1]);
+  const maxY = Math.max(topRight.y, yValues[yValues.length - 1]);
+
+  const rows: string[] = [];
+  for (let y = minY; y <= maxY; y++) {
+    let row = "";
+    for (let x = minX; x <= maxX; x++) {
+      let occupied = tailHistory.findIndex(
+        (position) => position.x === x && position.y === y
+      );
+      row +=
+        occupied >= 0
+          ? useNumbers
+            ? occupied === 0
+              ? "H"
+              : occupied
+            : "#"
+          : ".";
+    }
+    rows.push(row);
+  }
+
+  return (
+    rows.reverse().join("\n") +
+    `\n${tailHistory.map(positionToString).join("->")}`
+  );
+};
+
+export const ropeStateToString = ({ knots, tailHistory }: RopeState): string =>
+  knots.map((k, i) => `${i === 0 ? "H" : i}: ${positionToString(k)}`).join(",");
+
+const createInitialRopeState = (knots: number): RopeState => {
+  if (knots < 2) throw new Error("Cannot have a rope with less than 2 knots");
+
+  return {
+    knots: Array.from({ length: knots }).map(() => createInitialPosition()),
+    tailHistory: [createInitialPosition()],
+  };
+};
 
 export const pullKnot = (
   { x, y }: Position,
@@ -111,6 +148,11 @@ export const denormalisePosition = (
 });
 
 const TAIL_FROM_TO: Map<string, Position> = new Map();
+TAIL_FROM_TO.set(positionToString({ x: -2, y: -2 }), { x: -1, y: -1 });
+TAIL_FROM_TO.set(positionToString({ x: -2, y: 2 }), { x: -1, y: 1 });
+TAIL_FROM_TO.set(positionToString({ x: 2, y: 2 }), { x: 1, y: 1 });
+TAIL_FROM_TO.set(positionToString({ x: 2, y: -2 }), { x: 1, y: -1 });
+
 TAIL_FROM_TO.set(positionToString({ x: -1, y: -2 }), { x: 0, y: -1 });
 TAIL_FROM_TO.set(positionToString({ x: 0, y: -2 }), { x: 0, y: -1 });
 TAIL_FROM_TO.set(positionToString({ x: 1, y: -2 }), { x: 0, y: -1 });
@@ -142,22 +184,41 @@ export const pullRopeStep = (
   state: RopeState,
   direction: Direction
 ): RopeState => {
-  const head = pullKnot(state.head, direction);
-  const tail = followHead(head, state.tail);
-  const tailHistory = [...state.tailHistory, tail];
+  const knots = [pullKnot(state.knots[0], direction)];
 
-  return { head, tail, tailHistory };
+  for (let i = 1; i < state.knots.length; i++) {
+    const nextKnot = followHead(knots[i - 1], state.knots[i]);
+    knots.push(nextKnot);
+  }
+
+  const tailHistory = [...state.tailHistory, knots[knots.length - 1]];
+
+  simpleLogger.debug("\n" + positionsToGridString(knots, true));
+
+  return { knots, tailHistory };
 };
 
-export const pullRope = (state: RopeState, ropePull: RopePull): RopeState =>
-  Array.from({ length: ropePull.amount }, (_, i) => i).reduce(
+export const pullRope = (state: RopeState, ropePull: RopePull): RopeState => {
+  simpleLogger.debug(
+    `Pulling Rope: ${ropePull.direction} by ${ropePull.amount} units`
+  );
+
+  const newState = Array.from({ length: ropePull.amount }, (_, i) => i).reduce(
     (acc, _) => pullRopeStep(acc, ropePull.direction),
     state
   );
 
-const day9: AdventFunction = (filename = "./src/day9/input.txt") => {
-  return new Promise((resolve) => {
-    let ropeState = createInitialRopeState();
+  // simpleLogger.debug("\n" + positionsToGridString(newState.knots, true));
+
+  return newState;
+};
+
+export const countTailPositions = async (
+  filename: string,
+  knots: number
+): Promise<number> =>
+  new Promise<number>((resolve) => {
+    let ropeState = createInitialRopeState(knots);
 
     readline
       .createInterface({
@@ -170,14 +231,26 @@ const day9: AdventFunction = (filename = "./src/day9/input.txt") => {
         simpleLogger.debug(`Rope State ${ropeStateToString(ropeState)}`);
       })
       .on("close", () => {
+        simpleLogger.debug(`Rope Position ${knots}`);
+        simpleLogger.debug("\n" + positionsToGridString(ropeState.knots, true));
+
+        simpleLogger.debug(`Tail History for ${knots}`);
+        simpleLogger.debug("\n" + positionsToGridString(ropeState.tailHistory));
+
         const tailPositions: Set<string> = new Set();
         ropeState.tailHistory
           .map(positionToString)
           .forEach((p) => tailPositions.add(p));
 
-        resolve([tailPositions.size, 1]);
+        resolve(tailPositions.size);
       });
   });
+
+const day9: AdventFunction = async (filename = "./src/day9/input.txt") => {
+  let ropePartOne = await countTailPositions(filename, 2);
+  let ropePartTwo = await countTailPositions(filename, 10);
+
+  return [ropePartOne, ropePartTwo];
 };
 
 export default day9;
