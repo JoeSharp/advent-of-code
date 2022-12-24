@@ -128,10 +128,43 @@ export const countSignalStrength = async (
   return total;
 };
 
+export const SPRITE_PRESENT = "#";
+export const SPRITE_NOT_PRESENT = ".";
+
+export const composeImage = async (
+  filename: string,
+  pixelsPerRow: number
+): Promise<string[]> => {
+  let image: string[] = [];
+
+  let row = "";
+
+  await processCpuFile(filename, ({ registerX, cycle }) => {
+    let pixelPosition = cycle % pixelsPerRow;
+
+    if (Math.abs(registerX - (pixelPosition - 1)) <= 1) {
+      row += SPRITE_PRESENT;
+    } else {
+      row += SPRITE_NOT_PRESENT;
+    }
+
+    if (pixelPosition === 0) {
+      image.push(row);
+      row = "";
+    }
+
+    simpleLogger.debug(`During Cycle ${cycle} register is ${registerX}`);
+    simpleLogger.debug(`Current CRT row: ${row}`);
+  });
+
+  return image;
+};
+
 const day10: AdventFunction = async (filename = "./src/day10/input.txt") => {
   const partOne = await countSignalStrength(filename, 20, 40);
+  const partTwo = await composeImage(filename, 40);
 
-  return [partOne, 1];
+  return [partOne, "\n" + partTwo.join("\n")];
 };
 
 export default day10;

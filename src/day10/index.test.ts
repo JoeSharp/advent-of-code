@@ -1,4 +1,4 @@
-import day10, { CommandType, parseCommand } from "./index";
+import day10, { CommandType, composeImage, parseCommand } from "./index";
 
 describe("day10", () => {
   describe("Day X", () => {
@@ -11,7 +11,31 @@ describe("day10", () => {
     it("handles demo input for part 2 correctly", async () => {
       const [, part2] = await day10("./src/day10/testInput.txt");
 
-      expect(part2).toBe(1);
+      expect(part2).toStrictEqual(
+        "\n" +
+          [
+            "##..##..##..##..##..##..##..##..##..##..",
+            "###...###...###...###...###...###...###.",
+            "####....####....####....####....####....",
+            "#####.....#####.....#####.....#####.....",
+            "######......######......######......###.", // The site things this last one should be a #?
+            "#######.......#######.......#######.....",
+          ].join("\n")
+      );
+    });
+  });
+
+  describe("composeImage", () => {
+    it("works on test data", async () => {
+      const result = await composeImage("./src/day10/testInput.txt", 40);
+      expect(result).toStrictEqual([
+        "##..##..##..##..##..##..##..##..##..##..",
+        "###...###...###...###...###...###...###.",
+        "####....####....####....####....####....",
+        "#####.....#####.....#####.....#####.....",
+        "######......######......######......###.",
+        "#######.......#######.......#######.....",
+      ]);
     });
   });
 
