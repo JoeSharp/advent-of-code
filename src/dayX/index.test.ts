@@ -1,7 +1,7 @@
 import dayX from "./index";
 
 describe("dayX", () => {
-  describe("Day X", () => {
+  describe("dayX", () => {
     it("handles demo input for part 1 correctly", async () => {
       const [part1] = await dayX("./src/dayX/testInput.txt");
 
