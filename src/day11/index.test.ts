@@ -1,4 +1,3 @@
-import simpleLogger from "../common/simpleLogger";
 import day11, {
   loadMonkeysFromFile,
   parseJaml,
@@ -17,7 +16,7 @@ describe("day11", () => {
     it("handles demo input for part 2 correctly", async () => {
       const [, part2] = await day11("./src/day11/testInput.txt");
 
-      expect(part2).toBe(1);
+      expect(part2).toBe(2713310158);
     });
   });
 
@@ -79,13 +78,13 @@ describe("day11", () => {
     });
   });
 
-  describe.only("parseOperation", () => {
+  describe("parseOperation", () => {
     it.each`
-      input         | testValue | expected
-      ${"old * 19"} | ${4}      | ${76}
-      ${"old + 13"} | ${10}     | ${23}
-      ${"old / 4"}  | ${120}    | ${30}
-      ${"old + 80"} | ${120}    | ${200}
+      input               | testValue | expected
+      ${"new = old * 19"} | ${4}      | ${76}
+      ${"new = old + 13"} | ${10}     | ${23}
+      ${"new = old / 4"}  | ${120}    | ${30}
+      ${"new = old + 80"} | ${120}    | ${200}
     `("$input", ({ input, testValue, expected }) => {
       const op = parseOperation(input);
       const result = op(testValue);
@@ -99,7 +98,7 @@ describe("day11", () => {
       expect(monkeys).toHaveLength(4);
 
       const monkey0 = monkeys[0];
-      expect(monkey0.startingItems).toStrictEqual([79, 98]);
+      expect(monkey0.itemsHeld).toStrictEqual([79, 98]);
       expect(monkey0.testDivisibleBy).toBe(23);
       expect(monkey0.ifTrueThrowTo).toBe(2);
       expect(monkey0.ifFalseThrowTo).toBe(3);
