@@ -1,6 +1,7 @@
 import { AdventFunction } from "../common/types";
 import * as fs from "fs";
 import readline from "readline";
+import { PriorityQueue } from "../common/buffers";
 
 export interface Position {
   key: string;
@@ -114,6 +115,27 @@ export const identifyValidNextSteps = (
 };
 
 export const findShortestPath = (heightMap: HeightMap): Position[] => {
+  let visited = new Set<string>();
+  let routeTable = new Map<
+    string,
+    {
+      viaNode: string;
+      distance: number;
+    }
+  >();
+  let nextToVisit = new PriorityQueue<Position>();
+
+  nextToVisit.push(heightMap.start, 0);
+
+  while (!nextToVisit.isEmpty()) {
+    let current = nextToVisit.pop();
+
+    // Find unvisited neighbours
+    let potentialNextSteps = identifyValidNextSteps(heightMap, current).filter(
+      (o) => !visited.has(o.key)
+    );
+  }
+
   return [];
 };
 
