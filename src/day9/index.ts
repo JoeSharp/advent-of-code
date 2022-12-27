@@ -37,25 +37,25 @@ export const parseRopePull = (input: string): RopePull => {
   };
 };
 
-export interface Position {
+export interface Coordinate {
   x: number;
   y: number;
 }
 
-export const createInitialPosition = (): Position => ({ x: 0, y: 0 });
+export const createInitialPosition = (): Coordinate => ({ x: 0, y: 0 });
 
-export const positionToString = ({ x, y }: Position): string => `${x},${y}`;
+export const positionToString = ({ x, y }: Coordinate): string => `${x},${y}`;
 
 export interface RopeState {
-  knots: Position[];
-  tailHistory: Position[];
+  knots: Coordinate[];
+  tailHistory: Coordinate[];
 }
 
 export const positionsToGridString = (
-  tailHistory: Position[],
+  tailHistory: Coordinate[],
   useNumbers: boolean = false,
-  bottomLeft: Position = { x: 0, y: 0 },
-  topRight: Position = { x: 10, y: 10 }
+  bottomLeft: Coordinate = { x: 0, y: 0 },
+  topRight: Coordinate = { x: 10, y: 10 }
 ): string => {
   const xValues = tailHistory.map(({ x }) => x).sort(numericSort);
   const yValues = tailHistory.map(({ y }) => y).sort(numericSort);
@@ -104,9 +104,9 @@ const createInitialRopeState = (knots: number): RopeState => {
 };
 
 export const pullKnot = (
-  { x, y }: Position,
+  { x, y }: Coordinate,
   direction: Direction
-): Position => {
+): Coordinate => {
   switch (direction) {
     case Direction.up:
       return {
@@ -132,22 +132,22 @@ export const pullKnot = (
 };
 
 export const normalisePosition = (
-  position: Position,
-  relativeTo: Position
-): Position => ({
+  position: Coordinate,
+  relativeTo: Coordinate
+): Coordinate => ({
   x: position.x - relativeTo.x,
   y: position.y - relativeTo.y,
 });
 
 export const denormalisePosition = (
-  position: Position,
-  relativeTo: Position
-): Position => ({
+  position: Coordinate,
+  relativeTo: Coordinate
+): Coordinate => ({
   x: position.x + relativeTo.x,
   y: position.y + relativeTo.y,
 });
 
-const TAIL_FROM_TO: Map<string, Position> = new Map();
+const TAIL_FROM_TO: Map<string, Coordinate> = new Map();
 TAIL_FROM_TO.set(positionToString({ x: -2, y: -2 }), { x: -1, y: -1 });
 TAIL_FROM_TO.set(positionToString({ x: -2, y: 2 }), { x: -1, y: 1 });
 TAIL_FROM_TO.set(positionToString({ x: 2, y: 2 }), { x: 1, y: 1 });
@@ -169,7 +169,7 @@ TAIL_FROM_TO.set(positionToString({ x: 2, y: -1 }), { x: 1, y: 0 });
 TAIL_FROM_TO.set(positionToString({ x: 2, y: 0 }), { x: 1, y: 0 });
 TAIL_FROM_TO.set(positionToString({ x: 2, y: 1 }), { x: 1, y: 0 });
 
-export const followHead = (head: Position, tail: Position): Position => {
+export const followHead = (head: Coordinate, tail: Coordinate): Coordinate => {
   const normalisedTail = normalisePosition(tail, head);
 
   const newNormalised = TAIL_FROM_TO.get(positionToString(normalisedTail));
@@ -231,7 +231,7 @@ export const countTailPositions = async (
         simpleLogger.debug(`Rope State ${ropeStateToString(ropeState)}`);
       })
       .on("close", () => {
-        simpleLogger.debug(`Rope Position ${knots}`);
+        simpleLogger.debug(`Rope Coordinate ${knots}`);
         simpleLogger.debug("\n" + positionsToGridString(ropeState.knots, true));
 
         simpleLogger.debug(`Tail History for ${knots}`);
