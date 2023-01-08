@@ -1,13 +1,14 @@
 import day12, {
   convertHeightValue,
   createPosition,
-  findShortestPath,
-  identifyValidNextSteps,
+  findShortestPathFromAnyLowElevation,
+  findShortestPathFromStart,
+  identifyValidNextStepsGoingUp,
   loadHeightMap,
 } from "./index";
 
 describe("day12", () => {
-  describe.skip("day12", () => {
+  describe("day12", () => {
     it("handles demo input for part 1 correctly", async () => {
       const [part1] = await day12("./src/day12/testInput.txt");
 
@@ -17,7 +18,7 @@ describe("day12", () => {
     it("handles demo input for part 2 correctly", async () => {
       const [, part2] = await day12("./src/day12/testInput.txt");
 
-      expect(part2).toBe(1);
+      expect(part2).toBe(29);
     });
   });
 
@@ -35,14 +36,25 @@ describe("day12", () => {
     });
   });
 
-  describe("findShortestPath", () => {
+  describe("findShortestPathFromStart", () => {
     it("finds shortest path in test data", async () => {
       const heightMap = await loadHeightMap("./src/day12/testInput.txt");
-      const shortestPath = findShortestPath(heightMap);
+      const shortestPath = findShortestPathFromStart(heightMap);
+
+      expect(shortestPath.length).toBe(31);
     });
   });
 
-  describe("identifyValidNextSteps", () => {
+  describe.only("findShortestPathFromAnyLowElevation", () => {
+    it("finds shortest path in test data", async () => {
+      const heightMap = await loadHeightMap("./src/day12/testInput.txt");
+      const shortestPath = findShortestPathFromAnyLowElevation(heightMap);
+
+      expect(shortestPath.length).toBe(29);
+    });
+  });
+
+  describe("identifyValidNextStepsGoingUp", () => {
     it.each`
       position                 | expectedKeys
       ${{ row: 0, column: 0 }} | ${["1-0", "0-1"]}
@@ -57,9 +69,10 @@ describe("day12", () => {
       async ({ position: { row, column }, expectedKeys }) => {
         const heightMap = await loadHeightMap("./src/day12/testInput.txt");
         const position = createPosition(row, column);
-        const nextStepKeys = identifyValidNextSteps(heightMap, position).map(
-          ({ key }) => key
-        );
+        const nextStepKeys = identifyValidNextStepsGoingUp(
+          heightMap,
+          position
+        ).map(({ key }) => key);
         expectedKeys.forEach((ex: string) =>
           expect(nextStepKeys).toContain(ex)
         );
