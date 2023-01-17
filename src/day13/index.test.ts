@@ -34,9 +34,14 @@ describe("day13", () => {
       expect(part2).toBe(1);
     });
     it("handles first 10 of real input for part 2 correctly", async () => {
-      const [, part2] = await day13(TEST_FILENAME);
+      const [, part2] = await day13(REAL_FIRST_10_FILENAME);
 
       expect(part2).toBe(78);
+    });
+    it("handles first 10 of real input for part 2 correctly", async () => {
+      const [, part2] = await day13(REAL_FILENAME);
+
+      expect(part2).toBe(19305);
     });
   });
 
