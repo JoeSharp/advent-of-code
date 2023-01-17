@@ -9,6 +9,8 @@ export type PacketPair = [Packet, Packet];
 
 export const itemsInRightOrder = (a: Packet | number, b: Packet | number) => {};
 
+export const parsePacket = (line: string): Packet => JSON.parse(line) as Packet;
+
 export const packetsInRightOrder = (
   left: Packet,
   right: Packet,
@@ -100,8 +102,8 @@ export const parseDistressSignalFile = async (
       3,
       (lines: string[]) => {
         try {
-          const packet1 = JSON.parse(lines[0]) as Packet;
-          const packet2 = JSON.parse(lines[1]) as Packet;
+          const packet1 = parsePacket(lines[0]);
+          const packet2 = parsePacket(lines[1]);
 
           packetPairs.push([packet1, packet2]);
         } catch (e) {
@@ -117,10 +119,18 @@ export const parseDistressSignalFile = async (
 export const whichPacketsInRightOrder = (
   packetPairs: PacketPair[]
 ): number[] => {
-  return packetPairs
-    .map((pair, index) => ({ pair, index }))
-    .filter(({ pair: [left, right] }) => packetsInRightOrder(left, right))
-    .map(({ index }) => index);
+  return (
+    packetPairs
+      .map((pair, index) => ({ pair, index: index + 1 }))
+      // .filter(({ index }) => index < 3)
+      .filter(({ pair: [left, right] }) => {
+        const result = packetsInRightOrder(left, right);
+        // simpleLogger.info("Left: ", left);
+        // simpleLogger.info("Right: ", right);
+        return result;
+      })
+      .map(({ index }) => index)
+  );
 };
 
 const day13: AdventFunction = async (filename = "./src/day13/input.txt") => {
@@ -128,7 +138,7 @@ const day13: AdventFunction = async (filename = "./src/day13/input.txt") => {
 
   const pairsInRightOrder = whichPacketsInRightOrder(packetPairs);
 
-  const partOne = pairsInRightOrder.reduce((acc, curr) => acc + curr + 1, 0);
+  const partOne = pairsInRightOrder.reduce((acc, curr) => acc + curr, 0);
 
   return [partOne, 1];
 };

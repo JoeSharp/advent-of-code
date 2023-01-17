@@ -53,8 +53,15 @@ def part1(pairs: list[list[int, ...]]) -> int:
     """Solve part 1"""
     sum_of_indices: int = 0
     for idx, pair in enumerate(pairs):
+        if idx > 10:
+            break
+        print("Left:", pair[0])
+        print("Right:", pair[1])
         if compare_packets(*pair) == 1:
             sum_of_indices += idx + 1
+            print("IN Order")
+        else:
+            print("Not in order")
     return sum_of_indices
 
 
