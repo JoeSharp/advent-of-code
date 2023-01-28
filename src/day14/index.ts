@@ -3,14 +3,55 @@ import simpleLogger from "../common/simpleLogger";
 import * as fs from "fs";
 import readline from "readline";
 import { AdventFunction } from "../common/types";
-import { Point2D } from "../common/geometry";
+import { isSamePoint, Point2D } from "../common/geometry";
 
 export const SAND_SOURCE: Point2D = {
   x: 500,
   y: 0,
 };
 
+export enum OccupiedBy {
+  rock = "#",
+  sand = "o",
+  air = ".",
+}
+
 export type RockPath = Point2D[];
+
+export function rockMapToString(
+  rockMap: RockMap,
+  ingressPoint: Point2D
+): string {
+  const points = [ingressPoint, ...[...rockMap.contents].map(parseRockPoint)];
+  const minX = points
+    .map(({ x }) => x)
+    .reduce((acc, curr) => (isNaN(acc) ? curr : curr < acc ? curr : acc), NaN);
+  const maxX = points
+    .map(({ x }) => x)
+    .reduce((acc, curr) => (isNaN(acc) ? curr : curr > acc ? curr : acc), NaN);
+  const minY = points
+    .map(({ y }) => y)
+    .reduce((acc, curr) => (isNaN(acc) ? curr : curr < acc ? curr : acc), NaN);
+  const maxY = points
+    .map(({ y }) => y)
+    .reduce((acc, curr) => (isNaN(acc) ? curr : curr > acc ? curr : acc), NaN);
+
+  let asString = `Lowest Point: ${rockMap.lowestPoint}, MinX: ${minX}, MaxX: ${maxX}, MinY: ${minY}, MaxY:${maxY}\n`;
+  for (let y = minY; y <= maxY; y++) {
+    for (let x = minX; x <= maxX; x++) {
+      let point = { x, y };
+      if (isSamePoint(point, ingressPoint)) {
+        asString += "I";
+      } else {
+        asString += occupiedBy(rockMap, point);
+      }
+    }
+
+    asString += "\n";
+  }
+
+  return asString;
+}
 
 export const rockPointToString = ({ x, y }: Point2D) => `${x},${y}`;
 
@@ -19,6 +60,7 @@ export const rockPointToString = ({ x, y }: Point2D) => `${x},${y}`;
  * We will use a Set of string representations for all the occupied ones.
  */
 export type RockMap = {
+  originalContents: Set<String>;
   contents: Set<string>;
   lowestPoint: number;
 };
@@ -54,6 +96,7 @@ export function findPointsOnPath(pointA: Point2D, pointB: Point2D): Point2D[] {
  */
 export function createRockMap(paths: RockPath[]): RockMap {
   const contents = new Set<string>();
+  const originalContents = new Set<string>();
   let lowestPoint = 0;
 
   paths.forEach((path) => {
@@ -63,11 +106,14 @@ export function createRockMap(paths: RockPath[]): RockMap {
           lowestPoint = Math.max(p.y, lowestPoint);
           return rockPointToString(p);
         })
-        .forEach((p) => contents.add(p));
+        .forEach((p) => {
+          contents.add(p);
+          originalContents.add(p);
+        });
     }
   });
 
-  return { contents, lowestPoint };
+  return { contents, originalContents, lowestPoint };
 }
 
 /**
@@ -77,8 +123,18 @@ export function createRockMap(paths: RockPath[]): RockMap {
  * @param point The point under evaluation
  * @returns True if that point is occupied by rock
  */
-export function isOccupied({ contents }: RockMap, point: Point2D): boolean {
-  return contents.has(rockPointToString(point));
+export function occupiedBy(
+  { contents, originalContents }: RockMap,
+  point: Point2D
+): OccupiedBy {
+  const rockStr = rockPointToString(point);
+  if (originalContents.has(rockStr)) {
+    return OccupiedBy.rock;
+  } else if (contents.has(rockStr)) {
+    return OccupiedBy.sand;
+  } else {
+    return OccupiedBy.air;
+  }
 }
 
 /**
@@ -105,7 +161,7 @@ export function getNextPoint(
   // Find first of those spots that is not occupied
   return [point.x, point.x - 1, point.x + 1]
     .map((x) => ({ x, y: point.y + 1 }))
-    .find((p) => !isOccupied(rockMap, p));
+    .find((p) => occupiedBy(rockMap, p) === OccupiedBy.air);
 }
 
 /**
@@ -162,11 +218,16 @@ export function loadRockMap(filename: string): Promise<RockMap> {
 
 /**
  * Drops a blob of sand into the given rock structure from a set point.
+ * In this scenario, below the scanned structure is an abyss.
+ *
  * @param rockMap The rock map on which to operate. The map is mutated by this operation
  * @param startingPoint The point at which the sand is being dropped
- * @returns Boolean to indicate if the sand settled.
+ * @returns Boolean to indicate if the sand settled. True = settled, False = fell into abyss
  */
-export function dropSand(rockMap: RockMap, ingressPoint: Point2D): boolean {
+export function dropSandToFallThrough(
+  rockMap: RockMap,
+  ingressPoint: Point2D
+): boolean {
   let currentLocation = { ...ingressPoint };
 
   while (currentLocation.y < rockMap.lowestPoint) {
@@ -185,6 +246,7 @@ export function dropSand(rockMap: RockMap, ingressPoint: Point2D): boolean {
 }
 
 /**
+ * Keeps dropping sand until a bit falls into the abyss.
  *
  * @param rockMap The rock map on which to operate, it will be mutated by this operation
  * @param ingressPoint
@@ -196,11 +258,52 @@ export function dropSandUntilFallThrough(
   let settled = false;
   let numberOfGrains = 0;
   do {
-    settled = dropSand(rockMap, ingressPoint);
+    settled = dropSandToFallThrough(rockMap, ingressPoint);
     if (settled) {
       numberOfGrains++;
     }
   } while (settled);
+
+  return numberOfGrains;
+}
+
+/**
+ * Drops a blob of sand into the given rock structure from a set point.
+ * In this scenario, there is an infinitely wide floor 2 block below the lowest measured structure.
+ *
+ * @param rockMap The rock map on which to operate. The map is mutated by this operation
+ * @param startingPoint The point at which the sand is being dropped
+ */
+export function dropSandToHitFloor(rockMap: RockMap, ingressPoint: Point2D) {
+  let currentLocation = { ...ingressPoint };
+
+  while (currentLocation.y < rockMap.lowestPoint + 1) {
+    const nextPoint = getNextPoint(rockMap, currentLocation);
+
+    // If there is no 'next point', the sand must have settled
+    if (nextPoint === undefined) {
+      break;
+    }
+
+    currentLocation = nextPoint;
+  }
+  occupyRockPoint(rockMap, currentLocation);
+}
+
+/**
+ * Keeps dropping sand until the ingress point is plugged
+ * @param rockMap The rock map on which to operate, it will be mutated by this operation
+ * @param ingressPoint
+ */
+export function dropSandUntilGapPlugged(
+  rockMap: RockMap,
+  ingressPoint: Point2D
+): number {
+  let numberOfGrains = 0;
+  while (occupiedBy(rockMap, ingressPoint) === OccupiedBy.air) {
+    dropSandToHitFloor(rockMap, ingressPoint);
+    numberOfGrains++;
+  }
 
   return numberOfGrains;
 }
@@ -211,10 +314,13 @@ export const SAND_STARTING_POINT: Point2D = {
 };
 
 const day14: AdventFunction = async (filename = "./src/day14/input.txt") => {
-  const rockMap = await loadRockMap(filename);
-  const partOne = dropSandUntilFallThrough(rockMap, SAND_STARTING_POINT);
+  const rockMap1 = await loadRockMap(filename);
+  const partOne = dropSandUntilFallThrough(rockMap1, SAND_STARTING_POINT);
 
-  return [partOne, 1];
+  const rockMap2 = await loadRockMap(filename);
+  const partTwo = dropSandUntilGapPlugged(rockMap2, SAND_STARTING_POINT);
+
+  return [partOne, partTwo];
 };
 
 export default day14;

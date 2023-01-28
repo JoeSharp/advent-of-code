@@ -1,17 +1,19 @@
-import { Point2D } from "../common/geometry";
 import day14, {
   createRockMap,
-  dropSand,
+  dropSandToFallThrough,
+  dropSandToHitFloor,
   dropSandUntilFallThrough,
+  dropSandUntilGapPlugged,
   findPointsOnPath,
   getNextPoint,
-  isOccupied,
+  occupiedBy,
   loadRockMap,
   parseRockPath,
   parseRockPoint,
   RockMap,
   rockPointToString,
   SAND_STARTING_POINT,
+  OccupiedBy,
 } from "./index";
 
 const TEST_INPUT_FILE = "./src/day14/testInput.txt";
@@ -27,7 +29,7 @@ describe("day14", () => {
     it("handles demo input for part 2 correctly", async () => {
       const [, part2] = await day14(TEST_INPUT_FILE);
 
-      expect(part2).toBe(1);
+      expect(part2).toBe(93);
     });
   });
 
@@ -41,15 +43,39 @@ describe("day14", () => {
     });
   });
 
-  describe("dropSand", () => {
+  describe("dropSandUntilGapPlugged", () => {
+    it("drops correct number of sand until full", async () => {
+      const rockMap = await loadRockMap(TEST_INPUT_FILE);
+
+      const result = dropSandUntilGapPlugged(rockMap, SAND_STARTING_POINT);
+
+      expect(result).toBe(93);
+    });
+  });
+
+  describe("dropSandToFallThrough", () => {
     it("drops sand and settles correctly", async () => {
       const rockMap = await loadRockMap(TEST_INPUT_FILE);
 
-      expect(isOccupied(rockMap, { x: 500, y: 8 })).toBeFalsy();
-      const result = dropSand(rockMap, SAND_STARTING_POINT);
+      expect(occupiedBy(rockMap, { x: 500, y: 8 })).toBe(OccupiedBy.air);
+      const result = dropSandToFallThrough(rockMap, SAND_STARTING_POINT);
 
       expect(result).toBeTruthy();
-      expect(isOccupied(rockMap, { x: 500, y: 8 })).toBeTruthy();
+      expect(occupiedBy(rockMap, { x: 500, y: 8 })).toBe(OccupiedBy.sand);
+    });
+
+    it("allows sand to fall through correctly", () => {});
+  });
+
+  describe("dropSandToHitFloor", () => {
+    it("drops sand and settles correctly", async () => {
+      const rockMap = await loadRockMap(TEST_INPUT_FILE);
+
+      expect(occupiedBy(rockMap, { x: 500, y: 8 })).toBe(OccupiedBy.air);
+      const result = dropSandToHitFloor(rockMap, SAND_STARTING_POINT);
+
+      expect(result).toBeFalsy();
+      expect(occupiedBy(rockMap, { x: 500, y: 8 })).toBe(OccupiedBy.sand);
     });
 
     it("allows sand to fall through correctly", () => {});
@@ -105,6 +131,7 @@ describe("day14", () => {
     it("Locates the next space when there is space directly below", () => {
       const rockMap: RockMap = {
         contents: new Set<string>(),
+        originalContents: new Set<string>(),
         lowestPoint: 0,
       };
 
@@ -124,6 +151,7 @@ describe("day14", () => {
     it("Locates the next space when there is space to the left", () => {
       const rockMap: RockMap = {
         contents: new Set<string>(),
+        originalContents: new Set<string>(),
         lowestPoint: 0,
       };
 
@@ -143,6 +171,7 @@ describe("day14", () => {
     it("Locates the next space when there is space to the right", () => {
       const rockMap: RockMap = {
         contents: new Set<string>(),
+        originalContents: new Set<string>(),
         lowestPoint: 0,
       };
 
@@ -218,29 +247,29 @@ describe("day14", () => {
       ]);
 
       expect(result.lowestPoint).toBe(9);
-      expect(isOccupied(result, { x: 498, y: 4 })).toBeTruthy();
-      expect(isOccupied(result, { x: 498, y: 5 })).toBeTruthy();
-      expect(isOccupied(result, { x: 498, y: 6 })).toBeTruthy();
-      expect(isOccupied(result, { x: 497, y: 6 })).toBeTruthy();
-      expect(isOccupied(result, { x: 496, y: 6 })).toBeTruthy();
-      expect(isOccupied(result, { x: 496, y: 3 })).toBeFalsy();
+      expect(occupiedBy(result, { x: 498, y: 4 })).toBe(OccupiedBy.rock);
+      expect(occupiedBy(result, { x: 498, y: 5 })).toBe(OccupiedBy.rock);
+      expect(occupiedBy(result, { x: 498, y: 6 })).toBe(OccupiedBy.rock);
+      expect(occupiedBy(result, { x: 497, y: 6 })).toBe(OccupiedBy.rock);
+      expect(occupiedBy(result, { x: 496, y: 6 })).toBe(OccupiedBy.rock);
+      expect(occupiedBy(result, { x: 496, y: 3 })).toBe(OccupiedBy.air);
 
-      expect(isOccupied(result, { x: 503, y: 4 })).toBeTruthy();
-      expect(isOccupied(result, { x: 502, y: 4 })).toBeTruthy();
-      expect(isOccupied(result, { x: 502, y: 5 })).toBeTruthy();
-      expect(isOccupied(result, { x: 502, y: 6 })).toBeTruthy();
-      expect(isOccupied(result, { x: 502, y: 7 })).toBeTruthy();
-      expect(isOccupied(result, { x: 502, y: 8 })).toBeTruthy();
-      expect(isOccupied(result, { x: 502, y: 9 })).toBeTruthy();
-      expect(isOccupied(result, { x: 501, y: 9 })).toBeTruthy();
-      expect(isOccupied(result, { x: 500, y: 9 })).toBeTruthy();
-      expect(isOccupied(result, { x: 499, y: 9 })).toBeTruthy();
-      expect(isOccupied(result, { x: 498, y: 9 })).toBeTruthy();
-      expect(isOccupied(result, { x: 497, y: 9 })).toBeTruthy();
-      expect(isOccupied(result, { x: 496, y: 9 })).toBeTruthy();
-      expect(isOccupied(result, { x: 495, y: 9 })).toBeTruthy();
-      expect(isOccupied(result, { x: 494, y: 9 })).toBeTruthy();
-      expect(isOccupied(result, { x: 493, y: 9 })).toBeFalsy();
+      expect(occupiedBy(result, { x: 503, y: 4 })).toBe(OccupiedBy.rock);
+      expect(occupiedBy(result, { x: 502, y: 4 })).toBe(OccupiedBy.rock);
+      expect(occupiedBy(result, { x: 502, y: 5 })).toBe(OccupiedBy.rock);
+      expect(occupiedBy(result, { x: 502, y: 6 })).toBe(OccupiedBy.rock);
+      expect(occupiedBy(result, { x: 502, y: 7 })).toBe(OccupiedBy.rock);
+      expect(occupiedBy(result, { x: 502, y: 8 })).toBe(OccupiedBy.rock);
+      expect(occupiedBy(result, { x: 502, y: 9 })).toBe(OccupiedBy.rock);
+      expect(occupiedBy(result, { x: 501, y: 9 })).toBe(OccupiedBy.rock);
+      expect(occupiedBy(result, { x: 500, y: 9 })).toBe(OccupiedBy.rock);
+      expect(occupiedBy(result, { x: 499, y: 9 })).toBe(OccupiedBy.rock);
+      expect(occupiedBy(result, { x: 498, y: 9 })).toBe(OccupiedBy.rock);
+      expect(occupiedBy(result, { x: 497, y: 9 })).toBe(OccupiedBy.rock);
+      expect(occupiedBy(result, { x: 496, y: 9 })).toBe(OccupiedBy.rock);
+      expect(occupiedBy(result, { x: 495, y: 9 })).toBe(OccupiedBy.rock);
+      expect(occupiedBy(result, { x: 494, y: 9 })).toBe(OccupiedBy.rock);
+      expect(occupiedBy(result, { x: 493, y: 9 })).toBe(OccupiedBy.air);
     });
   });
 });
