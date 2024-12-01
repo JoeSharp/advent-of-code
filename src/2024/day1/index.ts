@@ -38,7 +38,7 @@ function calculateSimilarity(left: number[], right: number[]) {
     .reduce((acc, curr) => acc + curr, 0);
 }
 
-const dayX: AdventFunction = async (filename = "./src/2024/day1/input.txt") => {
+const day1: AdventFunction = async (filename = "./src/2024/day1/input.txt") => {
   const [left, right] = await loadRightAndLeftLists(filename);
   const part1 = calculateDistance(left, right);
   const part2 = calculateSimilarity(left, right);
@@ -46,4 +46,4 @@ const dayX: AdventFunction = async (filename = "./src/2024/day1/input.txt") => {
   return [part1, part2];
 };
 
-export default dayX;
+export default day1;
