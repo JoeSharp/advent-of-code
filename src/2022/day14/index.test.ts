@@ -114,12 +114,12 @@ describe("day14", () => {
 
     it("throws error for wrong number of parts", () => {
       expect(() =>
-        parseRockPoint("503,4,8 -> 502,4,7 -> 502,9 -> 494,9")
+        parseRockPoint("503,4,8 -> 502,4,7 -> 502,9 -> 494,9"),
       ).toThrowError();
     });
     it("throws error for invalid numbers", () => {
       expect(() =>
-        parseRockPoint("503,ba -> 502,4 -> 502,cd -> 494,9")
+        parseRockPoint("503,ba -> 502,4 -> 502,cd -> 494,9"),
       ).toThrowError();
     });
     it("throws error for nonsense", () => {

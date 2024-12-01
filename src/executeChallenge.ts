@@ -1,8 +1,8 @@
 import simpleLogger from "./common/simpleLogger";
 import { AdventFunction } from "./common/types";
-import FNS_2022 from './2022';
-import FNS_2023 from './2023';
-import FNS_2024 from './2024';
+import FNS_2022 from "./2022";
+import FNS_2023 from "./2023";
+import FNS_2024 from "./2024";
 
 const years: Map<number, Map<number, AdventFunction>> = new Map();
 years.set(2022, FNS_2022);

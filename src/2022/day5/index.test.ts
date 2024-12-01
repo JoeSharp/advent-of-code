@@ -61,7 +61,7 @@ describe("day5", () => {
   describe("processStackLines", () => {
     it("processes a set of stack lines", () => {
       const stackLines = ["    [D]    ", "[N] [C]    ", "[Z] [M] [P] "].map(
-        parseStackLine
+        parseStackLine,
       );
 
       const stacks = processStackLines(3, stackLines);

@@ -32,7 +32,7 @@ export const rangeIsContainedBy = (outer: Range, inner: Range): boolean => {
 
 export const oneRangeContainsAnother = (
   rangeA: Range,
-  rangeB: Range
+  rangeB: Range,
 ): boolean =>
   rangeIsContainedBy(rangeA, rangeB) || rangeIsContainedBy(rangeB, rangeA);
 

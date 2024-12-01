@@ -69,7 +69,7 @@ describe("day8", () => {
         const grid = await readGridOfNumbers("./src/2022/day8/testInput.txt");
         const result = [...fn(grid, row, column)];
         expect(result).toStrictEqual(expecting);
-      }
+      },
     );
   });
 
@@ -120,7 +120,7 @@ describe("day8", () => {
         expect(isTreeVisibleFromTop(grid, row, column)).toBe(visTop);
         expect(isTreeVisibleFromBottom(grid, row, column)).toBe(visBottom);
         expect(isTreeVisible(grid, row, column)).toBe(visible);
-      }
+      },
     );
   });
 });

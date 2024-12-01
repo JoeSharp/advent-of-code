@@ -25,13 +25,19 @@ describe("day9", () => {
 
   describe("countTailPositions", () => {
     it("handles demo input for part 1 correctly", async () => {
-      const part1 = await countTailPositions("./src/2022/day9/testInput1.txt", 2);
+      const part1 = await countTailPositions(
+        "./src/2022/day9/testInput1.txt",
+        2,
+      );
 
       expect(part1).toBe(13);
     });
 
     it("handles demo input for part 2 correctly", async () => {
-      const part2 = await countTailPositions("./src/2022/day9/testInput2.txt", 10);
+      const part2 = await countTailPositions(
+        "./src/2022/day9/testInput2.txt",
+        10,
+      );
 
       expect(part2).toBe(36);
     });
@@ -53,7 +59,7 @@ describe("day9", () => {
       ({ position, direction, expected }) => {
         const result = pullKnot(position, direction);
         expect(result).toStrictEqual(expected);
-      }
+      },
     );
   });
 
@@ -70,7 +76,7 @@ describe("day9", () => {
 
         const andBack = denormalisePosition(result, relativeTo);
         expect(andBack).toStrictEqual(position);
-      }
+      },
     );
   });
 

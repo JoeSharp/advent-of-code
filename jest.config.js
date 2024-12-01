@@ -1,4 +1,4 @@
 module.exports = {
-    verbose: true,
-    transformIgnorePatterns: ['^.+\\.js$'],
+  verbose: true,
+  transformIgnorePatterns: ["^.+\\.js$"],
 };

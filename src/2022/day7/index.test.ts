@@ -169,7 +169,7 @@ describe("day7", () => {
   describe("populateDirectorySizes", () => {
     it("calculates directory structure correctly", async () => {
       const rootDir = await createDirectoryStructureFromFile(
-        "./src/2022/day7/testInput.txt"
+        "./src/2022/day7/testInput.txt",
       );
 
       expect(rootDir.size).toBe(48381165);

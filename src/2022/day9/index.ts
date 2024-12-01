@@ -55,7 +55,7 @@ export const positionsToGridString = (
   tailHistory: Coordinate[],
   useNumbers: boolean = false,
   bottomLeft: Coordinate = { x: 0, y: 0 },
-  topRight: Coordinate = { x: 10, y: 10 }
+  topRight: Coordinate = { x: 10, y: 10 },
 ): string => {
   const xValues = tailHistory.map(({ x }) => x).sort(numericSort);
   const yValues = tailHistory.map(({ y }) => y).sort(numericSort);
@@ -71,7 +71,7 @@ export const positionsToGridString = (
     let row = "";
     for (let x = minX; x <= maxX; x++) {
       let occupied = tailHistory.findIndex(
-        (position) => position.x === x && position.y === y
+        (position) => position.x === x && position.y === y,
       );
       row +=
         occupied >= 0
@@ -105,7 +105,7 @@ const createInitialRopeState = (knots: number): RopeState => {
 
 export const pullKnot = (
   { x, y }: Coordinate,
-  direction: Direction
+  direction: Direction,
 ): Coordinate => {
   switch (direction) {
     case Direction.up:
@@ -133,7 +133,7 @@ export const pullKnot = (
 
 export const normalisePosition = (
   position: Coordinate,
-  relativeTo: Coordinate
+  relativeTo: Coordinate,
 ): Coordinate => ({
   x: position.x - relativeTo.x,
   y: position.y - relativeTo.y,
@@ -141,7 +141,7 @@ export const normalisePosition = (
 
 export const denormalisePosition = (
   position: Coordinate,
-  relativeTo: Coordinate
+  relativeTo: Coordinate,
 ): Coordinate => ({
   x: position.x + relativeTo.x,
   y: position.y + relativeTo.y,
@@ -182,7 +182,7 @@ export const followHead = (head: Coordinate, tail: Coordinate): Coordinate => {
 
 export const pullRopeStep = (
   state: RopeState,
-  direction: Direction
+  direction: Direction,
 ): RopeState => {
   const knots = [pullKnot(state.knots[0], direction)];
 
@@ -200,12 +200,12 @@ export const pullRopeStep = (
 
 export const pullRope = (state: RopeState, ropePull: RopePull): RopeState => {
   simpleLogger.debug(
-    `Pulling Rope: ${ropePull.direction} by ${ropePull.amount} units`
+    `Pulling Rope: ${ropePull.direction} by ${ropePull.amount} units`,
   );
 
   const newState = Array.from({ length: ropePull.amount }, (_, i) => i).reduce(
     (acc, _) => pullRopeStep(acc, ropePull.direction),
-    state
+    state,
   );
 
   // simpleLogger.debug("\n" + positionsToGridString(newState.knots, true));
@@ -215,7 +215,7 @@ export const pullRope = (state: RopeState, ropePull: RopePull): RopeState => {
 
 export const countTailPositions = async (
   filename: string,
-  knots: number
+  knots: number,
 ): Promise<number> =>
   new Promise<number>((resolve) => {
     let ropeState = createInitialRopeState(knots);

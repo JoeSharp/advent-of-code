@@ -34,13 +34,13 @@ export const readGridOfNumbers = (filename: string): Promise<TreeGrid> => {
 type TreeGenerator = (
   grid: TreeGrid,
   row: number,
-  column: number
+  column: number,
 ) => Generator<number>;
 
 export function* goLeft(
   grid: TreeGrid,
   row: number,
-  column: number
+  column: number,
 ): Generator<number> {
   for (let c = column - 1; c >= 0; c--) {
     yield grid.content[row][c];
@@ -49,7 +49,7 @@ export function* goLeft(
 export function* goRight(
   grid: TreeGrid,
   row: number,
-  column: number
+  column: number,
 ): Generator<number> {
   for (let c = column + 1; c < grid.columns; c++) {
     yield grid.content[row][c];
@@ -59,7 +59,7 @@ export function* goRight(
 export function* goUp(
   grid: TreeGrid,
   row: number,
-  column: number
+  column: number,
 ): Generator<number> {
   for (let r = row - 1; r >= 0; r--) {
     yield grid.content[r][column];
@@ -69,7 +69,7 @@ export function* goUp(
 export function* goDown(
   grid: TreeGrid,
   row: number,
-  column: number
+  column: number,
 ): Generator<number> {
   for (let r = row + 1; r < grid.rows; r++) {
     yield grid.content[r][column];
@@ -78,11 +78,11 @@ export function* goDown(
 
 export const findBlockingTree =
   (
-    generator: TreeGenerator
+    generator: TreeGenerator,
   ): ((grid: TreeGrid, row: number, column: number) => boolean) =>
   (grid, row, column) =>
     ![...generator(grid, row, column)].find(
-      (otherTree) => otherTree >= grid.content[row][column]
+      (otherTree) => otherTree >= grid.content[row][column],
     );
 
 export const isTreeVisibleFromLeft = findBlockingTree(goLeft);
@@ -92,7 +92,7 @@ export const isTreeVisibleFromBottom = findBlockingTree(goDown);
 
 export const scenicScore =
   (
-    generator: TreeGenerator
+    generator: TreeGenerator,
   ): ((grid: TreeGrid, row: number, column: number) => number) =>
   (grid, row, column) => {
     let thisTree = grid.content[row][column];
@@ -121,7 +121,7 @@ export const scenicScoreDown = scenicScore(goDown);
 export const isTreeVisible = (
   grid: TreeGrid,
   row: number,
-  column: number
+  column: number,
 ): boolean => {
   return (
     isTreeVisibleFromLeft(grid, row, column) ||
@@ -132,7 +132,7 @@ export const isTreeVisible = (
 };
 
 export function* yieldVisibleTrees(
-  grid: TreeGrid
+  grid: TreeGrid,
 ): Generator<{ row: number; column: number }> {
   for (let row = 0; row < grid.rows; row++) {
     for (let column = 0; column < grid.columns; column++) {
@@ -154,11 +154,11 @@ export function* yieldVisibleTrees(
 export const calculateScenicScore = (
   grid: TreeGrid,
   row: number,
-  column: number
+  column: number,
 ): number =>
   [scenicScoreLeft, scenicScoreRight, scenicScoreUp, scenicScoreDown].reduce(
     (acc, curr) => acc * curr(grid, row, column),
-    1
+    1,
   );
 
 // How many visible from outside the grid?

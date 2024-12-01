@@ -83,7 +83,7 @@ export interface DirectoryStructure {
 
 export const createDirectory = (
   name: string,
-  parent: DirectoryStructure | null
+  parent: DirectoryStructure | null,
 ): DirectoryStructure => ({
   name,
   size: 0,
@@ -95,7 +95,7 @@ export const createDirectory = (
 export const createRootDirectory = () => createDirectory(ROOT_DIRECTORY, null);
 
 export const goBackToRootDir = (
-  currentDirectory: DirectoryStructure
+  currentDirectory: DirectoryStructure,
 ): DirectoryStructure => {
   // Traverse back up until we hit a directory with a null parent
   let root = currentDirectory;
@@ -106,7 +106,7 @@ export const goBackToRootDir = (
 };
 
 export const goBackToParent = (
-  currentDirectory: DirectoryStructure
+  currentDirectory: DirectoryStructure,
 ): DirectoryStructure => {
   if (currentDirectory.parent === null)
     throw new Error("Cannot go back from root dir");
@@ -115,14 +115,14 @@ export const goBackToParent = (
 
 export const goToNamedDirectory = (
   currentDirectory: DirectoryStructure,
-  directoryName?: string
+  directoryName?: string,
 ): DirectoryStructure => {
   if (directoryName === undefined)
     throw new Error("Cannot go to directory without a name");
 
   // A specific named directory
   let selectedDir = currentDirectory.subDirectories.find(
-    ({ name }) => name === directoryName
+    ({ name }) => name === directoryName,
   );
   if (selectedDir === undefined)
     throw new Error(`Could not find directory ${directoryName}`);
@@ -140,7 +140,7 @@ export const goToNamedDirectory = (
  */
 const processCommand = (
   currentDirectory: DirectoryStructure,
-  command: Command
+  command: Command,
 ): DirectoryStructure => {
   // In itself, list directory does nothing
   if (command.type === CommandType.listDirectory) return currentDirectory;
@@ -167,7 +167,7 @@ const processCommand = (
  */
 export const processLine = (
   currentDirectory: DirectoryStructure,
-  line: string
+  line: string,
 ): DirectoryStructure => {
   const lineType = determineLineType(line);
 
@@ -179,7 +179,7 @@ export const processLine = (
     case LineType.directoryListing:
       const dirName = parseDirectory(line);
       currentDirectory.subDirectories.push(
-        createDirectory(dirName, currentDirectory)
+        createDirectory(dirName, currentDirectory),
       );
       break;
     case LineType.fileListing:
@@ -191,7 +191,7 @@ export const processLine = (
 };
 
 export const populateDirectorySizes = (
-  directoryStructure: DirectoryStructure
+  directoryStructure: DirectoryStructure,
 ): void => {
   directoryStructure.subDirectories.forEach((sd) => populateDirectorySizes(sd));
 
@@ -206,12 +206,12 @@ export type DirectoryCallback = (d: DirectoryStructure) => void;
 
 export function* findDirectories(
   dir: DirectoryStructure,
-  filter: DirectoryFilter
+  filter: DirectoryFilter,
 ): Generator<DirectoryStructure> {
   simpleLogger.debug(
     `Checking Dir ${dir.name} SubDirs: ${dir.subDirectories
       .map(({ name }) => name)
-      .join(",")}, Files: ${dir.files.map(({ name }) => name).join(",")}`
+      .join(",")}, Files: ${dir.files.map(({ name }) => name).join(",")}`,
   );
 
   if (filter(dir)) yield dir;
@@ -222,7 +222,7 @@ export function* findDirectories(
 }
 
 export const createDirectoryStructureFromFile = async (
-  filename: string
+  filename: string,
 ): Promise<DirectoryStructure> =>
   new Promise((resolve) => {
     let currentDirectory = createRootDirectory();
@@ -256,12 +256,12 @@ const dayX: AdventFunction = async (filename = "./src/2022/day7/input.txt") => {
   const amountToDelete = UNUSED_REQUIRED - (TOTAL_DISK_SPACE - rootDir.size);
   const dirsToDelete = findDirectories(
     rootDir,
-    ({ size }) => size >= amountToDelete
+    ({ size }) => size >= amountToDelete,
   );
   const sorted = [...dirsToDelete].sort((a, b) => a.size - b.size);
   simpleLogger.debug(
     "Sorted Dirs to Delete",
-    sorted.map(({ name, size }) => `${name} - ${size}`)
+    sorted.map(({ name, size }) => `${name} - ${size}`),
   );
 
   return [partOne, sorted[0].size];

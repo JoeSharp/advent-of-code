@@ -14,15 +14,15 @@ export const parsePacket = (line: string): Packet => JSON.parse(line) as Packet;
 export const packetsInRightOrder = (
   left: Packet,
   right: Packet,
-  depth: number = 0
+  depth: number = 0,
 ): boolean => {
   const printPrefix = new Array(depth).fill(`\t`).join("");
 
   simpleLogger.debug("");
   simpleLogger.debug(
     `${printPrefix}Comparing ${JSON.stringify(left)} vs ${JSON.stringify(
-      right
-    )} at depth ${depth}`
+      right,
+    )} at depth ${depth}`,
   );
 
   const maxItems = Math.max(right.length, left.length);
@@ -33,32 +33,32 @@ export const packetsInRightOrder = (
 
     if (leftItem === undefined) {
       simpleLogger.debug(
-        `${printPrefix}\tLeft side ran out of items, so inputs are in the right order`
+        `${printPrefix}\tLeft side ran out of items, so inputs are in the right order`,
       );
       return true;
     } else if (rightItem === undefined) {
       simpleLogger.debug(
-        `${printPrefix}\tRight side ran out of items, so inputs are not in the right order`
+        `${printPrefix}\tRight side ran out of items, so inputs are not in the right order`,
       );
       return false;
     }
 
     simpleLogger.debug(
       `${printPrefix}\tComparing item ${JSON.stringify(
-        leftItem
-      )} vs ${JSON.stringify(rightItem)}`
+        leftItem,
+      )} vs ${JSON.stringify(rightItem)}`,
     );
 
     // If neither are arrays, then they are both numbers
     if (!Array.isArray(leftItem) && !Array.isArray(rightItem)) {
       if (leftItem > rightItem) {
         simpleLogger.debug(
-          `${printPrefix}\tRight side is smaller, so inputs are not in the right order`
+          `${printPrefix}\tRight side is smaller, so inputs are not in the right order`,
         );
         return false;
       } else if (leftItem < rightItem) {
         simpleLogger.debug(
-          `${printPrefix}\tLeft side is smaller, so inputs are in the right order`
+          `${printPrefix}\tLeft side is smaller, so inputs are in the right order`,
         );
         return true;
       } else {
@@ -78,21 +78,21 @@ export const packetsInRightOrder = (
     if (!packetsInRightOrder(leftToCompare, rightToCompare, depth + 1)) {
       simpleLogger.debug(
         `${printPrefix}\tFound incorrect order between ITEMS IN a: ${JSON.stringify(
-          left
-        )}, b: ${JSON.stringify(right)}`
+          left,
+        )}, b: ${JSON.stringify(right)}`,
       );
       return false;
     }
   }
 
   simpleLogger.debug(
-    `${printPrefix}Fell through to end, consider in correct order`
+    `${printPrefix}Fell through to end, consider in correct order`,
   );
   return true;
 };
 
 export const parseDistressSignalFile = async (
-  filename: string
+  filename: string,
 ): Promise<PacketPair[]> =>
   new Promise((resolve, reject) => {
     const packetPairs: PacketPair[] = [];
@@ -112,12 +112,12 @@ export const parseDistressSignalFile = async (
       },
       () => {
         resolve(packetPairs);
-      }
+      },
     );
   });
 
 export const whichPacketsInRightOrder = (
-  packetPairs: PacketPair[]
+  packetPairs: PacketPair[],
 ): number[] => {
   return (
     packetPairs
@@ -133,7 +133,9 @@ export const whichPacketsInRightOrder = (
   );
 };
 
-const day13: AdventFunction = async (filename = "./src/2022/day13/input.txt") => {
+const day13: AdventFunction = async (
+  filename = "./src/2022/day13/input.txt",
+) => {
   const packetPairs = await parseDistressSignalFile(filename);
 
   const pairsInRightOrder = whichPacketsInRightOrder(packetPairs);

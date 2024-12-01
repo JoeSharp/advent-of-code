@@ -60,7 +60,7 @@ export const incrementCycle = (state: CpuState): CpuState => ({
 
 export const incrementRegister = (
   state: CpuState,
-  amount: number
+  amount: number,
 ): CpuState => ({
   cycle: state.cycle + 1,
   registerX: state.registerX + amount,
@@ -69,13 +69,13 @@ export const incrementRegister = (
 export const processCommand = (
   state: CpuState,
   command: Command,
-  cycleCallback: CycleCallback
+  cycleCallback: CycleCallback,
 ): CpuState => {
   simpleLogger.debug(
     `Processing Command ${JSON.stringify(command)} with state: ${JSON.stringify(
-      state
+      state,
     )}`,
-    command
+    command,
   );
 
   switch (command.type) {
@@ -92,7 +92,7 @@ export const processCommand = (
 
 export const processCpuFile = (
   filename: string,
-  cycleCallback: CycleCallback
+  cycleCallback: CycleCallback,
 ): Promise<void> => {
   return new Promise<void>((resolve) => {
     let state = createCpuState();
@@ -112,7 +112,7 @@ export const processCpuFile = (
 export const countSignalStrength = async (
   filename: string,
   firstCycle: number,
-  cycleInterval: number
+  cycleInterval: number,
 ): Promise<number> => {
   let total = 0;
 
@@ -120,7 +120,7 @@ export const countSignalStrength = async (
     if ((cycle - firstCycle) % cycleInterval === 0) {
       total += cycle * registerX;
       simpleLogger.debug(
-        `At cycle ${cycle}, register is ${registerX}, total: ${total}`
+        `At cycle ${cycle}, register is ${registerX}, total: ${total}`,
       );
     }
   });
@@ -133,7 +133,7 @@ export const SPRITE_NOT_PRESENT = ".";
 
 export const composeImage = async (
   filename: string,
-  pixelsPerRow: number
+  pixelsPerRow: number,
 ): Promise<string[]> => {
   let image: string[] = [];
 
@@ -160,7 +160,9 @@ export const composeImage = async (
   return image;
 };
 
-const day10: AdventFunction = async (filename = "./src/2022/day10/input.txt") => {
+const day10: AdventFunction = async (
+  filename = "./src/2022/day10/input.txt",
+) => {
   const partOne = await countSignalStrength(filename, 20, 40);
   const partTwo = await composeImage(filename, 40);
 

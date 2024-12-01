@@ -18,7 +18,7 @@ export enum Selection {
 
 export const getPlayerOutcome = (
   opponentSelection: Selection,
-  playerSelection: Selection
+  playerSelection: Selection,
 ): Outcome => {
   if (opponentSelection === playerSelection) return Outcome.DRAW;
 
@@ -39,7 +39,7 @@ export const getPlayerOutcome = (
 
 export const getPlayerSelectionForOutcome = (
   opponentSelection: Selection,
-  intendedOutcome: Outcome
+  intendedOutcome: Outcome,
 ): Selection => {
   if (intendedOutcome === Outcome.DRAW) return opponentSelection;
 
@@ -101,7 +101,7 @@ const day2: AdventFunction = (filename = "./src/2022/day2/input.txt") =>
           partTwoIntendedOutcome === undefined
         ) {
           simpleLogger.warn(
-            `Could not determine player and opponent selections from line: ${line}`
+            `Could not determine player and opponent selections from line: ${line}`,
           );
           reject();
           return;
@@ -110,14 +110,14 @@ const day2: AdventFunction = (filename = "./src/2022/day2/input.txt") =>
         // Part 1 Calculation
         const outcome = getPlayerOutcome(
           opponentSelection,
-          partOnePlayerSelection
+          partOnePlayerSelection,
         );
         const partOneSelectionScore = SELECTION_SCORES.get(
-          partOnePlayerSelection
+          partOnePlayerSelection,
         );
         if (partOneSelectionScore === undefined) {
           simpleLogger.warn(
-            `Could not determine selection score for player selection: ${partOnePlayerSelection}`
+            `Could not determine selection score for player selection: ${partOnePlayerSelection}`,
           );
           reject();
           return;
@@ -128,14 +128,14 @@ const day2: AdventFunction = (filename = "./src/2022/day2/input.txt") =>
         // Part 2 Calculation
         const partTwoPlayerSelection = getPlayerSelectionForOutcome(
           opponentSelection,
-          partTwoIntendedOutcome
+          partTwoIntendedOutcome,
         );
         const partTwoSelectionScore = SELECTION_SCORES.get(
-          partTwoPlayerSelection
+          partTwoPlayerSelection,
         );
         if (partTwoSelectionScore === undefined) {
           simpleLogger.warn(
-            `Could not determine selection score for player selection: ${partTwoPlayerSelection}`
+            `Could not determine selection score for player selection: ${partTwoPlayerSelection}`,
           );
           reject();
           return;

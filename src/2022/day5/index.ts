@@ -52,7 +52,7 @@ export const parseStackLine = (crateLineStr: string): (string | null)[] => {
  */
 export const processStackLines = (
   numberOfStacks: number,
-  stackLines: (string | null)[][]
+  stackLines: (string | null)[][],
 ): string[][] =>
   Array.from(
     { length: numberOfStacks },
@@ -60,7 +60,7 @@ export const processStackLines = (
       stackLines
         .map((stackLine) => stackLine[i])
         .filter((i) => i !== null) // get rid of the nulls
-        .map((i) => i as string) // tell TypeScript they have to be strings now
+        .map((i) => i as string), // tell TypeScript they have to be strings now
   );
 
 export const constructExpectedStackCountLine = (length: number) =>
@@ -68,7 +68,7 @@ export const constructExpectedStackCountLine = (length: number) =>
 
 export const executeStepPartOne = (step: Step, stacks: string[][]) => {
   simpleLogger.debug(
-    `Step Move: ${step.move}, From: ${step.from}, To: ${step.to}`
+    `Step Move: ${step.move}, From: ${step.from}, To: ${step.to}`,
   );
   for (let i = 0; i < step.move; i++) {
     let item = stacks[step.from - 1].shift();
@@ -82,7 +82,7 @@ export const executeStepPartOne = (step: Step, stacks: string[][]) => {
 
 export const executeStepPartTwo = (step: Step, stacks: string[][]) => {
   simpleLogger.debug(
-    `Step Move: ${step.move}, From: ${step.from}, To: ${step.to}`
+    `Step Move: ${step.move}, From: ${step.from}, To: ${step.to}`,
   );
   let tempStack = [];
   for (let i = 0; i < step.move; i++) {
@@ -125,7 +125,7 @@ const day5: AdventFunction = (filename = "./src/2022/day5/input.txt") => {
           phase = Phase.findingCrates;
           stackLines.push(crates);
           simpleLogger.debug(
-            `Expected Stack Count Line for ${numberOfStacks} stacks: "${expectedStackCountLine}"`
+            `Expected Stack Count Line for ${numberOfStacks} stacks: "${expectedStackCountLine}"`,
           );
           break;
         case Phase.findingCrates:

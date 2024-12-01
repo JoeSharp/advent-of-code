@@ -18,7 +18,7 @@ export type RockPath = Point2D[];
 
 export function rockMapToString(
   rockMap: RockMap,
-  ingressPoint: Point2D
+  ingressPoint: Point2D,
 ): string {
   const points = [ingressPoint, ...[...rockMap.contents].map(parseRockPoint)];
   const minX = points
@@ -123,7 +123,7 @@ export function createRockMap(paths: RockPath[]): RockMap {
  */
 export function occupiedBy(
   { contents, originalContents }: RockMap,
-  point: Point2D
+  point: Point2D,
 ): OccupiedBy {
   const rockStr = rockPointToString(point);
   if (originalContents.has(rockStr)) {
@@ -153,7 +153,7 @@ export function occupyRockPoint({ contents }: RockMap, point: Point2D) {
  */
 export function getNextPoint(
   rockMap: RockMap,
-  point: Point2D
+  point: Point2D,
 ): Point2D | undefined {
   // Go Down, Go Down-Left, Go Down-Right
   // Find first of those spots that is not occupied
@@ -224,7 +224,7 @@ export function loadRockMap(filename: string): Promise<RockMap> {
  */
 export function dropSandToFallThrough(
   rockMap: RockMap,
-  ingressPoint: Point2D
+  ingressPoint: Point2D,
 ): boolean {
   let currentLocation = { ...ingressPoint };
 
@@ -251,7 +251,7 @@ export function dropSandToFallThrough(
  */
 export function dropSandUntilFallThrough(
   rockMap: RockMap,
-  ingressPoint: Point2D
+  ingressPoint: Point2D,
 ): number {
   let settled = false;
   let numberOfGrains = 0;
@@ -295,7 +295,7 @@ export function dropSandToHitFloor(rockMap: RockMap, ingressPoint: Point2D) {
  */
 export function dropSandUntilGapPlugged(
   rockMap: RockMap,
-  ingressPoint: Point2D
+  ingressPoint: Point2D,
 ): number {
   let numberOfGrains = 0;
   while (occupiedBy(rockMap, ingressPoint) === OccupiedBy.air) {
@@ -311,7 +311,9 @@ export const SAND_STARTING_POINT: Point2D = {
   y: 0,
 };
 
-const day14: AdventFunction = async (filename = "./src/2022/day14/input.txt") => {
+const day14: AdventFunction = async (
+  filename = "./src/2022/day14/input.txt",
+) => {
   const rockMap1 = await loadRockMap(filename);
   const partOne = dropSandUntilFallThrough(rockMap1, SAND_STARTING_POINT);
 

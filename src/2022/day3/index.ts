@@ -23,7 +23,7 @@ export const findCommonElement = (inputs: string[]): string | undefined => {
   });
 
   const intersection = [...charSets[0]].filter((c) =>
-    charSets.slice(1).reduce((acc, curr) => acc && curr.has(c), true)
+    charSets.slice(1).reduce((acc, curr) => acc && curr.has(c), true),
   );
 
   if (intersection.length === 1) {
@@ -84,14 +84,14 @@ const day3: AdventFunction = async (filename = "./src/2022/day3/input.txt") => {
       if (!!badgeElement) {
         let badgePriority = getPriority(badgeElement);
         simpleLogger.debug(
-          `Common Items in ${lines} is ${badgeElement} with priority ${badgePriority}`
+          `Common Items in ${lines} is ${badgeElement} with priority ${badgePriority}`,
         );
         totalStepTwo += badgePriority;
       }
     },
     () => {
       simpleLogger.debug(`Total of Badges = ${totalStepTwo}`);
-    }
+    },
   );
 
   return [totalStepOne, totalStepTwo];

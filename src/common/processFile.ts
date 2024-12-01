@@ -19,7 +19,7 @@ export const processFileInChunks = (
   filename: string,
   chunkSize: number,
   onLines: (lines: string[]) => void,
-  onClose: () => void
+  onClose: () => void,
 ) =>
   new Promise<void>((resolve) => {
     let lines: string[] = [];

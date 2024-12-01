@@ -1,8 +1,4 @@
-import { 
-  numericSort, 
-  isDivisibleBy, 
-  reverseNumericSort 
-} from "./numericUtils";
+import { numericSort, isDivisibleBy, reverseNumericSort } from "./numericUtils";
 
 describe("numericUtils", () => {
   describe("reverseNumericSort", () => {
@@ -24,10 +20,13 @@ describe("numericUtils", () => {
   describe("isDivisibleBy", () => {
     it.each`
       input | divisor | expected
-      ${8} | ${2}| ${true}
-      `('$input divisible by $divisor = $expected', ({input, divisor, expected}) => {
+      ${8}  | ${2}    | ${true}
+    `(
+      "$input divisible by $divisor = $expected",
+      ({ input, divisor, expected }) => {
         const result = isDivisibleBy(input, divisor);
         expect(result).toBe(expected);
-      });
+      },
+    );
   });
 });

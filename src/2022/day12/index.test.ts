@@ -71,12 +71,12 @@ describe("day12", () => {
         const position = createPosition(row, column);
         const nextStepKeys = identifyValidNextStepsGoingUp(
           heightMap,
-          position
+          position,
         ).map(({ key }) => key);
         expectedKeys.forEach((ex: string) =>
-          expect(nextStepKeys).toContain(ex)
+          expect(nextStepKeys).toContain(ex),
         );
-      }
+      },
     );
   });
 

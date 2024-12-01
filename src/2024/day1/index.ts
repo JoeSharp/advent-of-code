@@ -1,18 +1,22 @@
 import { AdventFunction } from "../../common/types";
-import { loadEntireFile } from '../../common/processFile'
-import { numericSort } from '../../common/numericUtils';
+import { loadEntireFile } from "../../common/processFile";
+import { numericSort } from "../../common/numericUtils";
 
-export async function loadRightAndLeftLists(filename: string): Promise<[number[], number[]]> {
+export async function loadRightAndLeftLists(
+  filename: string,
+): Promise<[number[], number[]]> {
   const lines = await loadEntireFile(filename);
 
   const left: number[] = [];
   const right: number[] = [];
 
-  lines.map(l => l.split(' '))
-    .forEach(parts => {
-      const [l, r] = parts.map(p => p.trim())
-      .filter(p => p.length > 0)
-      .map(p => parseInt(p));
+  lines
+    .map((l) => l.split(" "))
+    .forEach((parts) => {
+      const [l, r] = parts
+        .map((p) => p.trim())
+        .filter((p) => p.length > 0)
+        .map((p) => parseInt(p));
       left.push(l);
       right.push(r);
     });
@@ -34,7 +38,7 @@ function calculateDistance(left: number[], right: number[]): number {
 
 function calculateSimilarity(left: number[], right: number[]) {
   return left
-    .map(l => l * right.filter(r => r == l).length)
+    .map((l) => l * right.filter((r) => r == l).length)
     .reduce((acc, curr) => acc + curr, 0);
 }
 

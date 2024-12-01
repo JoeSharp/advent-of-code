@@ -67,7 +67,7 @@ export function loadHeightMap(filename: string): Promise<HeightMap> {
           }
 
           return convertHeightValue(d);
-        })
+        }),
       );
     }).on("close", () => {
       if (content.length === 0) {
@@ -96,12 +96,12 @@ export function loadHeightMap(filename: string): Promise<HeightMap> {
 
 export type IdentifyValidNextSteps = (
   heightMap: HeightMap,
-  position: Position
+  position: Position,
 ) => Position[];
 
 export function identifyValidNextStepsGoingDown(
   heightMap: HeightMap,
-  position: Position
+  position: Position,
 ): Position[] {
   let minNextHeight = heightMap.content[position.row][position.column] - 1;
   let positions: Position[] = [];
@@ -129,7 +129,7 @@ export function identifyValidNextStepsGoingDown(
 
 export function identifyValidNextStepsGoingUp(
   heightMap: HeightMap,
-  position: Position
+  position: Position,
 ): Position[] {
   let maxNextHeight = heightMap.content[position.row][position.column] + 1;
   let positions: Position[] = [];
@@ -163,7 +163,7 @@ export type RouteTable = Map<
 export function findShortestPathRoutingTable(
   heightMap: HeightMap,
   startPoint: Position,
-  IdentifyValidNextSteps: IdentifyValidNextSteps
+  IdentifyValidNextSteps: IdentifyValidNextSteps,
 ): RouteTable {
   // Set of keys of visited nodes
   let visited = new Set<string>();
@@ -239,19 +239,19 @@ export function findShortestPathFromStart(heightMap: HeightMap): Position[] {
   const routeTable = findShortestPathRoutingTable(
     heightMap,
     heightMap.start,
-    identifyValidNextStepsGoingUp
+    identifyValidNextStepsGoingUp,
   );
   return findShortestRouteTo(routeTable, heightMap.end);
 }
 
 export function findShortestPathFromAnyLowElevation(
-  heightMap: HeightMap
+  heightMap: HeightMap,
 ): Position[] {
   const routeList: Position[][] = [];
   const routeTable = findShortestPathRoutingTable(
     heightMap,
     heightMap.end,
-    identifyValidNextStepsGoingDown
+    identifyValidNextStepsGoingDown,
   );
 
   heightMap.content.forEach((rowContent, rowIndex) => {
@@ -265,11 +265,11 @@ export function findShortestPathFromAnyLowElevation(
           simpleLogger.debug(
             `Route From ${startPosition.key} to ${heightMap.end.key} is ${route
               .map((r) => r.key)
-              .join(" -> ")}`
+              .join(" -> ")}`,
           );
         } catch (e) {
           simpleLogger.debug(
-            `No route could be found from low elevation point ${startPosition.key}`
+            `No route could be found from low elevation point ${startPosition.key}`,
           );
         }
       }
@@ -281,7 +281,9 @@ export function findShortestPathFromAnyLowElevation(
   return routeList[0];
 }
 
-const day12: AdventFunction = async (filename = "./src/2022/day12/input.txt") => {
+const day12: AdventFunction = async (
+  filename = "./src/2022/day12/input.txt",
+) => {
   const heightMap = await loadHeightMap(filename);
   const partOne = findShortestPathFromStart(heightMap);
   const partTwo = findShortestPathFromAnyLowElevation(heightMap);

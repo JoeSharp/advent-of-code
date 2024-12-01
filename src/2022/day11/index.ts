@@ -76,7 +76,7 @@ export const parseJaml = (lines: string[]): Jaml => {
 
           if (popped === undefined)
             throw new Error(
-              "Popped an undefined Jaml from stack during parsing"
+              "Popped an undefined Jaml from stack during parsing",
             );
 
           if (popped.whitespace === whitespace) {
@@ -148,7 +148,7 @@ export const parseThrowTo = (throwTo: string): number =>
   parseInt(throwTo.replace("throw to monkey ", "").trim(), 10);
 
 export const loadMonkeysFromFile = async (
-  filename: string
+  filename: string,
 ): Promise<Monkey[]> => {
   const lines = await loadEntireFile(filename);
 
@@ -178,7 +178,7 @@ export const loadMonkeysFromFile = async (
 export const processMonkeyBusinessRound = (
   monkeys: Monkey[],
   worryDivider: number,
-  lcmOfDividers: number
+  lcmOfDividers: number,
 ) => {
   monkeys.forEach((monkey) => {
     while (monkey.itemsHeld.length > 0) {
@@ -200,7 +200,7 @@ export const processMonkeyBusiness = (
   monkeys: Monkey[],
   rounds: number,
   worryDivider: number,
-  lcmOfDividers: number
+  lcmOfDividers: number,
 ): void => {
   for (let i = 0; i < rounds; i++) {
     processMonkeyBusinessRound(monkeys, worryDivider, lcmOfDividers);
@@ -210,9 +210,9 @@ export const processMonkeyBusiness = (
       monkeys.forEach(({ inspectionsHeld, itemsHeld }, i) =>
         simpleLogger.debug(
           `${i} - Inspections: ${inspectionsHeld}, Items: ${itemsHeld.join(
-            ", "
-          )}`
-        )
+            ", ",
+          )}`,
+        ),
       );
     }
   }
@@ -220,7 +220,7 @@ export const processMonkeyBusiness = (
 
 export const countMonkeyBusiness = (
   monkeys: Monkey[],
-  highest: number
+  highest: number,
 ): number =>
   monkeys
     .sort((a, b) => b.inspectionsHeld - a.inspectionsHeld)
@@ -230,7 +230,7 @@ export const countMonkeyBusiness = (
 export const calculateMonkeyBusiness = async (
   filename: string,
   rounds: number,
-  divider: number
+  divider: number,
 ): Promise<number> => {
   const monkeys = await loadMonkeysFromFile(filename);
   const lcm = monkeys.reduce((acc, curr) => acc * curr.testDivisibleBy, 1);
@@ -238,7 +238,9 @@ export const calculateMonkeyBusiness = async (
   return countMonkeyBusiness(monkeys, 2);
 };
 
-const day11: AdventFunction = async (filename = "./src/2022/day11/input.txt") => {
+const day11: AdventFunction = async (
+  filename = "./src/2022/day11/input.txt",
+) => {
   const partOne = await calculateMonkeyBusiness(filename, 20, 3);
   const partTwo = await calculateMonkeyBusiness(filename, 10000, 1);
 

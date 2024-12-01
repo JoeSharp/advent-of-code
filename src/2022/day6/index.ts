@@ -5,7 +5,7 @@ import { AdventFunction } from "../../common/types";
 
 export const findEndOfFirstXDifferent = (
   input: string,
-  markerLength: number
+  markerLength: number,
 ): number => {
   let lastXCharacters: string[] = [];
 

@@ -94,7 +94,9 @@ describe("day11", () => {
 
   describe("loadMonkeysFromFile", () => {
     it("can parse a monkeys description", async () => {
-      const monkeys = await loadMonkeysFromFile("./src/2022/day11/testInput.txt");
+      const monkeys = await loadMonkeysFromFile(
+        "./src/2022/day11/testInput.txt",
+      );
       expect(monkeys).toHaveLength(4);
 
       const monkey0 = monkeys[0];

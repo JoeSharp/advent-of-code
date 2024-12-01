@@ -33,4 +33,3 @@ ADVENT_FUNCTIONS.set(13, day13);
 ADVENT_FUNCTIONS.set(14, day14);
 
 export default ADVENT_FUNCTIONS;
-

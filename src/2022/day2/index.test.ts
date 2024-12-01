@@ -31,7 +31,7 @@ describe("Day 2", () => {
       ({ opponentOutcome, playerOutcome, expected }) => {
         const result = getPlayerOutcome(opponentOutcome, playerOutcome);
         expect(result).toBe(expected);
-      }
+      },
     );
   });
 
@@ -52,10 +52,10 @@ describe("Day 2", () => {
       ({ opponentSelection, intendedOutcome, expected }) => {
         const result = getPlayerSelectionForOutcome(
           opponentSelection,
-          intendedOutcome
+          intendedOutcome,
         );
         expect(result).toBe(expected);
-      }
+      },
     );
   });
 });
