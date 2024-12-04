@@ -45,7 +45,7 @@ export function getCancellableMultiplications(line: string): Multiplication[] {
 const day3: AdventFunction = async (filename = "./src/2024/day3/input.txt") => {
   const contents = await loadEntireFile(filename);
 
-  const line = contents.join('');
+  const line = contents.join("");
 
   const part1 = getMultiplications(line)
     .map(([a, b]) => a * b)

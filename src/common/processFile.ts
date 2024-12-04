@@ -15,6 +15,13 @@ export const loadEntireFile = (filename: string): Promise<string[]> =>
     });
   });
 
+export async function loadEntireFileAsGrid(
+  filename: string,
+): Promise<string[][]> {
+  const lines = await loadEntireFile(filename);
+  return lines.map((l) => l.split(""));
+}
+
 export const processFileInChunks = (
   filename: string,
   chunkSize: number,
