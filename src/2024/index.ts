@@ -7,6 +7,7 @@ import day4 from "./day4";
 import day5 from "./day5";
 import day6 from "./day6";
 import day7 from "./day7";
+import day8 from "./day8";
 
 const ADVENT_FUNCTIONS: Map<number, AdventFunction> = new Map();
 
@@ -17,5 +18,6 @@ ADVENT_FUNCTIONS.set(4, day4);
 ADVENT_FUNCTIONS.set(5, day5);
 ADVENT_FUNCTIONS.set(6, day6);
 ADVENT_FUNCTIONS.set(7, day7);
+ADVENT_FUNCTIONS.set(8, day8);
 
 export default ADVENT_FUNCTIONS;
