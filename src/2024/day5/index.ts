@@ -1,5 +1,5 @@
 import { AdventFunction } from "../../common/types";
-import { loadEntireFile } from '../../common/processFile';
+import { loadEntireFile } from "../../common/processFile";
 
 type PagesToProduce = number[];
 
@@ -13,13 +13,13 @@ function parsePageData(lines: string[]): PageData {
   const pageData: PageData = {
     mustBeAfter: new Map(),
     mustBeBefore: new Map(),
-    publish: []
-  }
+    publish: [],
+  };
 
   let index = 0;
   let line = lines[index++];
-  while (line !== '') {
-    const [before, after]  = line.split('|').map(i => parseInt(i));
+  while (line !== "") {
+    const [before, after] = line.split("|").map((i) => parseInt(i));
     if (!pageData.mustBeAfter.has(after)) {
       pageData.mustBeAfter.set(after, []);
     }
@@ -33,10 +33,10 @@ function parsePageData(lines: string[]): PageData {
 
   while (index < lines.length) {
     let line = lines[index++];
-    const publish = line.split(',').map(i => parseInt(i));
+    const publish = line.split(",").map((i) => parseInt(i));
     pageData.publish.push(publish);
   }
-  
+
   return pageData;
 }
 
@@ -58,7 +58,7 @@ function putInOrder(line: number[], pageData: PageData): number[] {
 
   do {
     violationFixed = false;
-     
+
     const violationIndex = findViolationIndex(output, pageData);
     if (violationIndex !== NO_VIOLATION) {
       swap(output, violationIndex, violationIndex + 1);
@@ -72,8 +72,8 @@ function putInOrder(line: number[], pageData: PageData): number[] {
 const NO_VIOLATION = -1;
 
 function findViolationIndex(line: number[], pageData: PageData): number {
-  for (let i=1; i<line.length; i++) {
-    const before = line[i-1];
+  for (let i = 1; i < line.length; i++) {
+    const before = line[i - 1];
     const after = line[i];
 
     // Find violations
@@ -81,10 +81,10 @@ function findViolationIndex(line: number[], pageData: PageData): number {
     const mustBeAfter = pageData.mustBeAfter.get(before);
 
     if (!!mustBeBefore && mustBeBefore.includes(before)) {
-      return i-1;
+      return i - 1;
     }
     if (!!mustBeAfter && mustBeAfter.includes(after)) {
-      return i-1;
+      return i - 1;
     }
   }
 
@@ -101,13 +101,13 @@ const day5: AdventFunction = async (filename = "./src/2024/day5/input.txt") => {
   const pageData: PageData = parsePageData(lines);
 
   const part1 = pageData.publish
-    .filter(line => isValid(line, pageData))
+    .filter((line) => isValid(line, pageData))
     .map(findMiddle)
     .reduce((acc, curr) => acc + curr, 0);
 
   const part2 = pageData.publish
-    .filter(line => !isValid(line, pageData))
-    .map(line => putInOrder(line, pageData))
+    .filter((line) => !isValid(line, pageData))
+    .map((line) => putInOrder(line, pageData))
     .map(findMiddle)
     .reduce((acc, curr) => acc + curr, 0);
 

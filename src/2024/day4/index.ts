@@ -11,9 +11,9 @@ export function getGridItemsFrom(
 ): string[] {
   let result = [];
 
-  let row=startRow;
-  let col=startCol;
-  for (let i=0; i<length; i++) {
+  let row = startRow;
+  let col = startCol;
+  for (let i = 0; i < length; i++) {
     if (row >= grid.length || row < 0) {
       break;
     }
@@ -68,22 +68,26 @@ export function countWords(word: string, grid: string[][]) {
   return found;
 }
 
-export function getCrossWords(grid: string[][], midRow: number, midCol: number): string[] {
+export function getCrossWords(
+  grid: string[][],
+  midRow: number,
+  midCol: number,
+): string[] {
   const topLeftToBR = [
-    grid[midRow-1][midCol-1],
+    grid[midRow - 1][midCol - 1],
     grid[midRow][midCol],
-    grid[midRow+1][midCol+1],
-  ].join('')
-  const bottomLeftToRT = [ 
-    grid[midRow-1][midCol+1],
+    grid[midRow + 1][midCol + 1],
+  ].join("");
+  const bottomLeftToRT = [
+    grid[midRow - 1][midCol + 1],
     grid[midRow][midCol],
-    grid[midRow+1][midCol-1],
-  ].join('');
+    grid[midRow + 1][midCol - 1],
+  ].join("");
   return [topLeftToBR, bottomLeftToRT];
 }
 
 function reverseWord(input: string): string {
-  return input.split('').reverse().join('');
+  return input.split("").reverse().join("");
 }
 
 export function countCrossWords(word: string, grid: string[][]): number {
@@ -95,7 +99,7 @@ export function countCrossWords(word: string, grid: string[][]): number {
     for (let col = 1; col < grid[row].length - 1; col++) {
       if (grid[row][col] == midLetter) {
         const crossWords = getCrossWords(grid, row, col);
-        if (crossWords.every(cw => cw === word || cw === wordReversed)) {
+        if (crossWords.every((cw) => cw === word || cw === wordReversed)) {
           found++;
         }
       }
@@ -107,8 +111,8 @@ export function countCrossWords(word: string, grid: string[][]): number {
 
 const day4: AdventFunction = async (filename = "./src/2024/day4/input.txt") => {
   const grid = await loadEntireFileAsGrid(filename);
-  const part1 = countWords('XMAS', grid);
-  const part2 = countCrossWords('MAS', grid);
+  const part1 = countWords("XMAS", grid);
+  const part2 = countCrossWords("MAS", grid);
 
   return [part1, part2];
 };
