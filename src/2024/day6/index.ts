@@ -135,7 +135,8 @@ function wouldCauseLoop(_grid: string[][], position: Position): boolean {
 }
 
 function countBlockers(grid: string[][], positions: Position[]): number {
-  return positions.filter((position, i) => wouldCauseLoop(grid, position)).length;
+  return positions.filter((position, i) => wouldCauseLoop(grid, position))
+    .length;
 }
 
 const day6: AdventFunction = async (filename = "./src/2024/day6/input.txt") => {
