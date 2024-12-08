@@ -1,14 +1,14 @@
 import { AdventFunction } from "../common/types";
 
-import day1 from "./day1";
-import day2 from "./day2";
-import day3 from "./day3";
-import day4 from "./day4";
-import day5 from "./day5";
-import day6 from "./day6";
-import day7 from "./day7";
-import day8 from "./day8";
-import day9 from "./day9";
+import day1 from "./day01";
+import day2 from "./day02";
+import day3 from "./day03";
+import day4 from "./day04";
+import day5 from "./day05";
+import day6 from "./day06";
+import day7 from "./day07";
+import day8 from "./day08";
+import day9 from "./day09";
 import day10 from "./day10";
 import day11 from "./day11";
 import day12 from "./day12";
