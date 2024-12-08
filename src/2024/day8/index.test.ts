@@ -10,10 +10,10 @@ describe("day8", () => {
       expect(part1).toBe(14);
     });
 
-    it.skip("handles demo input for part 2 correctly", async () => {
+    it("handles demo input for part 2 correctly", async () => {
       const [, part2] = await day8(TEST_INPUT_FILE);
 
-      expect(part2).toBe(1);
+      expect(part2).toBe(34);
     });
   });
 });
