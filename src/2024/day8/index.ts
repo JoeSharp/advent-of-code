@@ -66,7 +66,10 @@ export function distinctPositions(positions: Position[]): Position[] {
   return positions
     .filter(position => {
       const asStr = JSON.stringify(position);
-      if (seen.has(asStr)) return false;
+      if (seen.has(asStr)) {
+        return false;
+        console.log('DEDUPLICATING', position);
+      }
       seen.add(asStr);
       return true;
     });
@@ -85,7 +88,16 @@ function copyGrid(rows: string[][]): string[][] {
 function debug(_grid: string[][], antinodes: Position[]) {
   const grid = copyGrid(_grid);
 
-  antinodes.forEach(([row, col]) => grid[row][col] = '#');
+  antinodes.forEach(([row, col]) => {
+    if (grid[row][col] !== EMPTY_CELL) {
+      console.log('Setting AN on non empty square', {
+        row,
+        col,
+        value: grid[row][col]
+      });
+    }
+    grid[row][col] = '#';
+  });
 
   console.log('Debug Grid');
   let str = '';
@@ -115,10 +127,11 @@ const day8: AdventFunction = async (filename = "./src/2024/day8/input.txt") => {
     .filter(an => isOnMap(grid, an));
 
   console.log('All Antinodes', JSON.stringify(antinodes));
-  console.log('Distinct Antinodes', JSON.stringify(distinctPositions(antinodes)));
-  debug(grid, antinodes);
+  const distinctAns = distinctPositions(antinodes);
+  console.log('Distinct Antinodes', JSON.stringify(distinctAns));
+  debug(grid, distinctAns);
 
-  const part1 = distinctPositions(antinodes).length;
+  const part1 = distinctAns.length;
 
   return [part1, 1];
 };
