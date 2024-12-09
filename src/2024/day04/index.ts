@@ -109,7 +109,7 @@ export function countCrossWords(word: string, grid: string[][]): number {
   return found;
 }
 
-const day4: AdventFunction = async (filename = "./src/2024/day4/input.txt") => {
+const day4: AdventFunction = async (filename = "./src/2024/day04/input.txt") => {
   const grid = await loadEntireFileAsGrid(filename);
   const part1 = countWords("XMAS", grid);
   const part2 = countCrossWords("MAS", grid);

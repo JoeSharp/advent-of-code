@@ -1,6 +1,6 @@
 import day1, { loadRightAndLeftLists } from "./index";
 
-const TEST_INPUT_FILE = "./src/2024/day1/testInput.txt";
+const TEST_INPUT_FILE = "./src/2024/day01/testInput.txt";
 
 describe("day1", () => {
   describe("loadRightAndLeftLists", () => {

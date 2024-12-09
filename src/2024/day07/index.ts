@@ -122,7 +122,7 @@ function enrichWithPart2Operators(c: Calibration): CalibrationWithCalcs {
   return enrichWithOperators(PART_2_OPERATORS, c);
 }
 
-const day7: AdventFunction = async (filename = "./src/2024/day7/input.txt") => {
+const day7: AdventFunction = async (filename = "./src/2024/day07/input.txt") => {
   const lines = await loadEntireFile(filename);
 
   const part1 = lines

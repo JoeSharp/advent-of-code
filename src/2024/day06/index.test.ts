@@ -11,7 +11,7 @@ import day6, {
 } from "./index";
 import { loadEntireFileAsGrid } from "../../common/processFile";
 
-const TEST_INPUT_FILE = "./src/2024/day6/testInput.txt";
+const TEST_INPUT_FILE = "./src/2024/day06/testInput.txt";
 
 describe("day6", () => {
   describe("day6", () => {

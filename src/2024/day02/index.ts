@@ -53,7 +53,7 @@ export function isSafeWithDampener(input: number[]): boolean {
   return false;
 }
 
-const day2: AdventFunction = async (filename = "./src/2024/day2/input.txt") => {
+const day2: AdventFunction = async (filename = "./src/2024/day02/input.txt") => {
   const lists = (await loadEntireFile(filename)).map(parseListOfNumbers);
   const part1 = lists.filter(isSafe).length;
   const part2 = lists.filter(isSafeWithDampener).length;

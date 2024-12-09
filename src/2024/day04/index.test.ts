@@ -1,6 +1,6 @@
 import day4 from "./index";
 
-const TEST_INPUT_FILE = "./src/2024/day4/testInput.txt";
+const TEST_INPUT_FILE = "./src/2024/day04/testInput.txt";
 
 describe("day4", () => {
   describe("day4", () => {

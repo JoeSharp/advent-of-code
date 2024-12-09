@@ -139,7 +139,7 @@ function countBlockers(grid: string[][], positions: Position[]): number {
     .length;
 }
 
-const day6: AdventFunction = async (filename = "./src/2024/day6/input.txt") => {
+const day6: AdventFunction = async (filename = "./src/2024/day06/input.txt") => {
   const grid = await loadEntireFileAsGrid(filename);
   const walk = walkGrid(grid);
   const walkPositions = distinctPositions(walk);

@@ -1,7 +1,7 @@
 import day7, { parseCalibration, concatenate } from "./index";
 import { loadEntireFile } from "../../common/processFile";
 
-const TEST_INPUT_FILE = "./src/2024/day7/testInput.txt";
+const TEST_INPUT_FILE = "./src/2024/day07/testInput.txt";
 
 describe("day7", () => {
   describe("day7", () => {

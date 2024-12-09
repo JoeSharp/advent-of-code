@@ -152,7 +152,7 @@ function debugAll(_grid: string[][], antinodes: Position[]) {
   printGrid(grid);
 }
 
-const day8: AdventFunction = async (filename = "./src/2024/day8/input.txt") => {
+const day8: AdventFunction = async (filename = "./src/2024/day08/input.txt") => {
   const grid = await loadEntireFileAsGrid(filename);
 
   const locMap = getLocationMap(grid);

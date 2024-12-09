@@ -1,6 +1,6 @@
 import day2, { xor, allOneDirection, parseListOfNumbers } from "./index";
 
-const TEST_INPUT_FILE = "./src/2024/day2/testInput.txt";
+const TEST_INPUT_FILE = "./src/2024/day02/testInput.txt";
 
 describe("day2", () => {
   describe("xor", () => {
