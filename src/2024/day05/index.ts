@@ -95,7 +95,9 @@ function isValid(line: number[], pageData: PageData): boolean {
   return findViolationIndex(line, pageData) === NO_VIOLATION;
 }
 
-const day5: AdventFunction = async (filename = "./src/2024/day05/input.txt") => {
+const day5: AdventFunction = async (
+  filename = "./src/2024/day05/input.txt",
+) => {
   const lines = await loadEntireFile(filename);
 
   const pageData: PageData = parsePageData(lines);

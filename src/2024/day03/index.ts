@@ -42,7 +42,9 @@ export function getCancellableMultiplications(line: string): Multiplication[] {
   return multiplications;
 }
 
-const day3: AdventFunction = async (filename = "./src/2024/day03/input.txt") => {
+const day3: AdventFunction = async (
+  filename = "./src/2024/day03/input.txt",
+) => {
   const contents = await loadEntireFile(filename);
 
   const line = contents.join("");
