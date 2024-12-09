@@ -1,5 +1,7 @@
+import {promises as fs} from "fs";
 import { AdventFunction } from "../../common/types";
 import { loadEntireFile } from '../../common/processFile';
+import { arraySectionToString } from '../../common/arrayUtils';
 
 export interface Block {
   value: number;
@@ -85,39 +87,48 @@ export function defragment(input: number[]): number[] {
   return output;
 }
 
-function findNextNaNBlock(blocks: Block[], startIndex: number): number {
+function findNextNaNBlock(blocks: Block[], startIndex: number, minLength: number): number {
   for (let i=startIndex; i<blocks.length; i++) {
-    if (isNaN(blocks[i].value)) return i;
+    if (isNaN(blocks[i].value) && blocks[i].length >= minLength) return i;
   }
 
   return NOT_FOUND;
 }
 
+const CHUNK_SIZE = 128;
 export function defragmentContiguous(drive: Drive): number[] {
   const outputBlocks = [...drive.blocks.map(b => ({...b}))];
   const output = [...drive.contents];
 
+  //console.log('OUTPUT BEFORE', arraySectionToString(output, 0, output.length, CHUNK_SIZE));
   for (let i=outputBlocks.length-1; i>=0; i--) {
     const block = outputBlocks[i];
     if (!isNaN(block.value)) {
-      let nextFreeBlock = findNextNaNBlock(outputBlocks, 0);
-      while (nextFreeBlock !== NOT_FOUND) {
+      //console.log('DEFRAG BLOCK', block);
+      const nextFreeBlock = findNextNaNBlock(outputBlocks, 0, block.length);
+      if (nextFreeBlock !== NOT_FOUND) {
         const freeBlock = outputBlocks[nextFreeBlock];
-        if (freeBlock.length >= block.length) {
-          for (let i=0; i<block.length; i++) {
-            output[freeBlock.startIndex + i] = block.value;
-            output[block.startIndex + i] = NaN;
-          }
-
-          freeBlock.startIndex += block.length;
-          freeBlock.length -= block.length;
-          break;
+        const freeBlockBeforeStr = JSON.stringify(freeBlock);
+        const freeBlockBefore = {...freeBlock};
+        const freeFrom = arraySectionToString(output, freeBlock.startIndex, freeBlock.length, CHUNK_SIZE);
+        const toFrom = arraySectionToString(output, block.startIndex, block.length, CHUNK_SIZE);
+        for (let i=0; i<block.length; i++) {
+          output[freeBlock.startIndex + i] = block.value;
+          output[block.startIndex + i] = NaN;
         }
 
-        nextFreeBlock = findNextNaNBlock(outputBlocks, nextFreeBlock+1);
+        freeBlock.startIndex += block.length;
+        freeBlock.length -= block.length;
+        //console.log(`Free block ${nextFreeBlock}`, freeBlockBeforeStr);
+        //console.log(`Free block ${nextFreeBlock}`, JSON.stringify(freeBlock));
+        //console.log('FROM', freeFrom);
+        //console.log('FROM', arraySectionToString(output, freeBlockBefore.startIndex, freeBlockBefore.length, CHUNK_SIZE));
+        //console.log('TO', toFrom);
+        //console.log('TO', arraySectionToString(output, block.startIndex, block.length, CHUNK_SIZE));
       }
     }
   }
+  //console.log('OUTPUT AFTER', arraySectionToString(output, 0, output.length, CHUNK_SIZE));
 
   return output;
 }
@@ -135,6 +146,10 @@ const day9: AdventFunction = async (filename = "./src/2024/day09/input.txt") => 
   const checksum1 = calculateChecksum(defragged1);
 
   const defragged2 = defragmentContiguous(expanded);
+
+  const d2 = defragged2.join('');
+  await fs.writeFile('./src/2024/day09/part2_output.txt', d2);
+
   const checksum2 = calculateChecksum(defragged2);
 
   return [checksum1, checksum2];
