@@ -57,12 +57,13 @@ export function findNextNaN(input: number[], fromIndex: number): Block {
         }
       }
       return {
+        value: NaN,
         startIndex,
         length
       };
     }
   }
-  return { startIndex: NOT_FOUND, length: 0};
+  return { value: NaN, startIndex: NOT_FOUND, length: 0};
 }
 
 export function defragment(input: number[]): number[] {
@@ -84,19 +85,39 @@ export function defragment(input: number[]): number[] {
   return output;
 }
 
+function findNextNaNBlock(blocks: Block[], startIndex: number): number {
+  for (let i=startIndex; i<blocks.length; i++) {
+    if (isNaN(blocks[i].value)) return i;
+  }
+
+  return NOT_FOUND;
+}
+
 export function defragmentContiguous(drive: Drive): number[] {
+  const outputBlocks = [...drive.blocks.map(b => ({...b}))];
   const output = [...drive.contents];
-  let { startIndex: nextFreeSpace } = findNextNaN(drive.contents, 0);
-/*
-  while (nextFreeSpace < rightMost) {
-    if (!isNaN(output[rightMost])) {
-      output[nextFreeSpace] = output[rightMost];
-      output[rightMost] = NaN;
-      const n = findNextNaN(output, nextFreeSpace + 1);
-      nextFreeSpace = n.startIndex;
+
+  for (let i=outputBlocks.length-1; i>=0; i--) {
+    const block = outputBlocks[i];
+    if (!isNaN(block.value)) {
+      let nextFreeBlock = findNextNaNBlock(outputBlocks, 0);
+      while (nextFreeBlock !== NOT_FOUND) {
+        const freeBlock = outputBlocks[nextFreeBlock];
+        if (freeBlock.length >= block.length) {
+          for (let i=0; i<block.length; i++) {
+            output[freeBlock.startIndex + i] = block.value;
+            output[block.startIndex + i] = NaN;
+          }
+
+          freeBlock.startIndex += block.length;
+          freeBlock.length -= block.length;
+          break;
+        }
+
+        nextFreeBlock = findNextNaNBlock(outputBlocks, nextFreeBlock+1);
+      }
     }
   }
-  */
 
   return output;
 }

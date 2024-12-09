@@ -49,8 +49,8 @@ describe("day9", () => {
       const result1 = findNextNaN(input, 0);
       const result2 = findNextNaN(input, result1.startIndex + result1.length);
 
-      expect(result1).toStrictEqual({startIndex: 2, length: 2});
-      expect(result2).toStrictEqual({startIndex: 5, length: 3});
+      expect(result1).toStrictEqual({value: NaN, startIndex: 2, length: 2});
+      expect(result2).toStrictEqual({value: NaN, startIndex: 5, length: 3});
     });
 
     it("defragments", () => {
@@ -84,7 +84,7 @@ describe("day9", () => {
       expect(part1).toBe(1928);
     });
 
-    it.skip("handles demo input for part 2 correctly", async () => {
+    it("handles demo input for part 2 correctly", async () => {
       const [, part2] = await day9(TEST_INPUT_FILE);
 
       expect(part2).toBe(2858);
