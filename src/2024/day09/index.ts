@@ -100,17 +100,14 @@ function findNextNaNBlock(
 ): number {
   for (let i = startIndex; i < blocks.length; i++) {
     if (blocks[i].startIndex > toAccomodate.startIndex) break;
-    if (isNaN(blocks[i].value) && blocks[i].length >= toAccomodate.length)
+    if (isNaN(blocks[i].value) && blocks[i].length >= toAccomodate.length) {
       return i;
-    if (blocks[i].startIndex == toAccomodate.startIndex) {
-      //console.log(`This block starts at same point as that we are accomodating`, {b: blocks[i], toAccomodate});
     }
   }
 
   return NOT_FOUND;
 }
 
-const CHUNK_SIZE = 128;
 export function defragmentContiguous(drive: Drive): number[] {
   const outputBlocks = [...drive.blocks.map((b) => ({ ...b }))];
   const output = [...drive.contents];
@@ -121,18 +118,6 @@ export function defragmentContiguous(drive: Drive): number[] {
       const nextFreeBlock = findNextNaNBlock(outputBlocks, 0, block);
       if (nextFreeBlock !== NOT_FOUND) {
         const freeBlock = outputBlocks[nextFreeBlock];
-        const freeFrom = arraySectionToString(
-          output,
-          freeBlock.startIndex,
-          freeBlock.length,
-          CHUNK_SIZE,
-        );
-        const toFrom = arraySectionToString(
-          output,
-          block.startIndex,
-          block.length,
-          CHUNK_SIZE,
-        );
         for (let i = 0; i < block.length; i++) {
           output[freeBlock.startIndex + i] = block.value;
           output[block.startIndex + i] = NaN;
@@ -165,10 +150,6 @@ const day9: AdventFunction = async (
   const checksum1 = calculateChecksum(defragged1);
 
   const defragged2 = defragmentContiguous(expanded);
-
-  const d2 = defragged2.join(",");
-  await fs.writeFile("./src/2024/day09/part2_output.txt", d2);
-
   const checksum2 = calculateChecksum(defragged2);
 
   return [checksum1, checksum2];
