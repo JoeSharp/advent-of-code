@@ -147,7 +147,7 @@ const day9: AdventFunction = async (filename = "./src/2024/day09/input.txt") => 
 
   const defragged2 = defragmentContiguous(expanded);
 
-  const d2 = defragged2.join('');
+  const d2 = defragged2.join(',');
   await fs.writeFile('./src/2024/day09/part2_output.txt', d2);
 
   const checksum2 = calculateChecksum(defragged2);
