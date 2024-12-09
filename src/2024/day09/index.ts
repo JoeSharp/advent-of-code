@@ -90,7 +90,7 @@ export function defragment(input: number[]): number[] {
 function findNextNaNBlock(blocks: Block[], startIndex: number, toAccomodate: Block): number {
   for (let i=startIndex; i<blocks.length; i++) {
     if (isNaN(blocks[i].value) && blocks[i].length >= toAccomodate.length) return i;
-    if (blocks[i].startIndex > toAccomodate.startIndex) break;
+    if (blocks[i].startIndex >= toAccomodate.startIndex) break;
   }
 
   return NOT_FOUND;
@@ -101,11 +101,12 @@ export function defragmentContiguous(drive: Drive): number[] {
   const outputBlocks = [...drive.blocks.map(b => ({...b}))];
   const output = [...drive.contents];
 
-  console.log('OUTPUT BEFORE', arraySectionToString(output, 0, output.length, CHUNK_SIZE));
+  //console.log('OUTPUT BEFORE', arraySectionToString(output, 0, output.length, CHUNK_SIZE));
+  //console.log('Start Defragging');
   for (let i=outputBlocks.length-1; i>=0; i--) {
     const block = outputBlocks[i];
     if (!isNaN(block.value)) {
-      console.log('DEFRAG BLOCK', block);
+      //console.log('DEFRAG BLOCK', block);
       const nextFreeBlock = findNextNaNBlock(outputBlocks, 0, block);
       if (nextFreeBlock !== NOT_FOUND) {
         const freeBlock = outputBlocks[nextFreeBlock];
@@ -120,16 +121,18 @@ export function defragmentContiguous(drive: Drive): number[] {
 
         freeBlock.startIndex += block.length;
         freeBlock.length -= block.length;
-        console.log(`Free block ${nextFreeBlock}`, freeBlockBeforeStr);
-        console.log(`Free block ${nextFreeBlock}`, JSON.stringify(freeBlock));
-        console.log('FROM', freeFrom);
-        console.log('FROM', arraySectionToString(output, freeBlockBefore.startIndex, freeBlockBefore.length, CHUNK_SIZE));
-        console.log('TO', toFrom);
-        console.log('TO', arraySectionToString(output, block.startIndex, block.length, CHUNK_SIZE));
+        //console.log(`Free block ${nextFreeBlock}`, freeBlockBeforeStr);
+        //console.log(`Free block ${nextFreeBlock}`, JSON.stringify(freeBlock));
+        //console.log('FROM', freeFrom);
+        //console.log('FROM', arraySectionToString(output, freeBlockBefore.startIndex, freeBlockBefore.length, CHUNK_SIZE));
+        //console.log('TO', toFrom);
+        //console.log('TO', arraySectionToString(output, block.startIndex, block.length, CHUNK_SIZE));
+      } else {
+        //console.log('Nothing Found');
       }
     }
   }
-  console.log('OUTPUT AFTER', arraySectionToString(output, 0, output.length, CHUNK_SIZE));
+  //console.log('OUTPUT AFTER', arraySectionToString(output, 0, output.length, CHUNK_SIZE));
 
   return output;
 }
