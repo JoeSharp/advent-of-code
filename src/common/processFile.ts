@@ -15,6 +15,14 @@ export const loadEntireFile = (filename: string): Promise<string[]> =>
     });
   });
 
+export async function loadFileAsDigitGrid(
+  filename: string,
+): Promise<number[][]> {
+  return (await loadEntireFileAsGrid(filename)).map((row) =>
+    [...row].map((c) => parseInt(c)),
+  );
+}
+
 export async function loadEntireFileAsGrid(
   filename: string,
 ): Promise<string[][]> {
