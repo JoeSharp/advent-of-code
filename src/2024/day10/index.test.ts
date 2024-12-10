@@ -5,6 +5,7 @@ const TEST_INPUT_FILE_1 = "./src/2024/day10/testInput1.txt";
 const TEST_INPUT_FILE_2 = "./src/2024/day10/testInput2.txt";
 const TEST_INPUT_FILE_3 = "./src/2024/day10/testInput3.txt";
 const TEST_INPUT_FILE_MAIN = "./src/2024/day10/testInputMain.txt";
+const INPUT_FILE_MAIN = "./src/2024/day10/input.txt";
 
 describe("day10", () => {
   it.each`
@@ -46,15 +47,17 @@ describe("day10", () => {
     },
   );
 
-  it("handles demo input for part 1 correctly", async () => {
-    const [part1] = await day10(TEST_INPUT_FILE_MAIN);
+  it("handles demo input correctly", async () => {
+    const [part1, part2] = await day10(TEST_INPUT_FILE_MAIN);
 
     expect(part1).toBe(36);
+    expect(part2).toBe(81);
   });
 
-  it("handles demo input for part 2 correctly", async () => {
-    const [, part2] = await day10(TEST_INPUT_FILE_MAIN);
+  it("handles real input correctly", async () => {
+    const [part1, part2] = await day10(INPUT_FILE_MAIN);
 
-    expect(part2).toBe(81);
+    expect(part1).toBe(719);
+    expect(part2).toBe(1530);
   });
 });

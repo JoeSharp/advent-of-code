@@ -5,6 +5,7 @@ import {
   nextStepLeavesMap,
   applyDirection,
   distinctValues,
+  walkGrid,
   NORTH,
   SOUTH,
   WEST,
@@ -12,49 +13,44 @@ import {
 } from "../../common/arrayUtils";
 import { loadFileAsDigitGrid } from "../../common/processFile";
 
-const LAST_VALUE = 9;
+const START_VALUE = 0;
+const END_VALUE = 9;
 
 export function takeSteps(
   grid: number[][],
   position: Position,
-  found: (pos: Position) => void,
+  found: (pos: Position[]) => void,
 ) {
-  const thisValue = grid[position[0]][position[1]];
-
-  [NORTH, SOUTH, WEST, EAST]
-    .filter((dir) => !nextStepLeavesMap(grid, position, dir))
-    .map((dir) => applyDirection(position, dir))
-    .filter(([row, col]) => grid[row][col] === thisValue + 1)
-    .forEach((nextPos) => {
-      if (grid[nextPos[0]][nextPos[1]] == LAST_VALUE) {
-        found(nextPos);
-      } else {
-        takeSteps(grid, nextPos, found);
-      }
-    });
+  walkGrid(
+    grid,
+    [],
+    position,
+    (curr, next) => grid[next[0]][next[1]] === grid[curr[0]][curr[1]] + 1,
+    (pos) => grid[pos[0]][pos[1]] === END_VALUE,
+    (path) => found(path),
+  );
 }
 
 export function evaluateTrailhead(grid: number[][], start: Position): number {
-  let positionsReached: Position[] = [];
-  takeSteps(grid, start, p => positionsReached.push(p));
-  return distinctValues(positionsReached).length;
+  let paths: Position[][] = [];
+  takeSteps(grid, start, (p) => paths.push(p));
+  return distinctValues(paths.map((p) => p[p.length - 1])).length;
 }
 
 export function evaluateHikeRating(grid: number[][], start: Position): number {
-  let positionsReached: Position[] = [];
-  takeSteps(grid, start, p => positionsReached.push(p));
+  let paths: Position[][] = [];
+  takeSteps(grid, start, (p) => paths.push(p));
   return positionsReached.length;
 }
 
-
 export function calculateTrailheads(grid: number[][]): number {
-  return findInstancesOf(grid, (x) => x === 0)
+  return findInstancesOf(grid, (x) => x === START_VALUE)
     .map((sp) => evaluateTrailhead(grid, sp))
     .reduce((acc, curr) => acc + curr, 0);
 }
 
 export function calculateHikeRatings(grid: number[][]): number {
-  return findInstancesOf(grid, (x) => x === 0)
+  return findInstancesOf(grid, (x) => x === START_VALUE)
     .map((sp) => evaluateHikeRating(grid, sp))
     .reduce((acc, curr) => acc + curr, 0);
 }
@@ -62,7 +58,7 @@ export function calculateHikeRatings(grid: number[][]): number {
 const day10: AdventFunction = async (
   filename = "./src/2024/day10/input.txt",
 ) => {
-      const grid = await loadFileAsDigitGrid(filename);
+  const grid = await loadFileAsDigitGrid(filename);
   const part1 = calculateTrailheads(grid);
   const part2 = calculateHikeRatings(grid);
 

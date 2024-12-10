@@ -12,15 +12,13 @@ export const NONSENSE: Position = [-1, -1];
 export function distinctValues<T>(arr: T[]): T[] {
   const seen = new Set();
 
-  return arr
-    .filter(value => {
-      const asStr = JSON.stringify(value);
-      if (seen.has(asStr)) return false;
-      seen.add(asStr);
-      return true;
-    });
+  return arr.filter((value) => {
+    const asStr = JSON.stringify(value);
+    if (seen.has(asStr)) return false;
+    seen.add(asStr);
+    return true;
+  });
 }
-
 
 export function turnRight(direction: Position): Position {
   switch (direction) {
@@ -66,6 +64,35 @@ export function getNextBlock(
 ): string {
   const [nextRow, nextCol] = applyDirection(position, direction);
   return grid[nextRow][nextCol];
+}
+
+export function walkGrid<T>(
+  grid: T[][],
+  path: Position[],
+  position: Position,
+  nextStepValid: (currPos: Position, nextPos: Position) => boolean,
+  isAtEnd: (pos: Position) => boolean,
+  pathFound: (path: Position[]) => void,
+) {
+  [NORTH, SOUTH, WEST, EAST]
+    .filter((dir) => !nextStepLeavesMap(grid, position, dir))
+    .map((dir) => applyDirection(position, dir))
+    .filter((nextPos) => nextStepValid(position, nextPos))
+    .forEach((nextPos) => {
+      const newPath = [...path, position];
+      if (isAtEnd(nextPos)) {
+        pathFound([...path, position, nextPos]);
+      } else {
+        walkGrid(
+          grid,
+          [...path, position],
+          nextPos,
+          nextStepValid,
+          isAtEnd,
+          pathFound,
+        );
+      }
+    });
 }
 
 export function findInstancesOf<T>(
