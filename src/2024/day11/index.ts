@@ -39,8 +39,7 @@ export function blinkAtStonesRepeatedly(
 ): number {
   if (times === 0) return 1;
 
-  const stones = blinkAtStones(values);
-  return stones
+  return blinkAtStones(values)
     .map((s) => blinkAtStonesRepeatedly([s], times - 1))
     .reduce((acc, curr) => acc + curr, 0);
 }
