@@ -23,7 +23,7 @@ describe("day11", () => {
     input        | times | expected
     ${[125, 17]} | ${6}  | ${22}
   `("blinkAtStones $input => $expected", ({ input, times, expected }) => {
-    const result = blinkAtStonesRepeatedly(input, times);
+    const result = blinkAtStonesRepeatedly(input, times, new Map());
 
     expect(result).toBe(expected);
   });

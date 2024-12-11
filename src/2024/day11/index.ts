@@ -31,37 +31,23 @@ export function blinkAtStones(values: number[]): number[] {
   return values.flatMap(nextStoneValue);
 }
 
-const MAX_LENGTH = 1000000;
-
 export function blinkAtStonesRepeatedly(
   values: number[],
   times: number,
+  cache: Map<string, number>
 ): number {
   if (times === 0) return 1;
 
-  return blinkAtStones(values)
-    .map((s) => blinkAtStonesRepeatedly([s], times - 1))
+  const asStr = `${values}-${times}`;
+  if (cache.has(asStr)) return cache.get(asStr)!;
+
+  const result = blinkAtStones(values)
+    .map((s) => blinkAtStonesRepeatedly([s], times - 1, cache))
     .reduce((acc, curr) => acc + curr, 0);
-}
 
-export function blinkAtStonesRepeatedlySlowAF(
-  values: number[],
-  times: number,
-): number {
-  if (times === 1) return blinkAtStones(values).length;
+  cache.set(asStr, result);
 
-  if (values.length > MAX_LENGTH) {
-    let total = 0;
-    const chunks = splitIntoChunks(values, MAX_LENGTH);
-    for (let c = 0; c < chunks.length; c++) {
-      const chunkBlinked = blinkAtStones(chunks[c]);
-      const score = blinkAtStonesRepeatedly(chunkBlinked, times - 1);
-      total += score;
-    }
-    return total;
-  } else {
-    return blinkAtStonesRepeatedly(blinkAtStones(values), times - 1);
-  }
+  return result;
 }
 
 const NUMBER_BLINKS_P1 = 25;
@@ -73,8 +59,8 @@ const day11: AdventFunction = async (
   const contents = (await loadFirstLine(filename))
     .split(" ")
     .map((i) => parseInt(i));
-  const part1 = blinkAtStonesRepeatedly(contents, NUMBER_BLINKS_P1);
-  const part2 = blinkAtStonesRepeatedly(contents, NUMBER_BLINKS_P2);
+  const part1 = blinkAtStonesRepeatedly(contents, NUMBER_BLINKS_P1, new Map());
+  const part2 = blinkAtStonesRepeatedly(contents, NUMBER_BLINKS_P2, new Map());
 
   return [part1, part2];
 };
