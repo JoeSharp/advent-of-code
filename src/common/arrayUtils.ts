@@ -116,6 +116,17 @@ function copyGrid<T>(rows: T[][]): T[][] {
   return [...rows.map((row) => [...row])];
 }
 
+export function splitIntoChunks<T>(arr: T[], chunkSize: number): T[][] {
+  const output: T[][] = [];
+  const chunks = Math.ceil(arr.length / chunkSize);
+
+  for (let i = 0; i < chunks; i++) {
+    output.push(arr.slice(i * chunkSize, (i + 1) * chunkSize));
+  }
+
+  return output;
+}
+
 const LOOPED_WALK: WalkStep[] = [];
 
 export function arraySectionToString(

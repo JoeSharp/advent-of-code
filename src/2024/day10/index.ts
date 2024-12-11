@@ -40,7 +40,7 @@ export function evaluateTrailhead(grid: number[][], start: Position): number {
 export function evaluateHikeRating(grid: number[][], start: Position): number {
   let paths: Position[][] = [];
   takeSteps(grid, start, (p) => paths.push(p));
-  return positionsReached.length;
+  return paths.length;
 }
 
 export function calculateTrailheads(grid: number[][]): number {

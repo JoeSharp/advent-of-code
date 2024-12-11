@@ -1,6 +1,9 @@
 import * as fs from "fs";
 import readline from "readline";
 
+export const loadFirstLine = (filename: string): Promise<string> =>
+  loadEntireFile(filename).then(([line]) => line);
+
 export const loadEntireFile = (filename: string): Promise<string[]> =>
   new Promise<string[]>((resolve) => {
     let lines: string[] = [];

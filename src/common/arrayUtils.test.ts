@@ -4,6 +4,7 @@ import {
   findStartPosition,
   getNextBlock,
   nextStepLeavesMap,
+  splitIntoChunks,
   NORTH,
   SOUTH,
   EAST,
@@ -14,6 +15,18 @@ import { loadEntireFileAsGrid } from "./processFile";
 const TEST_INPUT_FILE = "./src/2024/day06/testInput.txt";
 
 describe("arrayUtils", () => {
+  it.each`
+    input                    | chunkSize | expected
+    ${[0, 1, 2]}             | ${1}      | ${[[0], [1], [2]]}
+    ${[0, 1, 2, 3, 4, 5]}    | ${2}      | ${[[0, 1], [2, 3], [4, 5]]}
+    ${[0, 1, 2, 3, 4, 5, 6]} | ${2}      | ${[[0, 1], [2, 3], [4, 5], [6]]}
+  `(
+    "splitIntoChunks $input into $chunkSize => $expected",
+    ({ input, chunkSize, expected }) => {
+      const result = splitIntoChunks(input, chunkSize);
+      expect(result).toStrictEqual(expected);
+    },
+  );
   it.each`
     input    | expected
     ${NORTH} | ${EAST}
