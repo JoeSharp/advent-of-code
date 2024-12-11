@@ -34,7 +34,7 @@ export function blinkAtStones(values: number[]): number[] {
 export function blinkAtStonesRepeatedly(
   values: number[],
   times: number,
-  cache: Map<string, number>
+  cache: Map<string, number>,
 ): number {
   if (times === 0) return 1;
 
