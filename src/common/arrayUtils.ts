@@ -34,13 +34,7 @@ export function floodFill<T>(
     .filter(([r, c]) => valueMatcher(grid[r][c]))
     .forEach((nextPos) => {
       tileFound(nextPos);
-      floodFill(
-        grid,
-        nextPos,
-        alreadyEvaluated,
-        valueMatcher,
-        tileFound
-      );
+      floodFill(grid, nextPos, alreadyEvaluated, valueMatcher, tileFound);
     });
 }
 
@@ -68,6 +62,23 @@ export function turnRight(direction: Position): Position {
   }
 
   return NONSENSE;
+}
+export function turnLeft(direction: Position): Position {
+  switch (direction) {
+    case NORTH:
+      return WEST;
+    case EAST:
+      return NORTH;
+    case SOUTH:
+      return EAST;
+    case WEST:
+      return SOUTH;
+  }
+  return NONSENSE;
+}
+
+export function posEqual(a: Position, b: Position): boolean {
+  return a[0] === b[0] && a[1] === b[1];
 }
 
 export function applyDirection(
