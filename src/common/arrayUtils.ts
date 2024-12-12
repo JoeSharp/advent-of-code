@@ -9,6 +9,41 @@ export const WEST: Position = [0, -1];
 export const EAST: Position = [0, 1];
 export const NONSENSE: Position = [-1, -1];
 
+export function posToStr([r, c]: Position) {
+  return `${r}-${c}`;
+}
+
+export function fillArea<T>(
+  grid: T[][],
+  position: Position,
+  alreadyEvaluated: Set<string>,
+  valueMatcher: (v: T) => boolean,
+  tileFound: (pos: Position) => void,
+  adjacentTileFound: (pos: Position) => void,
+) {
+  [NORTH, SOUTH, WEST, EAST]
+    .filter((dir) => !nextStepLeavesMap(grid, position, dir))
+    .map((dir) => applyDirection(position, dir))
+    .filter(pos => {
+      const posStr = posToStr(pos);
+      const evaluated = alreadyEvaluated.has(posStr);
+      alreadyEvaluated.add(posStr);
+      return !evaluated;
+    })
+    .filter(([r, c]) => valueMatcher(grid[r][c]))
+    .forEach((nextPos) => {
+        tileFound(nextPos);
+        fillArea(
+          grid,
+          nextPos,
+          alreadyEvaluated,
+          valueMatcher,
+          tileFound,
+          adjacentTileFound,
+        );
+    });
+}
+
 export function distinctValues<T>(arr: T[]): T[] {
   const seen = new Set();
 
