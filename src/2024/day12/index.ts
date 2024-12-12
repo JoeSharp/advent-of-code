@@ -4,7 +4,13 @@ import {
   Position,
   posToStr,
   distinctValues,
-  fillArea,
+  applyDirection,
+  nextStepLeavesMap,
+  floodFill,
+  NORTH,
+  SOUTH,
+  EAST,
+  WEST,
 } from "../../common/arrayUtils";
 
 interface Plot {
@@ -16,35 +22,55 @@ interface Plot {
 
 type Garden = Plot[];
 
-function calculatePerimeter(grid: string[][], 
+function calculatePerimeter(
+  grid: string[][],
+  id: string,
   tiles: Position[],
-  tileFound: (pos: Position) => void): number {
-  return 0;
+  tileFound: (pos: Position) => void,
+): number {
+  let perimeter = 0;
+
+  tiles.forEach((tile) => {
+    [NORTH, SOUTH, EAST, WEST].forEach((dir) => {
+      if (nextStepLeavesMap(grid, tile, dir)) {
+        perimeter++;
+      } else {
+        const [r, c] = applyDirection(tile, dir);
+        if (grid[r][c] !== id) {
+          perimeter++;
+          tileFound([r, c]);
+        }
+      }
+    });
+  });
+
+  return perimeter;
 }
 
 export function findPlot(grid: string[][], [row, col]: Position): Plot {
   const id = grid[row][col];
   let tiles: Position[] = [];
 
-  fillArea(
+  floodFill(
     grid,
     [row, col],
     new Set(),
     (v) => v === id,
-    (tile) => tiles.push(tile)
+    (tile) => tiles.push(tile),
   );
 
   tiles = distinctValues(tiles);
 
-
   const perimeterTiles: Position[] = [];
-  const perimeter = calculatePerimeter(grid, tiles, p => perimeterTiles.push(p));
+  const perimeter = calculatePerimeter(grid, id, tiles, (p) =>
+    perimeterTiles.push(p),
+  );
 
   return {
     id,
     tiles,
     perimeter,
-    perimeterTiles
+    perimeterTiles,
   };
 }
 
@@ -54,7 +80,7 @@ export function parseGarden(grid: string[][]): Garden {
   const seenTiles: Set<string> = new Set();
   for (let row = 0; row < grid.length; row++) {
     for (let col = 0; col < grid[row].length; col++) {
-      const pos = [row, col];
+      const pos: Position = [row, col];
       const posStr = posToStr(pos);
       if (seenTiles.has(posStr)) {
         continue;
@@ -62,7 +88,7 @@ export function parseGarden(grid: string[][]): Garden {
       seenTiles.add(posStr);
 
       const plot = findPlot(grid, pos);
-      plot.tiles.map(posToStr).forEach(t => seenTiles.add(t));
+      plot.tiles.map(posToStr).forEach((t) => seenTiles.add(t));
       garden.push(plot);
     }
   }
