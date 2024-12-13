@@ -88,20 +88,18 @@ export function calcWaysToWin(clawMachine: ClawMachine): WayToWin[] {
     });
 }
 
-export function getCost({a, b}: WayToWin): number {
-    return a * TOKEN_COST_A + b * TOKEN_COST_B;
+export function getCost({ a, b }: WayToWin): number {
+  return a * TOKEN_COST_A + b * TOKEN_COST_B;
 }
 
 export const UNSOLVEABLE = 0;
 export function cheapestWinCost(clawMachine: ClawMachine): number {
-  const waysToWin = calcWaysToWin(clawMachine)
-    .map(getCost)
-    .sort(numericSort)
+  const waysToWin = calcWaysToWin(clawMachine).map(getCost).sort(numericSort);
 
   if (waysToWin.length > 0) {
     return waysToWin[0];
   } else {
-    return UNSOLVEABLE; 
+    return UNSOLVEABLE;
   }
 }
 
