@@ -63,11 +63,11 @@ export function validWaysToPressA(
 ): Set<number> {
   const waysToPress: Set<number> = new Set();
 
-  const max = Math.floor(target / a);
+  const max = Math.min(MAX_BUTTON_PUSHES, Math.ceil(target / a));
 
   for (let i = 0; i < max; i++) {
     const diff = target - a * i;
-    if (isDivisibleBy(diff, b)) {
+    if (diff > 0 && isDivisibleBy(diff, b)) {
       waysToPress.add(i);
     }
   }
