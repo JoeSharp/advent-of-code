@@ -65,18 +65,20 @@ describe("day12", () => {
   });
 
   it.only.each`
-    inputFile               | id     | expPrice2
-    ${TEST_INPUT_FILE_E}    | ${"E"} | ${204}
-    ${TEST_INPUT_FILE_ABBA} | ${"A"} | ${432}
+    inputFile               | id     | expSides | expPrice2
+    ${TEST_INPUT_FILE_E}    | ${"E"} | ${12} | ${204}
+    ${TEST_INPUT_FILE_ABBA} | ${"A"} | ${12} | ${432}
   `(
-    "calculatePrice2 $inputFile $id => $expPrice",
-    async ({ inputFile, id, expPrice2 }) => {
+    "calculatePrice2 $inputFile $id => $expPrice2",
+    async ({ inputFile, id, expSides, expPrice2 }) => {
       const grid = await loadEntireFileAsGrid(inputFile);
       const garden = parseGarden(grid);
 
       const plot: Plot = garden.filter((plot) => plot.id === id)[0];
 
       expect(plot).toBeDefined();
+        expect(plot.sides).toBe(expSides);
+      
       const price2 = calculatePrice2(plot);
 
       expect(price2).toBe(expPrice2);

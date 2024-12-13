@@ -9,6 +9,7 @@ import {
   distinctValues,
   applyDirection,
   nextStepLeavesMap,
+  countSameNeighbours,
   floodFill,
   turnLeft,
   turnRight,
@@ -62,7 +63,7 @@ function toTheSideIsUs(
   return result;
 }
 
-function calculateSides(
+function calculateSidesWithWalk(
   grid: string[][],
   id: string,
   tiles: Position[],
@@ -119,6 +120,31 @@ function calculateSides(
       }
     }
   } while (!seen.has(posAndDirToStr(pos, dir)));
+
+  return sides;
+}
+
+function calculateSides(
+  grid: string[][],
+  id: string,
+  tiles: Position[],
+): number {
+  let sides = 0;
+
+  tiles.forEach(tile => {
+    const sameNeighbours = countSameNeighbours(grid, tile);
+    switch (sameNeighbours) {
+      case 2:
+        sides += 2;
+        break;
+      case 3:
+        sides++;
+        break;
+      case 7:
+        sides++;
+        break;
+    }
+  });
 
   return sides;
 }

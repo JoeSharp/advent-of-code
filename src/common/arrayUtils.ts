@@ -4,22 +4,51 @@ export interface WalkStep {
   direction: Position;
 }
 export const NORTH: Position = [-1, 0];
+export const NORTH_WEST: Position = [-1, -1];
+export const NORTH_EAST: Position = [-1, 1];
 export const SOUTH: Position = [1, 0];
+export const SOUTH_WEST: Position = [1, -1];
+export const SOUTH_EAST: Position = [1, 1];
 export const WEST: Position = [0, -1];
 export const EAST: Position = [0, 1];
 export const NONSENSE: Position = [-1, -1];
+export const ALL_DIRECTIONS = [
+  NORTH, NORTH_WEST, NORTH_EAST,SOUTH, SOUTH_WEST, SOUTH_EAST,WEST, EAST
+];
+export const CROSS_DIRECTIONS = [
+  NORTH, SOUTH, EAST, WEST
+];
+
+export function countSameNeighbours(grid: string[][], pos: Position): number {
+  const value = grid[pos[0]][pos[1]];
+
+  return ALL_DIRECTIONS
+    .filter(dir => !nextStepLeavesMap(grid, pos, dir))
+    .map(dir => applyDirection(pos, dir))
+    .map(([r, c]) => grid[r][c])
+    .filter(v => v === value)
+    .length;
+}
 
 export function dirToShortStr(dir: Position): string {
-  if (posEqual(dir, NORTH)) return "^";
-  if (posEqual(dir, SOUTH)) return "v";
-  if (posEqual(dir, WEST)) return "<";
-  if (posEqual(dir, EAST)) return ">";
+  if (posEqual(dir, NORTH)) return "⬆️";
+  if (posEqual(dir, SOUTH)) return "⬇️";
+  if (posEqual(dir, WEST)) return "⬅️";
+  if (posEqual(dir, EAST)) return "➡️";
+  if (posEqual(dir, NORTH_WEST)) return "↖️";
+  if (posEqual(dir, NORTH_EAST)) return "↗️";
+  if (posEqual(dir, SOUTH_WEST)) return "↙️";
+  if (posEqual(dir, SOUTH_EAST)) return "↘️";
   return ".";
 }
 
 export function dirToStr(dir: Position): string {
   if (posEqual(dir, NORTH)) return "NORTH";
+  if (posEqual(dir, NORTH_WEST)) return "NORTH_WEST";
+  if (posEqual(dir, NORTH_EAST)) return "NORTH_EAST";
   if (posEqual(dir, SOUTH)) return "SOUTH";
+  if (posEqual(dir, SOUTH_WEST)) return "SOUTH_WEST";
+  if (posEqual(dir, SOUTH_EAST)) return "SOUTH_EAST";
   if (posEqual(dir, WEST)) return "WEST";
   if (posEqual(dir, EAST)) return "EAST";
   return "UNKNOWN";
@@ -42,7 +71,7 @@ export function floodFill<T>(
 ) {
   tileFound(position);
   alreadyEvaluated.add(posToStr(position));
-  [NORTH, SOUTH, WEST, EAST]
+  CROSS_DIRECTIONS
     .filter((dir) => !nextStepLeavesMap(grid, position, dir))
     .map((dir) => applyDirection(position, dir))
     .filter((pos) => {
