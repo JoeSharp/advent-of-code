@@ -8,6 +8,8 @@ import { loadEntireFileAsGrid } from "../../common/processFile";
 
 const TEST_INPUT_FILE = "./src/2024/day12/testInput.txt";
 const TEST_INPUT_FILE_SMALL = "./src/2024/day12/testInputSmall.txt";
+const TEST_INPUT_FILE_E = "./src/2024/day12/testInputE.txt";
+const TEST_INPUT_FILE_ABBA = "./src/2024/day12/testInputABBA.txt";
 
 describe("day12", () => {
   it.each`
@@ -61,6 +63,25 @@ describe("day12", () => {
     expect(price1).toBe(expPrice1);
     expect(price2).toBe(expPrice2);
   });
+
+  it.only.each`
+    inputFile               | id     | expPrice2
+    ${TEST_INPUT_FILE_E}    | ${"E"} | ${204}
+    ${TEST_INPUT_FILE_ABBA} | ${"A"} | ${432}
+  `(
+    "calculatePrice2 $inputFile $id => $expPrice",
+    async ({ inputFile, id, expPrice2 }) => {
+      const grid = await loadEntireFileAsGrid(inputFile);
+      const garden = parseGarden(grid);
+
+      const plot: Plot = garden.filter((plot) => plot.id === id)[0];
+
+      expect(plot).toBeDefined();
+      const price2 = calculatePrice2(plot);
+
+      expect(price2).toBe(expPrice2);
+    },
+  );
 
   it("handles demo input for part 1 correctly", async () => {
     const [part1] = await day12(TEST_INPUT_FILE);

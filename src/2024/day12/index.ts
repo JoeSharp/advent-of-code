@@ -3,6 +3,9 @@ import { loadEntireFileAsGrid } from "../../common/processFile";
 import {
   Position,
   posToStr,
+  dirToStr,
+  dirToShortStr,
+  posAndDirToStr,
   distinctValues,
   applyDirection,
   nextStepLeavesMap,
@@ -26,48 +29,96 @@ interface Plot {
 
 type Garden = Plot[];
 
+function printWalk(grid: string[][], pos: Position, dir: Position) {
+  let asStr = "Direction " + dirToStr(dir) + "\n";
+  for (let row = 0; row < grid.length; row++) {
+    let rowStr = grid[row]
+      .map((value, col) => {
+        if (posEqual([row, col], pos)) return dirToShortStr(dir);
+        return value;
+      })
+      .join("");
+    asStr += rowStr + "\n";
+  }
+
+  console.log(asStr);
+}
+
+function toTheSideIsUs(
+  grid: string[][],
+  id: string,
+  pos: Position,
+  dir: Position,
+  turn: (d: Position) => Position,
+): boolean {
+  let dirTurn = turn(dir);
+  let result = false;
+  if (!nextStepLeavesMap(grid, pos, dirTurn)) {
+    let toSide = applyDirection(pos, dirTurn);
+    if (grid[toSide[0]][toSide[1]] === id) {
+      result = true;
+    }
+  }
+  return result;
+}
+
 function calculateSides(
-grid: string[][],
-id: string,
-tiles: Position[]): number {
-  let sides = 1;
+  grid: string[][],
+  id: string,
+  tiles: Position[],
+): number {
+  let sides = 0;
 
-  // Come back to this later maybe
-  return 1;
-  if (tiles.length === 1) return 4;
+  if (tiles.length <= 2) return 4;
 
+  let seen: Set<string> = new Set();
   let startPos = tiles[0];
   let pos = tiles[0];
   let dir = EAST;
 
-  // walk EAST until you go off end
-  // each step
-  // // look ahead
-  // if it goes off map, turn right, +1 sides
-  // // if it's you, turn left
-  // if not turn right, +1 sides
-  // keep going till you come back on yourself
+  //console.log('Looking for Perimeter of ', {id});
   do {
-    console.log('Walking', {pos, dir});
-    let nextPos = applyDirection(pos, dir);
+    seen.add(posAndDirToStr(pos, dir));
+
+    //printWalk(grid, pos, dir);
     if (nextStepLeavesMap(grid, pos, dir)) {
+      // Have we reached the far edge of the map?
       sides++;
-      dir = turnRight(dir);
-    } else if (grid[nextPos[0]][nextPos[1]] === id) {
-      // What if there is a diagonal connection between two plots?
-      sides++;
-      dir = turnLeft(dir);
-    } else {
-      // Check to the right is you
-      let dirRight = turnRight(dir);
-      let toTheRight = applyDirection(pos, dirRight);
-      if (grid[toTheRight[0]][toTheRight[1]] !== id) {
-        dir = dirRight;
-        sides++;
+      let toLeftIsUs = toTheSideIsUs(grid, id, pos, dir, turnLeft);
+      let toRightIsUs = toTheSideIsUs(grid, id, pos, dir, turnRight);
+
+      if (toLeftIsUs) {
+        dir = turnLeft(dir);
+        //console.log('Come back on self, turn left');
+        pos = applyDirection(pos, dir);
+      } else {
+        dir = turnRight(dir);
+        //console.log('Turn Right, off edge');
       }
-      pos = applyDirection(pos, dir);
+    } else {
+      let nextPos = applyDirection(pos, dir);
+      // Check to the right is you
+      let dirLeft = turnLeft(dir);
+
+      let toTheLeftIsUs = toTheSideIsUs(grid, id, pos, dir, turnLeft);
+
+      if (toTheLeftIsUs) {
+        //console.log('Turn left to stay within ourselves');
+        dir = dirLeft;
+        pos = applyDirection(pos, dir);
+        sides++;
+      } else {
+        if (grid[nextPos[0]][nextPos[1]] === id) {
+          //console.log('Straight on');
+          pos = applyDirection(pos, dir);
+        } else {
+          sides++;
+          dir = turnRight(dir);
+          //console.log('Turn Right to stay within self');
+        }
+      }
     }
-  } while(!posEqual(pos, startPos));
+  } while (!seen.has(posAndDirToStr(pos, dir)));
 
   return sides;
 }
@@ -112,7 +163,7 @@ export function findPlot(grid: string[][], [row, col]: Position): Plot {
   tiles = distinctValues(tiles);
 
   const perimeterTiles: Position[] = [];
-  const perimeter  = calculatePerimeter(grid, id, tiles, (p) =>
+  const perimeter = calculatePerimeter(grid, id, tiles, (p) =>
     perimeterTiles.push(p),
   );
   const sides = calculateSides(grid, id, tiles);
@@ -165,6 +216,7 @@ const day12: AdventFunction = async (
   const part1 = garden
     .map(calculatePrice1)
     .reduce((acc, curr) => acc + curr, 0);
+
   const part2 = garden
     .map(calculatePrice2)
     .reduce((acc, curr) => acc + curr, 0);

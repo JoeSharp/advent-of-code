@@ -14,7 +14,7 @@ export function dirToShortStr(dir: Position): string {
   if (posEqual(dir, SOUTH)) return "v";
   if (posEqual(dir, WEST)) return "<";
   if (posEqual(dir, EAST)) return ">";
-  return ".";
+  return "UNKNOWN";
 }
 
 export function dirToStr(dir: Position): string {
