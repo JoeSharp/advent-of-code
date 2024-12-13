@@ -1,0 +1,22 @@
+Button A: X+94, Y+34
+Button B: X+22, Y+67
+Prize: X=8400, Y=5400
+
+Answer: a=80, b=40
+
+94a + 22b = 8400
+34a + 67b = 5400
+
+b = (5400 - 34a) / 67
+
+94a + 22 * (5400 - 34a) / 67 = 8400
+
+94a + (22*5400/67) - (22*34/67)a = 8400
+
+a(94 - (22*34/67)) + (22*5400/67) = 8400
+
+a = (8400 - (22*5400/67)) / (94 - (22*34/67))
+b = (5400 - 34a) / 67
+
+a = (prizeAt.x - (buttonB.x * prizeAt.y / buttonB.y)) / (buttonB.x - (buttonB.x * buttonA.y / buttonB.y))
+b = (prizeAt.y - buttonA.y * a) / buttonB.y

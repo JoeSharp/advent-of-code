@@ -76,7 +76,7 @@ export function validWaysToReachTarget(
   return waysToPress;
 }
 
-export function calcWaysToWin(clawMachine: ClawMachine): WayToWin[] {
+export function calcWaysToWinBrute(clawMachine: ClawMachine): WayToWin[] {
   const { buttonA, buttonB, prizeAt } = clawMachine;
   const waysToGetX = validWaysToReachTarget(buttonA.x, buttonB.x, prizeAt.x);
   const waysToGetY = validWaysToReachTarget(buttonA.y, buttonB.y, prizeAt.y);
@@ -88,7 +88,13 @@ export function calcWaysToWin(clawMachine: ClawMachine): WayToWin[] {
   );
 }
 
-export function calcWaysToWinMaths(clawMachine: ClawMachine): WayToWin[] {
+export function calcWaysToWinMaths({buttonA, buttonB, prizeAt}: ClawMachine): WayToWin[] {
+  const a = (prizeAt.x - (buttonB.x * prizeAt.y / buttonB.y)) / (buttonB.x - (buttonB.x * buttonA.y / buttonB.y))
+  const b = (prizeAt.y - buttonA.y * a) / buttonB.y
+  console.log('Ways to win maths', {buttonA, buttonB, prizeAt, a, b});
+  if (Math.floor(a) === Math.round(a) && Math.floor(b) === Math.round(b)) {
+    return [{a,b}]
+  }
   return [];
 }
 
@@ -98,7 +104,7 @@ export function getCost({ a, b }: WayToWin): number {
 
 export const UNSOLVEABLE = 0;
 export function cheapestWinCost(clawMachine: ClawMachine): number {
-  const waysToWin = calcWaysToWin(clawMachine);
+  const waysToWin = calcWaysToWinMaths(clawMachine);
   const costs = waysToWin.map(getCost).sort(numericSort);
 
   console.log("Ways to win", { clawMachine, waysToWin });

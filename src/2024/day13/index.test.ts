@@ -1,5 +1,6 @@
 import day13, {
-  calcWaysToWin,
+  calcWaysToWinMaths,
+  calcWaysToWinBrute,
   parseButtonBehaviour,
   parsePrizeAt,
   cheapestWinCost,
@@ -39,13 +40,16 @@ describe("day13", () => {
     prizeAt: { x: 5740, y: 3718 },
   };
 
-  it.each`
+  it.only.each`
     machine
     ${TEST_CLAW_MACHINE_2}
     ${TEST_CLAW_MACHINE_1}
   `("waysToWin", ({ machine }) => {
-    const result = calcWaysToWin(machine);
-    expect(result).toHaveLength(1);
+    const resultMaths = calcWaysToWinMaths(machine);
+    const resultBrute = calcWaysToWinBrute(machine);
+      console.log('Ways to Win', {machine, resultMaths, resultBrute});
+    expect(resultMaths).toHaveLength(1);
+    expect(resultBrute).toHaveLength(1);
   });
 
   it("cheapestWinCost", () => {
@@ -57,7 +61,7 @@ describe("day13", () => {
   it("generates working results for part 1", async () => {
     const clawMachines = await parseClawMachinesFile(TEST_INPUT_FILE);
     clawMachines.forEach((clawMachine) => {
-      const waysToWin = calcWaysToWin(clawMachine);
+      const waysToWin = calcWaysToWinMaths(clawMachine);
 
       expect(waysToWin.length).toBeLessThan(2);
 
