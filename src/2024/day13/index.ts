@@ -16,6 +16,7 @@ export interface WayToWin {
   a: number;
   b: number;
 }
+const wayToWinToStr = ({ a, b }: WayToWin) => `${a}=${b}`;
 
 export interface ClawMachine {
   buttonA: Coordinate;
@@ -56,19 +57,19 @@ export function parseClawMachine(lines: string[]): ClawMachine {
   };
 }
 
-export function validWaysToPressA(
+export function validWaysToReachTarget(
   a: number,
   b: number,
   target: number,
-): Set<number> {
-  const waysToPress: Set<number> = new Set();
+): Set<WayToWin> {
+  const waysToPress: Set<WayToWin> = new Set();
 
   const max = Math.min(MAX_BUTTON_PUSHES, Math.ceil(target / a));
 
-  for (let i = 0; i < max; i++) {
+  for (let i = 0; i <= max; i++) {
     const diff = target - a * i;
     if (diff > 0 && isDivisibleBy(diff, b)) {
-      waysToPress.add(i);
+      waysToPress.add({ a: i, b: Math.floor(diff / b) });
     }
   }
 
@@ -77,15 +78,18 @@ export function validWaysToPressA(
 
 export function calcWaysToWin(clawMachine: ClawMachine): WayToWin[] {
   const { buttonA, buttonB, prizeAt } = clawMachine;
-  const waysToGetX = validWaysToPressA(buttonA.x, buttonB.x, prizeAt.x);
-  const waysToGetY = validWaysToPressA(buttonA.y, buttonB.y, prizeAt.y);
+  const waysToGetX = validWaysToReachTarget(buttonA.x, buttonB.x, prizeAt.x);
+  const waysToGetY = validWaysToReachTarget(buttonA.y, buttonB.y, prizeAt.y);
 
-  return [...waysToGetX]
-    .filter((x) => waysToGetY.has(x))
-    .map((a) => {
-      const b = (prizeAt.x - a * buttonA.x) / buttonB.x;
-      return { a, b };
-    });
+  const waysToGetYStr = [...waysToGetY].map(wayToWinToStr);
+
+  return [...waysToGetX].filter((x) =>
+    waysToGetYStr.includes(wayToWinToStr(x)),
+  );
+}
+
+export function calcWaysToWinMaths(clawMachine: ClawMachine): WayToWin[] {
+  return [];
 }
 
 export function getCost({ a, b }: WayToWin): number {
@@ -94,10 +98,13 @@ export function getCost({ a, b }: WayToWin): number {
 
 export const UNSOLVEABLE = 0;
 export function cheapestWinCost(clawMachine: ClawMachine): number {
-  const waysToWin = calcWaysToWin(clawMachine).map(getCost).sort(numericSort);
+  const waysToWin = calcWaysToWin(clawMachine);
+  const costs = waysToWin.map(getCost).sort(numericSort);
 
-  if (waysToWin.length > 0) {
-    return waysToWin[0];
+  console.log("Ways to win", { clawMachine, waysToWin });
+
+  if (costs.length > 0) {
+    return costs[0];
   } else {
     return UNSOLVEABLE;
   }
@@ -107,6 +114,13 @@ export async function parseClawMachinesFile(
   filename: string,
 ): Promise<ClawMachine[]> {
   return (await loadFileInChunks(filename, 4)).map(parseClawMachine);
+}
+
+export function validateWayToWin(clawMachine: ClawMachine, wayToWin: WayToWin) {
+  const x = clawMachine.buttonA.x * wayToWin.a + clawMachine.buttonB.x * wayToWin.b;
+  const y = clawMachine.buttonA.y * wayToWin.a + clawMachine.buttonB.y * wayToWin.b;
+
+  return x === clawMachine.prizeAt.x && y === clawMachine.prizeAt.y;
 }
 
 const day13: AdventFunction = async (

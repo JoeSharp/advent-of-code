@@ -3,7 +3,8 @@ import day13, {
   parseButtonBehaviour,
   parsePrizeAt,
   cheapestWinCost,
-  validWaysToPressA,
+  validateWayToWin,
+  parseClawMachinesFile
 } from "./index";
 
 const TEST_INPUT_FILE = "./src/2024/day13/testInput.txt";
@@ -32,25 +33,41 @@ describe("day13", () => {
     buttonB: { x: 22, y: 67 },
     prizeAt: { x: 8400, y: 5400 },
   };
+  const TEST_CLAW_MACHINE_2: ClawMachine = {
+    buttonA: { x: 50, y: 78 },
+    buttonB: { x: 80, y: 26 },
+    prizeAt: { x: 5740, y: 3718 },
+  };
 
-  it("validWaysToPressA", () => {
-    const { buttonA, buttonB, prizeAt } = TEST_CLAW_MACHINE_1;
-    const result = validWaysToPressA(buttonA.x, buttonB.x, prizeAt.x);
-
-    expect(result.has(80)).toBeTruthy();
-  });
-
-  it("waysToWin", () => {
-    const result = calcWaysToWin(TEST_CLAW_MACHINE_1);
-
-    console.log(result);
-    expect(result).toBeDefined();
+  it.each`
+    machine
+    ${TEST_CLAW_MACHINE_2}
+    ${TEST_CLAW_MACHINE_1}
+  `("waysToWin", ({ machine }) => {
+    const result = calcWaysToWin(machine);
+    expect(result).toHaveLength(1);
   });
 
   it("cheapestWinCost", () => {
     const result = cheapestWinCost(TEST_CLAW_MACHINE_1);
 
     expect(result).toBe(280);
+  });
+
+  it("generates working results for part 1", async () => {
+    const clawMachines = await parseClawMachinesFile(TEST_INPUT_FILE);
+    clawMachines.forEach((clawMachine) => {
+      const waysToWin = calcWaysToWin(clawMachine);
+
+      expect(waysToWin.length).toBeLessThan(2);
+
+      if (waysToWin.length > 0) {
+        const wayToWin = waysToWin[0];
+
+        const result = validateWayToWin(clawMachine, wayToWin);
+        expect(result).toBeTruthy();
+      }
+    });
   });
 
   it("handles demo input for part 1 correctly", async () => {
