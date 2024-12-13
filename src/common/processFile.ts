@@ -33,6 +33,22 @@ export async function loadEntireFileAsGrid(
   return lines.map((l) => l.split(""));
 }
 
+export async function loadFileInChunks(
+  filename: string,
+  chunkSize: number,
+): Promise<string[][]> {
+  const chunks: string[][] = [];
+
+  await processFileInChunks(
+    filename,
+    chunkSize,
+    (chunk) => chunks.push(chunk),
+    () => {},
+  );
+
+  return chunks;
+}
+
 export const processFileInChunks = (
   filename: string,
   chunkSize: number,

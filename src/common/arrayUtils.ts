@@ -13,21 +13,24 @@ export const WEST: Position = [0, -1];
 export const EAST: Position = [0, 1];
 export const NONSENSE: Position = [-1, -1];
 export const ALL_DIRECTIONS = [
-  NORTH, NORTH_WEST, NORTH_EAST,SOUTH, SOUTH_WEST, SOUTH_EAST,WEST, EAST
+  NORTH,
+  NORTH_WEST,
+  NORTH_EAST,
+  SOUTH,
+  SOUTH_WEST,
+  SOUTH_EAST,
+  WEST,
+  EAST,
 ];
-export const CROSS_DIRECTIONS = [
-  NORTH, SOUTH, EAST, WEST
-];
+export const CROSS_DIRECTIONS = [NORTH, SOUTH, EAST, WEST];
 
 export function countSameNeighbours(grid: string[][], pos: Position): number {
   const value = grid[pos[0]][pos[1]];
 
-  return ALL_DIRECTIONS
-    .filter(dir => !nextStepLeavesMap(grid, pos, dir))
-    .map(dir => applyDirection(pos, dir))
+  return ALL_DIRECTIONS.filter((dir) => !nextStepLeavesMap(grid, pos, dir))
+    .map((dir) => applyDirection(pos, dir))
     .map(([r, c]) => grid[r][c])
-    .filter(v => v === value)
-    .length;
+    .filter((v) => v === value).length;
 }
 
 export function dirToShortStr(dir: Position): string {
@@ -71,8 +74,7 @@ export function floodFill<T>(
 ) {
   tileFound(position);
   alreadyEvaluated.add(posToStr(position));
-  CROSS_DIRECTIONS
-    .filter((dir) => !nextStepLeavesMap(grid, position, dir))
+  CROSS_DIRECTIONS.filter((dir) => !nextStepLeavesMap(grid, position, dir))
     .map((dir) => applyDirection(position, dir))
     .filter((pos) => {
       const posStr = posToStr(pos);

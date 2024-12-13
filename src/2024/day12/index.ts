@@ -131,7 +131,7 @@ function calculateSides(
 ): number {
   let sides = 0;
 
-  tiles.forEach(tile => {
+  tiles.forEach((tile) => {
     const sameNeighbours = countSameNeighbours(grid, tile);
     switch (sameNeighbours) {
       case 2:
