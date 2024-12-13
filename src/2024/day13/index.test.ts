@@ -1,4 +1,10 @@
-import day13, { calcWaysToWin, parseButtonBehaviour, parsePrizeAt, minTokens, validWaysToPressA } from "./index";
+import day13, {
+  calcWaysToWin,
+  parseButtonBehaviour,
+  parsePrizeAt,
+  cheapestWinCost,
+  validWaysToPressA,
+} from "./index";
 
 const TEST_INPUT_FILE = "./src/2024/day13/testInput.txt";
 
@@ -28,21 +34,21 @@ describe("day13", () => {
   };
 
   it("validWaysToPressA", () => {
-    const {buttonA, buttonB, prizeAt} = TEST_CLAW_MACHINE_1;
+    const { buttonA, buttonB, prizeAt } = TEST_CLAW_MACHINE_1;
     const result = validWaysToPressA(buttonA.x, buttonB.x, prizeAt.x);
 
     expect(result.has(80)).toBeTruthy();
   });
 
-  it('waysToWin', () => {
+  it("waysToWin", () => {
     const result = calcWaysToWin(TEST_CLAW_MACHINE_1);
 
     console.log(result);
     expect(result).toBeDefined();
   });
 
-  it("minTokens", () => {
-    const result = minTokens(TEST_CLAW_MACHINE_1);
+  it("cheapestWinCost", () => {
+    const result = cheapestWinCost(TEST_CLAW_MACHINE_1);
 
     expect(result).toBe(280);
   });
