@@ -10,6 +10,7 @@ import day14, {
 import { Position } from "../../common/arrayUtils";
 
 const TEST_INPUT_FILE = "./src/2024/day14/testInput.txt";
+// 11 wide, 7 tall
 const TEST_DIMENSION: Position = [11, 7];
 
 describe("day14", () => {
@@ -27,7 +28,7 @@ describe("day14", () => {
 
   it("robotsToStr", async () => {
     const robots = await loadRobotsFile(TEST_INPUT_FILE);
-    console.log(robotsToStr(robots, TEST_DIMENSION));
+    console.log(robotsToStr(robots, TEST_DIMENSION, 2));
   });
 
   it.each`

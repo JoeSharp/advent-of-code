@@ -12,19 +12,32 @@ export interface Robot {
   velocity: Position;
 }
 
-export function robotsToStr(robots: Robot[], dimension: Position): string {
+export function robotsToStr(
+  robots: Robot[],
+  quadrantSize: Position,
+  segments: number,
+): string {
+  const segmentSize: Position = quadrantSize
+    .map((r) => r + 1)
+    .map((r) => Math.floor(r / segments)) as Position;
+
   let asStr = "";
 
-  for (let y = 0; y < dimension[1]; y++) {
+  for (let y = 0; y < quadrantSize[1]; y++) {
     let row = "";
-    for (let x = 0; x < dimension[0]; x++) {
-      const count = robots.filter(({ position }) =>
-        posEqual([x, y], position),
-      ).length;
-      if (count > 0) {
-        row += count.toString();
+    for (let x = 0; x < quadrantSize[0]; x++) {
+      const quadrant = identifyQuadrant([x, y], segmentSize);
+      if (isValidQuadrant(quadrant)) {
+        const count = robots.filter(({ position }) =>
+          posEqual([x, y], position),
+        ).length;
+        if (count > 0) {
+          row += count.toString();
+        } else {
+          row += ".";
+        }
       } else {
-        row += ".";
+        row += " ";
       }
     }
     asStr += row + "\n";
@@ -77,9 +90,9 @@ export function iterateRobot(
   const shift = scalarMultiply(velocity, iterations);
   const pos = vectorAdd(position, shift);
   return {
-    velocity, 
-    position: vectorWrap(pos, dimension)
-  }
+    velocity,
+    position: vectorWrap(pos, dimension),
+  };
 }
 
 export function identifySegment(pos: number, segmentLength: number): number {
@@ -87,6 +100,10 @@ export function identifySegment(pos: number, segmentLength: number): number {
   if (posWithinSegment === segmentLength) return NaN;
 
   return Math.floor(pos / segmentLength);
+}
+
+export function isValidQuadrant(quadrant: Position) {
+  return quadrant.filter((v) => isNaN(v)).length === 0;
 }
 
 export function identifyQuadrant(
@@ -126,20 +143,18 @@ export function processRobots(
     .map((r) => r + 1)
     .map((r) => Math.floor(r / segments)) as Position;
 
-  robots = robots.map((robot) =>
-    iterateRobot(robot, iterations, quadrantSize),
-  );
+  robots = robots.map((robot) => iterateRobot(robot, iterations, quadrantSize));
 
   const quadrants = robots
-  .map(({position}) => identifyQuadrant(position, segmentSize))
-  .filter(([r, c]) => !isNaN(r) && !isNaN(c))
-  .map(posToStr);
+    .map(({ position }) => identifyQuadrant(position, segmentSize))
+    .filter((pos) => isValidQuadrant(pos))
+    .map(posToStr);
 
   const counts = countInstances(quadrants);
   return [...counts.values()].reduce((acc, curr) => acc * curr, 1);
 }
 
-const QUADRANT_SIZE: Position = [103, 101];
+const QUADRANT_SIZE: Position = [101, 103];
 const SEGMENTS = 2;
 const ITERATIONS = 100;
 
