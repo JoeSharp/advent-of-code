@@ -58,7 +58,7 @@ describe("day13", () => {
     expect(result).toBe(280);
   });
 
-  it.only("handles demo input for part 1 correctly", async () => {
+  it("handles demo input for part 1 correctly", async () => {
     const [part1] = await day13(MAIN_INPUT_FILE);
 
     expect(part1).toBe(35082);
