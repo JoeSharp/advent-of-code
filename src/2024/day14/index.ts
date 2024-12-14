@@ -23,9 +23,8 @@ export function calculateSegmentSize(
 
 export function robotsToPicture(
   robots: Robot[],
-  quadrantSize: Position
+  quadrantSize: Position,
 ): string {
-
   let asStr = "";
 
   for (let y = 0; y < quadrantSize[1]; y++) {
@@ -143,7 +142,7 @@ export function iterateRobot(
 
 export function identifySegment(pos: number, segmentLength: number): number {
   const posWithinSegment = pos % segmentLength;
-  if (posWithinSegment === (segmentLength - 1)) return NaN;
+  if (posWithinSegment === segmentLength - 1) return NaN;
 
   return Math.floor(pos / segmentLength);
 }
@@ -190,9 +189,9 @@ export function processRobots(
   robots = robots.map((robot) => iterateRobot(robot, iterations, quadrantSize));
 
   const quadrants = robots
-  .map(({ position }) => identifyQuadrant(position, segmentSize))
-  .filter((pos) => isValidQuadrant(pos))
-  .map(posToStr);
+    .map(({ position }) => identifyQuadrant(position, segmentSize))
+    .filter((pos) => isValidQuadrant(pos))
+    .map(posToStr);
 
   const counts = countInstances(quadrants);
   return [...counts.values()].reduce((acc, curr) => acc * curr, 1);
@@ -203,7 +202,6 @@ const SEGMENTS = 2;
 const ITERATIONS = 100;
 
 function part2(robots: Robot[]) {
-
   const seen: Set<string> = new Set();
 
   let index = 0;
@@ -211,7 +209,7 @@ function part2(robots: Robot[]) {
     robots = robots.map((robot) => iterateRobot(robot, 1, QUADRANT_SIZE));
     const asStr = robotsToPicture(robots, QUADRANT_SIZE);
 
-    console.log('Step ', index++);
+    console.log("Step ", index++);
     console.log(asStr);
   }
 }
