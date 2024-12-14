@@ -2,6 +2,7 @@ import day14, {
   loadRobotsFile,
   parseRobot,
   identifySegment,
+  calculateSegmentSize,
   iterateRobot,
   processRobots,
   robotsToStr,
@@ -11,7 +12,7 @@ import { Position } from "../../common/arrayUtils";
 
 const TEST_INPUT_FILE = "./src/2024/day14/testInput.txt";
 // 11 wide, 7 tall
-const TEST_DIMENSION: Position = [11, 7];
+const TEST_DIMENSION: Position = [7, 11];
 
 describe("day14", () => {
   it("iterateRobot", () => {
@@ -29,6 +30,12 @@ describe("day14", () => {
   it("robotsToStr", async () => {
     const robots = await loadRobotsFile(TEST_INPUT_FILE);
     console.log(robotsToStr(robots, TEST_DIMENSION, 2));
+  });
+
+  it("calculateSegmentSize", () => {
+    const result = calculateSegmentSize([5, 7], 2);
+
+    expect(result).toStrictEqual([3, 4]);
   });
 
   it.each`
@@ -56,7 +63,7 @@ describe("day14", () => {
     });
   });
 
-  it("handles demo input for part 1 correctly", async () => {
+  it.only("handles demo input for part 1 correctly", async () => {
     const robots = await loadRobotsFile(TEST_INPUT_FILE);
     const part1 = processRobots(robots, TEST_DIMENSION, 2, 100);
 

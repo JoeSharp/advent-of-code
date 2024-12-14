@@ -12,14 +12,46 @@ export interface Robot {
   velocity: Position;
 }
 
+export function calculateSegmentSize(
+  quadrantSize: Position,
+  segments: number,
+): Position {
+  return quadrantSize
+    .map((r) => r + 1)
+    .map((r) => Math.floor(r / segments)) as Position;
+}
+
+export function robotsToPicture(
+  robots: Robot[],
+  quadrantSize: Position
+): string {
+
+  let asStr = "";
+
+  for (let y = 0; y < quadrantSize[1]; y++) {
+    let row = "";
+    for (let x = 0; x < quadrantSize[0]; x++) {
+      const count = robots.filter(({ position }) =>
+        posEqual([x, y], position),
+      ).length;
+      if (count > 0) {
+        row += count.toString();
+      } else {
+        row += " ";
+      }
+    }
+    asStr += row + "\n";
+  }
+
+  return asStr;
+}
+
 export function robotsToStr(
   robots: Robot[],
   quadrantSize: Position,
   segments: number,
 ): string {
-  const segmentSize: Position = quadrantSize
-    .map((r) => r + 1)
-    .map((r) => Math.floor(r / segments)) as Position;
+  const segmentSize: Position = calculateSegmentSize(quadrantSize, segments);
 
   let asStr = "";
 
@@ -46,16 +78,27 @@ export function robotsToStr(
   return asStr;
 }
 
-export function robotToStr(robot: Robot, dimension: Position): string {
+export function robotToStr(
+  robot: Robot,
+  quadrantSize: Position,
+  segments: number,
+): string {
+  const segmentSize: Position = calculateSegmentSize(quadrantSize, segments);
+
   let asStr = "";
 
-  for (let y = 0; y < dimension[1]; y++) {
+  for (let y = 0; y < quadrantSize[1]; y++) {
     let row = "";
-    for (let x = 0; x < dimension[0]; x++) {
-      if (posEqual([x, y], robot.position)) {
-        row += "X";
+    for (let x = 0; x < quadrantSize[0]; x++) {
+      const quadrant = identifyQuadrant([y, x], segmentSize);
+      if (isValidQuadrant(quadrant)) {
+        if (posEqual([x, y], robot.position)) {
+          row += "X";
+        } else {
+          row += ".";
+        }
       } else {
-        row += ".";
+        row += " ";
       }
     }
     asStr += row + "\n";
@@ -75,7 +118,10 @@ export function vectorAdd(a: Position, b: Position): Position {
 export function vectorWrap(vector: Position, bounds: Position): Position {
   return vector.map((v, i) => {
     if (v < 0) {
-      return bounds[i] + (v % bounds[i]);
+      while (v < 0) {
+        v += bounds[i];
+      }
+      return v;
     } else {
       return v % bounds[i];
     }
@@ -96,8 +142,8 @@ export function iterateRobot(
 }
 
 export function identifySegment(pos: number, segmentLength: number): number {
-  const posWithinSegment = pos % (segmentLength + 1);
-  if (posWithinSegment === segmentLength) return NaN;
+  const posWithinSegment = pos % segmentLength;
+  if (posWithinSegment === (segmentLength - 1)) return NaN;
 
   return Math.floor(pos / segmentLength);
 }
@@ -139,16 +185,14 @@ export function processRobots(
   segments: number,
   iterations: number,
 ): number {
-  const segmentSize: Position = quadrantSize
-    .map((r) => r + 1)
-    .map((r) => Math.floor(r / segments)) as Position;
+  const segmentSize: Position = calculateSegmentSize(quadrantSize, segments);
 
   robots = robots.map((robot) => iterateRobot(robot, iterations, quadrantSize));
 
   const quadrants = robots
-    .map(({ position }) => identifyQuadrant(position, segmentSize))
-    .filter((pos) => isValidQuadrant(pos))
-    .map(posToStr);
+  .map(({ position }) => identifyQuadrant(position, segmentSize))
+  .filter((pos) => isValidQuadrant(pos))
+  .map(posToStr);
 
   const counts = countInstances(quadrants);
   return [...counts.values()].reduce((acc, curr) => acc * curr, 1);
@@ -158,12 +202,27 @@ const QUADRANT_SIZE: Position = [101, 103];
 const SEGMENTS = 2;
 const ITERATIONS = 100;
 
+function part2(robots: Robot[]) {
+
+  const seen: Set<string> = new Set();
+
+  let index = 0;
+  while (true) {
+    robots = robots.map((robot) => iterateRobot(robot, 1, QUADRANT_SIZE));
+    const asStr = robotsToPicture(robots, QUADRANT_SIZE);
+
+    console.log('Step ', index++);
+    console.log(asStr);
+  }
+}
+
 const day14: AdventFunction = async (
   filename = "./src/2024/day14/input.txt",
 ) => {
   const robots = await loadRobotsFile(filename);
 
   const part1 = processRobots(robots, QUADRANT_SIZE, SEGMENTS, ITERATIONS);
+
   return [part1, 1];
 };
 
