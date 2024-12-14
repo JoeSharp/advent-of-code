@@ -69,5 +69,4 @@ describe("day13", () => {
 
     expect(part1).toBe(480);
   });
-
 });

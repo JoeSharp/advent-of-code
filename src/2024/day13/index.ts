@@ -99,7 +99,7 @@ export async function parseClawMachinesFile(
 }
 
 export function isValidWayToWin(clawMachine: ClawMachine, wayToWin: WayToWin) {
-  if (wayToWin.a <=0 || wayToWin.b <= 0) return false;
+  if (wayToWin.a <= 0 || wayToWin.b <= 0) return false;
 
   const x =
     clawMachine.buttonA.x * wayToWin.a + clawMachine.buttonB.x * wayToWin.b;
@@ -116,9 +116,9 @@ function applyOffset(machine: ClawMachine): ClawMachine {
     ...machine,
     prizeAt: {
       x: machine.prizeAt.x + OFFSET,
-      y: machine.prizeAt.y + OFFSET
-    }
-  }
+      y: machine.prizeAt.y + OFFSET,
+    },
+  };
 }
 
 const day13: AdventFunction = async (

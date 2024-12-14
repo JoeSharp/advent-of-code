@@ -5,6 +5,7 @@ import {
   getNextBlock,
   nextStepLeavesMap,
   splitIntoChunks,
+  countInstances,
   NORTH,
   SOUTH,
   EAST,
@@ -15,6 +16,26 @@ import { loadEntireFileAsGrid } from "./processFile";
 const TEST_INPUT_FILE = "./src/2024/day06/testInput.txt";
 
 describe("arrayUtils", () => {
+  it("countInstances of string", () => {
+    const names = ["a", "x", "d", "d", "x", "x", "a", "d", "x", "x"];
+
+    const result = countInstances(names);
+    expect(result.get("a")).toBe(2);
+    expect(result.get("x")).toBe(5);
+    expect(result.get("d")).toBe(3);
+    expect(result.get("e")).toBeUndefined();
+  });
+
+  it("countInstances of string", () => {
+    const names = [1, 2, 4, 3, 2, 4, 2, 1, 1, 2, 3];
+
+    const result = countInstances(names);
+    expect(result.get(1)).toBe(3);
+    expect(result.get(2)).toBe(4);
+    expect(result.get(3)).toBe(2);
+    expect(result.get(5)).toBeUndefined();
+  });
+
   it.each`
     input                    | chunkSize | expected
     ${[0, 1, 2]}             | ${1}      | ${[[0], [1], [2]]}

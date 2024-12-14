@@ -24,6 +24,17 @@ export const ALL_DIRECTIONS = [
 ];
 export const CROSS_DIRECTIONS = [NORTH, SOUTH, EAST, WEST];
 
+export function countInstances<T>(arr: T[]): Map<T, number> {
+  const result: Map<T, number> = new Map();
+
+  arr.forEach((value) => {
+    const count = result.get(value) || 0;
+    result.set(value, count + 1);
+  });
+
+  return result;
+}
+
 export function countSameNeighbours(grid: string[][], pos: Position): number {
   const value = grid[pos[0]][pos[1]];
 
