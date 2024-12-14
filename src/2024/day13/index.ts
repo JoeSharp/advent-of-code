@@ -1,6 +1,6 @@
 import { AdventFunction } from "../../common/types";
 import { loadFileInChunks } from "../../common/processFile";
-import { isDivisibleBy, numericSort } from "../../common/numericUtils";
+import { isInteger, isDivisibleBy } from "../../common/numericUtils";
 
 const TOKEN_COST_A = 3;
 const TOKEN_COST_B = 1;
@@ -57,60 +57,34 @@ export function parseClawMachine(lines: string[]): ClawMachine {
   };
 }
 
-export function validWaysToReachTarget(
-  a: number,
-  b: number,
-  target: number,
-): Set<WayToWin> {
-  const waysToPress: Set<WayToWin> = new Set();
-
-  const max = Math.min(MAX_BUTTON_PUSHES, Math.ceil(target / a));
-
-  for (let i = 0; i <= max; i++) {
-    const diff = target - a * i;
-    if (diff > 0 && isDivisibleBy(diff, b)) {
-      waysToPress.add({ a: i, b: Math.floor(diff / b) });
-    }
-  }
-
-  return waysToPress;
-}
-
-export function calcWaysToWinBrute(clawMachine: ClawMachine): WayToWin[] {
-  const { buttonA, buttonB, prizeAt } = clawMachine;
-  const waysToGetX = validWaysToReachTarget(buttonA.x, buttonB.x, prizeAt.x);
-  const waysToGetY = validWaysToReachTarget(buttonA.y, buttonB.y, prizeAt.y);
-
-  const waysToGetYStr = [...waysToGetY].map(wayToWinToStr);
-
-  return [...waysToGetX].filter((x) =>
-    waysToGetYStr.includes(wayToWinToStr(x)),
+export function solveSimultaneousEquations({
+  buttonA,
+  buttonB,
+  prizeAt,
+}: ClawMachine): WayToWin {
+  const a = Math.floor(
+    (prizeAt.x - (buttonB.x * prizeAt.y) / buttonB.y) /
+      (buttonA.x - (buttonA.y * buttonB.x) / buttonB.y),
   );
-}
+  const b = Math.floor((prizeAt.y - buttonA.y * a) / buttonB.y);
 
-export function calcWaysToWinMaths({buttonA, buttonB, prizeAt}: ClawMachine): WayToWin[] {
-  const a = (prizeAt.x - (buttonB.x * prizeAt.y / buttonB.y)) / (buttonB.x - (buttonB.x * buttonA.y / buttonB.y))
-  const b = (prizeAt.y - buttonA.y * a) / buttonB.y
-  console.log('Ways to win maths', {buttonA, buttonB, prizeAt, a, b});
-  if (Math.floor(a) === Math.round(a) && Math.floor(b) === Math.round(b)) {
-    return [{a,b}]
-  }
-  return [];
+  return { a, b };
 }
 
 export function getCost({ a, b }: WayToWin): number {
   return a * TOKEN_COST_A + b * TOKEN_COST_B;
 }
 
+export function isFeasibleWayToWin({ a, b }: WayToWin): boolean {
+  return a <= MAX_BUTTON_PUSHES && b <= MAX_BUTTON_PUSHES;
+}
+
 export const UNSOLVEABLE = 0;
 export function cheapestWinCost(clawMachine: ClawMachine): number {
-  const waysToWin = calcWaysToWinMaths(clawMachine);
-  const costs = waysToWin.map(getCost).sort(numericSort);
+  const wayToWin = solveSimultaneousEquations(clawMachine);
 
-  console.log("Ways to win", { clawMachine, waysToWin });
-
-  if (costs.length > 0) {
-    return costs[0];
+  if (!!wayToWin && isValidWayToWin(clawMachine, wayToWin)) {
+    return getCost(wayToWin);
   } else {
     return UNSOLVEABLE;
   }
@@ -122,9 +96,11 @@ export async function parseClawMachinesFile(
   return (await loadFileInChunks(filename, 4)).map(parseClawMachine);
 }
 
-export function validateWayToWin(clawMachine: ClawMachine, wayToWin: WayToWin) {
-  const x = clawMachine.buttonA.x * wayToWin.a + clawMachine.buttonB.x * wayToWin.b;
-  const y = clawMachine.buttonA.y * wayToWin.a + clawMachine.buttonB.y * wayToWin.b;
+export function isValidWayToWin(clawMachine: ClawMachine, wayToWin: WayToWin) {
+  const x =
+    clawMachine.buttonA.x * wayToWin.a + clawMachine.buttonB.x * wayToWin.b;
+  const y =
+    clawMachine.buttonA.y * wayToWin.a + clawMachine.buttonB.y * wayToWin.b;
 
   return x === clawMachine.prizeAt.x && y === clawMachine.prizeAt.y;
 }
