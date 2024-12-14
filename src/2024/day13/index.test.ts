@@ -5,6 +5,7 @@ import day13, {
   cheapestWinCost,
   isValidWayToWin,
   parseClawMachinesFile,
+  solveSimultaneousEquations,
 } from "./index";
 
 const TEST_INPUT_FILE = "./src/2024/day13/testInput.txt";
@@ -39,11 +40,28 @@ describe("day13", () => {
     buttonB: { x: 80, y: 26 },
     prizeAt: { x: 5740, y: 3718 },
   };
+  const TEST_CLAW_MACHINE_3: ClawMachine = {
+    buttonA: { x: 12, y: 16 },
+    buttonB: { x: 5, y: 7 },
+    prizeAt: { x: 56, y: 76 },
+  };
+
+  it("solveSimultaneousEquations", () => {
+    const { a, b } = solveSimultaneousEquations(TEST_CLAW_MACHINE_3);
+    expect(a).toBe(3);
+    expect(b).toBe(4);
+  });
 
   it("cheapestWinCost", () => {
     const result = cheapestWinCost(TEST_CLAW_MACHINE_1);
 
     expect(result).toBe(280);
+  });
+
+  it.only("handles demo input for part 1 correctly", async () => {
+    const [part1] = await day13(MAIN_INPUT_FILE);
+
+    expect(part1).toBe(35082);
   });
 
   it("handles demo input for part 1 correctly", async () => {
@@ -52,9 +70,4 @@ describe("day13", () => {
     expect(part1).toBe(480);
   });
 
-  it.skip("handles demo input for part 2 correctly", async () => {
-    const [, part2] = await day13(TEST_INPUT_FILE);
-
-    expect(part2).toBe(1);
-  });
 });

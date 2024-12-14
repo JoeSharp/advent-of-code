@@ -68,6 +68,7 @@ export const processFileInChunks = (
         lines = [];
       }
     }).on("close", () => {
+      onLines(lines);
       onClose();
       resolve();
     });

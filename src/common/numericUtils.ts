@@ -28,10 +28,12 @@ export function highestCommonFactor(a: number, b: number): number {
   const factorsA = factors(a);
   const factorsB = factors(b);
 
-  return factorsA
-    .filter((fa) => factorsB.includes(fa))
-    .sort(reverseNumericSort)
-    .find(() => true);
+  return (
+    factorsA
+      .filter((fa) => factorsB.includes(fa))
+      .sort(reverseNumericSort)
+      .find(() => true) || 1
+  );
 }
 
 export function lowestCommonMultiple(a: number, b: number): number {

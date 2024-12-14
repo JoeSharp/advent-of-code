@@ -1,6 +1,6 @@
 import { AdventFunction } from "../../common/types";
 import { loadFileInChunks } from "../../common/processFile";
-import { isInteger, isDivisibleBy } from "../../common/numericUtils";
+import { lcmMultiples } from "../../common/numericUtils";
 
 const TOKEN_COST_A = 3;
 const TOKEN_COST_B = 1;
@@ -62,13 +62,15 @@ export function solveSimultaneousEquations({
   buttonB,
   prizeAt,
 }: ClawMachine): WayToWin {
-  const a = Math.floor(
-    (prizeAt.x - (buttonB.x * prizeAt.y) / buttonB.y) /
-      (buttonA.x - (buttonA.y * buttonB.x) / buttonB.y),
-  );
-  const b = Math.floor((prizeAt.y - buttonA.y * a) / buttonB.y);
+  const [a_x, b_x] = lcmMultiples(buttonA.x, buttonA.y);
 
-  return { a, b };
+  const prizeTerm = a_x * prizeAt.x - b_x * prizeAt.y;
+  const bTerm = a_x * buttonB.x - b_x * buttonB.y;
+
+  let b = prizeTerm / bTerm;
+  let a = (prizeAt.x - b * buttonB.x) / buttonA.x;
+
+  return { a: Math.floor(a), b: Math.floor(b) };
 }
 
 export function getCost({ a, b }: WayToWin): number {
@@ -97,12 +99,26 @@ export async function parseClawMachinesFile(
 }
 
 export function isValidWayToWin(clawMachine: ClawMachine, wayToWin: WayToWin) {
+  if (wayToWin.a <=0 || wayToWin.b <= 0) return false;
+
   const x =
     clawMachine.buttonA.x * wayToWin.a + clawMachine.buttonB.x * wayToWin.b;
   const y =
     clawMachine.buttonA.y * wayToWin.a + clawMachine.buttonB.y * wayToWin.b;
 
   return x === clawMachine.prizeAt.x && y === clawMachine.prizeAt.y;
+}
+
+const OFFSET = 10000000000000;
+
+function applyOffset(machine: ClawMachine): ClawMachine {
+  return {
+    ...machine,
+    prizeAt: {
+      x: machine.prizeAt.x + OFFSET,
+      y: machine.prizeAt.y + OFFSET
+    }
+  }
 }
 
 const day13: AdventFunction = async (
@@ -114,7 +130,12 @@ const day13: AdventFunction = async (
     .map(cheapestWinCost)
     .reduce((acc, curr) => acc + curr, 0);
 
-  return [part1, 1];
+  const part2 = clawMachines
+    .map(applyOffset)
+    .map(cheapestWinCost)
+    .reduce((acc, curr) => acc + curr, 0);
+
+  return [part1, part2];
 };
 
 export default day13;
