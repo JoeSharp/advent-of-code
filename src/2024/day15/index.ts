@@ -5,6 +5,7 @@ import {
   posToStr,
   dirArrayToStr,
   gridArrayToStr,
+  findInstancesOf,
   NORTH,
   SOUTH,
   WEST,
@@ -42,6 +43,16 @@ export function problemToStr(problem: Problem) {
   let asStr = warehouseToStr(problem.warehouse);
   asStr += `Directions: ${dirArrayToStr(problem.directions)}`;
   return asStr;
+}
+
+export function calculateGpsValue([r, c]: Position): number {
+  return 100 * r + c;
+}
+
+export function calculateWarehouseValue(warehouse: Warehouse): number {
+  return findInstancesOf(warehouse.contents, (v) => v === WarehouseSlot.BOX)
+    .map(calculateGpsValue)
+    .reduce((acc, curr) => acc + curr, 0);
 }
 
 export function parseWarehouse(lines: string[]) {
@@ -127,8 +138,9 @@ const day15: AdventFunction = async (
   const problem = await parseProblem(filename);
 
   const warehouseAfter = processProblem(problem);
+  const part1 = calculateWarehouseValue(warehouseAfter);
 
-  return [1, 1];
+  return [part1, 1];
 };
 
 export default day15;
