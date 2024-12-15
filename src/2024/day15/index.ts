@@ -16,11 +16,11 @@ import {
 } from "../../common/arrayUtils";
 
 export enum WarehouseSlot {
-  ROBOT = '@',
+  ROBOT = "@",
   WALL = "#",
   BOX = "O",
-  BOX_LEFT = '[',
-  BOX_RIGHT = ']',
+  BOX_LEFT = "[",
+  BOX_RIGHT = "]",
   EMPTY = ".",
 }
 
@@ -53,11 +53,10 @@ export function expandWarehouse(warehouse: Warehouse): Warehouse {
     });
   });
 
-
   return {
     robotPosition,
-    contents
-  }
+    contents,
+  };
 }
 
 export function warehouseToStr(warehouse: Warehouse): string {
@@ -156,7 +155,11 @@ function getContents(warehouse: Warehouse, [r, c]: Position): WarehouseSlot {
   return warehouse.contents[r][c];
 }
 
-function setContents(warehouse: Warehouse, [r, c]: Position, value: WarehouseSlot) {
+function setContents(
+  warehouse: Warehouse,
+  [r, c]: Position,
+  value: WarehouseSlot,
+) {
   warehouse.contents[r][c] = value;
 }
 
@@ -171,16 +174,15 @@ export function tryToShiftBox(
     if (getContents(warehouse, position) === WarehouseSlot.EMPTY) {
       setContents(warehouse, position, WarehouseSlot.BOX);
       moveRobot(warehouse, nextSpot);
-      break;
+      return true;
     }
     position = applyDirection(position, direction);
   }
+
+  return false;
 }
 
-export function moveRobot(
-  warehouse: Warehouse,
-  into: Position
-) {
+export function moveRobot(warehouse: Warehouse, into: Position) {
   const [r, c] = warehouse.robotPosition;
   warehouse.contents[r][c] = WarehouseSlot.EMPTY;
   warehouse.contents[into[0]][into[1]] = WarehouseSlot.ROBOT;
@@ -188,54 +190,40 @@ export function moveRobot(
   warehouse.robotPosition = into;
 }
 
-export function applyMove(
-  warehouse: Warehouse,
-  direction: Position,
-): Warehouse {
+export function applyMove(warehouse: Warehouse, direction: Position): boolean {
   const [nr, nc] = applyDirection(warehouse.robotPosition, direction);
   const occupiedBy = warehouse.contents[nr][nc];
 
   switch (occupiedBy) {
     case WarehouseSlot.WALL:
-      break;
+      return false;
     case WarehouseSlot.BOX:
-      tryToShiftBox(warehouse, direction, [nr, nc]);
-      break;
+      return tryToShiftBox(warehouse, direction, [nr, nc]);
     case WarehouseSlot.EMPTY:
       moveRobot(warehouse, [nr, nc]);
-      break;
+      return true;
   }
 
-  return warehouse;
+  return false;
 }
 
-export function processProblem({directions, warehouse}: Problem): Warehouse {
-  return directions.reduce(
-    (acc, curr) => applyMove(acc, curr),
-    warehouse,
-  );
-}
-
-export function processExpandedProblem({directions, warehouse}: Problem): Warehouse {
-  const expanded = expandWarehouse(warehouse);
-  return directions.reduce(
-    (acc, curr) => applyMove(acc, curr),
-    expanded,
-  );
+export function processProblem(warehouse: Warehouse, directions: Position[]) {
+  directions.forEach((direction) => applyMove(warehouse, direction));
 }
 
 const day15: AdventFunction = async (
   filename = "./src/2024/day15/input.txt",
 ) => {
-  const problem = await parseProblem(filename);
+  const { warehouse, directions } = await parseProblem(filename);
+  const expandedWarehouse = expandWarehouse(warehouse);
 
-  const warehouseAfter1 = processProblem(problem);
-  const part1 = calculateWarehouseValue(warehouseAfter1);
+  processProblem(warehouse, directions);
+  const part1 = calculateWarehouseValue(warehouse);
 
-  const warehouseAfter2 = processExpandedProblem(problem);
-  const part2 = calculateWarehouseValue(warehouseAfter2);
+  processProblem(expandedWarehouse, directions);
+  const part2 = calculateWarehouseValue(expandedWarehouse);
 
-  return [part1, 1];
+  return [part1, part2];
 };
 
 export default day15;

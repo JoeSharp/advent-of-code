@@ -39,17 +39,17 @@ describe("day15", () => {
 
       expect(result).toBe(expected);
     },
-    );
+  );
 
   it("processProblem", async () => {
-    const problem = await parseProblem(TEST_INPUT_FILE_SMALL);
+    const { warehouse, directions } = await parseProblem(TEST_INPUT_FILE_SMALL);
 
     const lines = await loadEntireFile(TEST_OUTPUT_FILE_SMALL);
     const warehouseAfter = parseWarehouse(lines);
     const expectedStr = gridArrayToStr(warehouseAfter.contents);
 
-    const after = processProblem(problem);
-    const afterStr = gridArrayToStr(after.contents);
+    processProblem(warehouse, directions);
+    const afterStr = gridArrayToStr(warehouse.contents);
 
     expect(afterStr).toBe(expectedStr);
   });
