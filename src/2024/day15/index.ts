@@ -77,14 +77,14 @@ export function calculateGpsValue([r, c]: Position): number {
   return 100 * r + c;
 }
 
-export function calculateWarehouseValue1(warehouse: Warehouse): number {
-  return findInstancesOf(warehouse.contents, (v) => v === WarehouseSlot.BOX)
-    .map(calculateGpsValue)
-    .reduce((acc, curr) => acc + curr, 0);
+function isBox(value: WarehouseSlot): boolean {
+  if (value === WarehouseSlot.BOX) return true;
+  if (value === WarehouseSlot.BOX_LEFT) return true;
+  return false;
 }
 
-export function calculateWarehouseValue2(warehouse: Warehouse): number {
-  return findInstancesOf(warehouse.contents, (v) => v === WarehouseSlot.BOX_LEFT)
+export function calculateWarehouseValue(warehouse: Warehouse): number {
+  return findInstancesOf(warehouse.contents, isBox)
     .map(calculateGpsValue)
     .reduce((acc, curr) => acc + curr, 0);
 }
@@ -209,10 +209,18 @@ export function applyMove(
   return warehouse;
 }
 
-export function processProblem(problem: Problem): Warehouse {
-  return problem.directions.reduce(
+export function processProblem({directions, warehouse}: Problem): Warehouse {
+  return directions.reduce(
     (acc, curr) => applyMove(acc, curr),
-    problem.warehouse,
+    warehouse,
+  );
+}
+
+export function processExpandedProblem({directions, warehouse}: Problem): Warehouse {
+  const expanded = expandWarehouse(warehouse);
+  return directions.reduce(
+    (acc, curr) => applyMove(acc, curr),
+    expanded,
   );
 }
 
@@ -221,8 +229,11 @@ const day15: AdventFunction = async (
 ) => {
   const problem = await parseProblem(filename);
 
-  const warehouseAfter = processProblem(problem);
-  const part1 = calculateWarehouseValue1(warehouseAfter);
+  const warehouseAfter1 = processProblem(problem);
+  const part1 = calculateWarehouseValue(warehouseAfter1);
+
+  const warehouseAfter2 = processExpandedProblem(problem);
+  const part2 = calculateWarehouseValue(warehouseAfter2);
 
   return [part1, 1];
 };

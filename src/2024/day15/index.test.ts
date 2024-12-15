@@ -3,7 +3,7 @@ import day15, {
   processProblem,
   warehouseToStr,
   problemToStr,
-  calculateWarehouseValue1,
+  calculateWarehouseValue,
   expandWarehouse,
   calculateGpsValue,
   parseWarehouse,
@@ -35,7 +35,7 @@ describe("day15", () => {
     async ({ inputFile, expected }) => {
       const lines = await loadEntireFile(inputFile);
       const warehouse = parseWarehouse(lines);
-      const result = calculateWarehouseValue1(warehouse);
+      const result = calculateWarehouseValue(warehouse);
 
       expect(result).toBe(expected);
     },
