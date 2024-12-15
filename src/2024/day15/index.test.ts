@@ -3,7 +3,8 @@ import day15, {
   processProblem,
   warehouseToStr,
   problemToStr,
-  calculateWarehouseValue,
+  calculateWarehouseValue1,
+  expandWarehouse,
   calculateGpsValue,
   parseWarehouse,
 } from "./index";
@@ -34,7 +35,7 @@ describe("day15", () => {
     async ({ inputFile, expected }) => {
       const lines = await loadEntireFile(inputFile);
       const warehouse = parseWarehouse(lines);
-      const result = calculateWarehouseValue(warehouse);
+      const result = calculateWarehouseValue1(warehouse);
 
       expect(result).toBe(expected);
     },
@@ -53,6 +54,12 @@ describe("day15", () => {
     expect(afterStr).toBe(expectedStr);
   });
 
+  it("parseWarehouse correctly", async () => {
+    const problem = await parseProblem(TEST_INPUT_FILE);
+    const expanded = expandWarehouse(problem.warehouse);
+    console.log(warehouseToStr(expanded));
+  });
+
   it("handles small input for part 1 correctly", async () => {
     const [part1] = await day15(TEST_INPUT_FILE_SMALL);
 
@@ -68,6 +75,6 @@ describe("day15", () => {
   it("handles demo input for part 2 correctly", async () => {
     const [, part2] = await day15(TEST_INPUT_FILE);
 
-    expect(part2).toBe(1);
+    expect(part2).toBe(9021);
   });
 });

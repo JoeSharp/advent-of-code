@@ -15,11 +15,12 @@ import {
   NONSENSE,
 } from "../../common/arrayUtils";
 
-export const ROBOT = "@";
-
 export enum WarehouseSlot {
+  ROBOT = '@',
   WALL = "#",
   BOX = "O",
+  BOX_LEFT = '[',
+  BOX_RIGHT = ']',
   EMPTY = ".",
 }
 
@@ -33,11 +34,36 @@ export interface Problem {
   directions: Position[];
 }
 
+export function expandWarehouse(warehouse: Warehouse): Warehouse {
+  let robotPosition: Position = NONSENSE;
+
+  const contents: WarehouseSlot[][] = warehouse.contents.map((line, row) => {
+    return line.flatMap((value, col) => {
+      switch (value) {
+        case WarehouseSlot.ROBOT:
+          robotPosition = [row, col * 2];
+          return [WarehouseSlot.ROBOT, WarehouseSlot.EMPY];
+        case WarehouseSlot.WALL:
+          return [WarehouseSlot.WALL, WarehouseSlot.WALL];
+        case WarehouseSlot.BOX:
+          return [WarehouseSlot.BOX_LEFT, WarehouseSlot.BOX_RIGHT];
+        case WarehouseSlot.EMPTY:
+          return [WarehouseSlot.EMPTY, WarehouseSlot.EMPTY];
+      }
+    });
+  });
+
+
+  return {
+    robotPosition,
+    contents
+  }
+}
+
 export function warehouseToStr(warehouse: Warehouse): string {
   let asStr = `Robot at ${posToStr(warehouse.robotPosition)}\n`;
   asStr += gridArrayToStr(warehouse.contents);
   asStr += "\n";
-
   return asStr;
 }
 
@@ -51,8 +77,14 @@ export function calculateGpsValue([r, c]: Position): number {
   return 100 * r + c;
 }
 
-export function calculateWarehouseValue(warehouse: Warehouse): number {
+export function calculateWarehouseValue1(warehouse: Warehouse): number {
   return findInstancesOf(warehouse.contents, (v) => v === WarehouseSlot.BOX)
+    .map(calculateGpsValue)
+    .reduce((acc, curr) => acc + curr, 0);
+}
+
+export function calculateWarehouseValue2(warehouse: Warehouse): number {
+  return findInstancesOf(warehouse.contents, (v) => v === WarehouseSlot.BOX_LEFT)
     .map(calculateGpsValue)
     .reduce((acc, curr) => acc + curr, 0);
 }
@@ -62,9 +94,9 @@ export function parseWarehouse(lines: string[]) {
 
   const contents: WarehouseSlot[][] = lines.map((line, row) =>
     line.split("").map((value, column) => {
-      if (value === ROBOT) {
+      if (value === WarehouseSlot.ROBOT) {
         robotPosition = [row, column];
-        return WarehouseSlot.EMPTY;
+        return WarehouseSlot.ROBOT;
       } else {
         switch (value) {
           case WarehouseSlot.BOX:
@@ -137,9 +169,8 @@ export function tryToShiftBox(
 
   while (getContents(warehouse, position) !== WarehouseSlot.WALL) {
     if (getContents(warehouse, position) === WarehouseSlot.EMPTY) {
-      warehouse.robotPosition = nextSpot;
       setContents(warehouse, position, WarehouseSlot.BOX);
-      setContents(warehouse, nextSpot, WarehouseSlot.EMPTY);
+      moveRobot(warehouse, nextSpot);
       break;
     }
     position = applyDirection(position, direction);
@@ -152,6 +183,8 @@ export function moveRobot(
 ) {
   const [r, c] = warehouse.robotPosition;
   warehouse.contents[r][c] = WarehouseSlot.EMPTY;
+  warehouse.contents[into[0]][into[1]] = WarehouseSlot.ROBOT;
+
   warehouse.robotPosition = into;
 }
 
@@ -189,7 +222,7 @@ const day15: AdventFunction = async (
   const problem = await parseProblem(filename);
 
   const warehouseAfter = processProblem(problem);
-  const part1 = calculateWarehouseValue(warehouseAfter);
+  const part1 = calculateWarehouseValue1(warehouseAfter);
 
   return [part1, 1];
 };
