@@ -16,7 +16,7 @@ const TEST_INPUT_FILE_SMALL = "./src/2024/day15/testInputSmall.txt";
 const TEST_OUTPUT_FILE_SMALL = "./src/2024/day15/testOutputSmall.txt";
 
 describe("day15", () => {
-  it.only.each`
+  it.each`
     input     | expected
     ${[1, 4]} | ${104}
   `("calculates gps value $input = $expected", ({ input, expected }) => {
@@ -24,7 +24,8 @@ describe("day15", () => {
 
     expect(result).toBe(expected);
   });
-  it.only.each`
+
+  it.each`
     inputFile                 | expected
     ${TEST_OUTPUT_FILE}       | ${10092}
     ${TEST_OUTPUT_FILE_SMALL} | ${2028}
@@ -37,14 +38,19 @@ describe("day15", () => {
 
       expect(result).toBe(expected);
     },
-  );
+    );
 
   it("processProblem", async () => {
     const problem = await parseProblem(TEST_INPUT_FILE_SMALL);
-    console.log(problemToStr(problem));
-    const after = processProblem(problem);
 
-    console.log(warehouseToStr(after));
+    const lines = await loadEntireFile(TEST_OUTPUT_FILE_SMALL);
+    const warehouseAfter = parseWarehouse(lines);
+    const expectedStr = gridArrayToStr(warehouseAfter.contents);
+
+    const after = processProblem(problem);
+    const afterStr = gridArrayToStr(after.contents);
+
+    expect(afterStr).toBe(expectedStr);
   });
 
   it("handles small input for part 1 correctly", async () => {

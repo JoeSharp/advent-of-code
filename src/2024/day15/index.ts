@@ -3,9 +3,11 @@ import { loadEntireFile } from "../../common/processFile";
 import {
   Position,
   posToStr,
+  dirToShortStr,
   dirArrayToStr,
   gridArrayToStr,
   findInstancesOf,
+  applyDirection,
   NORTH,
   SOUTH,
   WEST,
@@ -118,16 +120,65 @@ export async function parseProblem(filename: string): Promise<Problem> {
   };
 }
 
-export function applyDirection(
+function getContents(warehouse: Warehouse, [r, c]: Position): WarehouseSlot {
+  return warehouse.contents[r][c];
+}
+
+function setContents(warehouse: Warehouse, [r, c]: Position, value: WarehouseSlot) {
+  warehouse.contents[r][c] = value;
+}
+
+export function tryToShiftBox(
+  warehouse: Warehouse,
+  direction: Position,
+  nextSpot: Position,
+) {
+  let position = nextSpot;
+
+  while (getContents(warehouse, position) !== WarehouseSlot.WALL) {
+    if (getContents(warehouse, position) === WarehouseSlot.EMPTY) {
+      warehouse.robotPosition = nextSpot;
+      setContents(warehouse, position, WarehouseSlot.BOX);
+      setContents(warehouse, nextSpot, WarehouseSlot.EMPTY);
+      break;
+    }
+    position = applyDirection(position, direction);
+  }
+}
+
+export function moveRobot(
+  warehouse: Warehouse,
+  into: Position
+) {
+  const [r, c] = warehouse.robotPosition;
+  warehouse.contents[r][c] = WarehouseSlot.EMPTY;
+  warehouse.robotPosition = into;
+}
+
+export function applyMove(
   warehouse: Warehouse,
   direction: Position,
 ): Warehouse {
+  const [nr, nc] = applyDirection(warehouse.robotPosition, direction);
+  const occupiedBy = warehouse.contents[nr][nc];
+
+  switch (occupiedBy) {
+    case WarehouseSlot.WALL:
+      break;
+    case WarehouseSlot.BOX:
+      tryToShiftBox(warehouse, direction, [nr, nc]);
+      break;
+    case WarehouseSlot.EMPTY:
+      moveRobot(warehouse, [nr, nc]);
+      break;
+  }
+
   return warehouse;
 }
 
 export function processProblem(problem: Problem): Warehouse {
   return problem.directions.reduce(
-    (acc, curr) => applyDirection(acc, curr),
+    (acc, curr) => applyMove(acc, curr),
     problem.warehouse,
   );
 }
