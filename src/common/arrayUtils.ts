@@ -44,11 +44,15 @@ export function countSameNeighbours(grid: string[][], pos: Position): number {
     .filter((v) => v === value).length;
 }
 
+export function dirArrayToStr(dirs: Position[]): string {
+  return dirs.map(dirToShortStr).join("");
+}
+
 export function dirToShortStr(dir: Position): string {
-  if (posEqual(dir, NORTH)) return "⬆️";
-  if (posEqual(dir, SOUTH)) return "⬇️";
-  if (posEqual(dir, WEST)) return "⬅️";
-  if (posEqual(dir, EAST)) return "➡️";
+  if (posEqual(dir, NORTH)) return "^";
+  if (posEqual(dir, SOUTH)) return "v";
+  if (posEqual(dir, WEST)) return "<";
+  if (posEqual(dir, EAST)) return ">";
   if (posEqual(dir, NORTH_WEST)) return "↖️";
   if (posEqual(dir, NORTH_EAST)) return "↗️";
   if (posEqual(dir, SOUTH_WEST)) return "↙️";
@@ -236,6 +240,10 @@ export function splitIntoChunks<T>(arr: T[], chunkSize: number): T[][] {
 }
 
 const LOOPED_WALK: WalkStep[] = [];
+
+export function gridArrayToStr(arr: any[][]): string {
+  return arr.map((row) => row.join("")).join("\n");
+}
 
 export function arraySectionToString(
   arr: any[],
