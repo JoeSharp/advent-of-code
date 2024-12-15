@@ -14,6 +14,7 @@ import { loadEntireFile } from "../../common/processFile";
 const TEST_INPUT_FILE = "./src/2024/day15/testInput.txt";
 const TEST_OUTPUT_FILE = "./src/2024/day15/testOutput.txt";
 const TEST_INPUT_FILE_SMALL = "./src/2024/day15/testInputSmall.txt";
+const TEST_INPUT_FILE_SMALL_2 = "./src/2024/day15/testInputSmall2.txt";
 const TEST_OUTPUT_FILE_SMALL = "./src/2024/day15/testOutputSmall.txt";
 
 describe("day15", () => {
@@ -58,6 +59,15 @@ describe("day15", () => {
     const problem = await parseProblem(TEST_INPUT_FILE);
     const expanded = expandWarehouse(problem.warehouse);
     console.log(warehouseToStr(expanded));
+  });
+
+  it("part2 moves around correctly", async () => {
+    const { warehouse, directions } = await parseProblem(
+      TEST_INPUT_FILE_SMALL_2,
+    );
+    const expanded = expandWarehouse(warehouse);
+    console.log(warehouseToStr(expanded));
+    processProblem(expanded, directions);
   });
 
   it("handles small input for part 1 correctly", async () => {
