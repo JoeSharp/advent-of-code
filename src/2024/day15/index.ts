@@ -71,7 +71,7 @@ export function warehouseToStr(warehouse: Warehouse): string {
 
 export function problemToStr(problem: Problem) {
   let asStr = warehouseToStr(problem.warehouse);
-  asStr += `Directions: ${problem.directions.map(d => dirToShortStr(d)).join('')}`;
+  asStr += `Directions: ${problem.directions.map((d) => dirToShortStr(d)).join("")}`;
   return asStr;
 }
 

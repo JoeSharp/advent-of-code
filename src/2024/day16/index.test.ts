@@ -3,7 +3,6 @@ import day16, { loadRawMaze } from "./index";
 const TEST_INPUT_FILE = "./src/2024/day16/testInput.txt";
 
 describe("day16", () => {
-
   it("loadRawMaze", async () => {
     const rawMaze = await loadRawMaze(TEST_INPUT_FILE);
 
