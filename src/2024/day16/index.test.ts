@@ -1,4 +1,5 @@
-import day16, { loadRawMaze } from "./index";
+import day16, { loadRawMaze, convertMazeToGraph, graphToStr } from "./index";
+import { gridArrayToStr } from "../../common/arrayUtils";
 
 const TEST_INPUT_FILE = "./src/2024/day16/testInput.txt";
 
@@ -10,6 +11,15 @@ describe("day16", () => {
     expect(rawMaze.end).toStrictEqual([1, 13]);
     expect(rawMaze.contents.length).toBe(15);
     expect(rawMaze.contents[0].length).toBe(15);
+  });
+
+  it.only("convertMazeToGraph", async () => {
+    const rawMaze = await loadRawMaze(TEST_INPUT_FILE);
+    console.log(gridArrayToStr(rawMaze.contents));
+
+    const graph = convertMazeToGraph(rawMaze);
+
+    console.log(graphToStr(graph));
   });
 
   it.skip("handles demo input for part 1 correctly", async () => {
