@@ -86,7 +86,7 @@ function findEdge(
 export function findEdges(contents: string[][], node: Position): Edge[] {
   return CROSS_DIRECTIONS.map((direction) =>
     findEdge(contents, node, direction),
-  ).filter((e) => e !== undefined);
+  ).filter((e) => e !== undefined) as Edge[];
 }
 
 function nodeHasEmptyNeighbours(
@@ -123,7 +123,7 @@ export function convertMazeToGraph({ start, end, contents }: RawMaze): Graph {
   };
 }
 
-export async function loadRawMaze(filename: string): RawMaze {
+export async function loadRawMaze(filename: string): Promise<RawMaze> {
   const contents = await loadEntireFileAsGrid(filename);
 
   const sTiles = findInstancesOf(contents, (v) => v === START);
