@@ -192,6 +192,7 @@ export function processComputer(computer: Computer, checkGeneratingSelf: boolean
 
 export function findValueToGenerateSelf(computer: Computer): number {
 
+  // I know it's higher than 442800000000
   let value = 1740100000;
   while (true) {
     if (value % 100000000 === 0) {
