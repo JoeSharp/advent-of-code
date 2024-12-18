@@ -28,6 +28,28 @@ interface Computer {
   output: number[];
 }
 
+function outputDigitToStr(digit: number): string {
+  let asStr = '';
+
+  for (let i=0; i<8; i++) {
+    if (digit === i) {
+      asStr += '#';
+    } else {
+      asStr += ' ';
+    }
+  }
+
+  return asStr;
+}
+
+function outputToStr(initialRegA: number, output: number[]): string {
+  let asStr = `Init Reg A: ${initialRegA}: len(${output.length}): `;
+
+  asStr += output.map(outputDigitToStr).join('');
+
+  return asStr;
+}
+
 function parseRegister(input: string): number {
   return parseInt(input.split(":").map((d) => d.trim())[1]);
 }
@@ -192,22 +214,27 @@ export function processComputer(computer: Computer, checkGeneratingSelf: boolean
 
 export function findValueToGenerateSelf(computer: Computer): number {
 
-  let value = 1740100000;
-  while (true) {
-    if (value % 100000000 === 0) {
-      console.log(`Trying ${value}`);
-    }
+  //let value = 1740100000;
+  let start = 30000000000000;//74766790688767;
+  let end =   40000000000000;
+  let amount = 100;
+  let increment = Math.floor((end - start) / amount);
 
+  console.log('TARGET');
+  const target = outputToStr(start, computer.rawProgram);
+  console.log(target);
+  for (let value=start; value<end; value += increment) {
     computer.regA = value;
     computer.programCounter = 0;
     computer.output = [];
 
-    if (processComputer(computer, true)) {
-      console.log('Value Found', computer);
-      return value;
+    processComputer(computer, false);
+    const op = outputToStr(value, computer.output);
+    console.log(op);
+    if (op === target) {
+      console.log('Value Found', {value, computer});
+      //return value;
     }
-
-    value++;
   }
 
   return NaN;
