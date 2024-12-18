@@ -4,6 +4,12 @@ export class PriorityQueue<T> {
     priority: number;
   }[] = [];
 
+  toString(): string {
+    return this.items
+      .map(({ item, priority }) => `${JSON.stringify(item)} - ${priority}`)
+      .join("\n");
+  }
+
   push(item: T, priority: number): void {
     const index = this.items.findIndex((v) => v.priority < priority);
 
@@ -19,6 +25,16 @@ export class PriorityQueue<T> {
 
   pop(): T {
     const prioritisedItem = this.items.shift();
+
+    if (prioritisedItem === undefined) {
+      throw new Error("Queue Empty during Pop");
+    }
+
+    return prioritisedItem.item;
+  }
+
+  popBack(): T {
+    const prioritisedItem = this.items.pop();
 
     if (prioritisedItem === undefined) {
       throw new Error("Queue Empty during Pop");

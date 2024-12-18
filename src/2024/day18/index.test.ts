@@ -1,5 +1,5 @@
-import day18, { simulateCorruption, loadCoordinates }  from "./index";
-import { gridArrayToStr } from '../../common/arrayUtils';
+import day18, { simulateCorruption, loadCoordinates } from "./index";
+import { gridArrayToStr } from "../../common/arrayUtils";
 
 const TEST_INPUT_FILE = "./src/2024/day18/testInput.txt";
 

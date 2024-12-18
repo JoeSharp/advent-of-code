@@ -29,13 +29,13 @@ interface Computer {
 }
 
 function outputDigitToStr(digit: number): string {
-  let asStr = '';
+  let asStr = "";
 
-  for (let i=0; i<8; i++) {
+  for (let i = 0; i < 8; i++) {
     if (digit === i) {
-      asStr += '#';
+      asStr += "#";
     } else {
-      asStr += ' ';
+      asStr += " ";
     }
   }
 
@@ -45,7 +45,7 @@ function outputDigitToStr(digit: number): string {
 function outputToStr(initialRegA: number, output: number[]): string {
   let asStr = `Init Reg A: ${initialRegA}: len(${output.length}): `;
 
-  asStr += output.map(outputDigitToStr).join('');
+  asStr += output.map(outputDigitToStr).join("");
 
   return asStr;
 }
@@ -127,7 +127,7 @@ function getComboOperand(computer: Computer, operand: number): number {
 
 function xdv(computer: Computer, operand: number) {
   const comboOperand = getComboOperand(computer, operand);
-  return Math.floor(computer.regA / (Math.pow(2, comboOperand)));
+  return Math.floor(computer.regA / Math.pow(2, comboOperand));
 }
 
 function adv(computer: Computer, operand: number) {
@@ -167,7 +167,10 @@ function cdv(computer: Computer, operand: number) {
   computer.regC = xdv(computer, operand);
 }
 
-export function processComputer(computer: Computer, checkGeneratingSelf: boolean = false): boolean {
+export function processComputer(
+  computer: Computer,
+  checkGeneratingSelf: boolean = false,
+): boolean {
   while (computer.programCounter < computer.program.length) {
     const { opCode, operand } = computer.program[computer.programCounter];
 
@@ -213,17 +216,16 @@ export function processComputer(computer: Computer, checkGeneratingSelf: boolean
 }
 
 export function findValueToGenerateSelf(computer: Computer): number {
-
   //let value = 1740100000;
-  let start = 30000000000000;//74766790688767;
-  let end =   40000000000000;
+  let start = 30000000000000; //74766790688767;
+  let end = 40000000000000;
   let amount = 100;
   let increment = Math.floor((end - start) / amount);
 
-  console.log('TARGET');
+  console.log("TARGET");
   const target = outputToStr(start, computer.rawProgram);
   console.log(target);
-  for (let value=start; value<end; value += increment) {
+  for (let value = start; value < end; value += increment) {
     computer.regA = value;
     computer.programCounter = 0;
     computer.output = [];
@@ -232,7 +234,7 @@ export function findValueToGenerateSelf(computer: Computer): number {
     const op = outputToStr(value, computer.output);
     console.log(op);
     if (op === target) {
-      console.log('Value Found', {value, computer});
+      console.log("Value Found", { value, computer });
       //return value;
     }
   }
