@@ -39,43 +39,44 @@ export function canMakePattern(
   desired: string,
   cantMake: string[] = [],
   index: number = 0,
-): boolean {
+): number {
   const lookingToMake = desired.slice(index);
 
   if (cantMake.includes(lookingToMake)) {
-    return false;
+    return 0;
   }
+
+  let waysToWin = 0;
 
   for (let towel of towelSet) {
     if (canMakeNextPartOfPattern(towel, desired, index)) {
       let nextIndex = index + towel.length;
       if (nextIndex === desired.length) {
-        return true;
+        waysToWin++;
       } else {
-        const r = canMakePattern(towelSet, desired, cantMake, nextIndex);
-        if (r) return true;
+        waysToWin += canMakePattern(towelSet, desired, cantMake, nextIndex);
+
       }
     }
   };
 
-  console.log('Wasnt able to make', lookingToMake);
-  cantMake.push(lookingToMake);
+  if (waysToWin === 0) {
+    console.log('Wasnt able to make', lookingToMake);
+    cantMake.push(lookingToMake);
+  }
 
-  return false;
-}
-
-async function part1(filename: string): Promise<number> {
-  const problem = await loadTowelProblem(filename);
-  return problem.desired.filter((d) => canMakePattern(problem.towelSet, d))
-    .length;
+  return waysToWin;
 }
 
 const day19: AdventFunction = async (
   filename = "./src/2024/day19/input.txt",
 ) => {
-  const p1 = await part1(filename);
+  const problem = await loadTowelProblem(filename);
+  const solutions = problem.desired.map(d => canMakePattern(problem.towelSet, d));
+  const p1 = solutions.filter(s => s > 0).length;
+  const p2 = solutions.reduce((acc, curr) => acc + curr, 0);
 
-  return [p1, 1];
+  return [p1, p2];
 };
 
 export default day19;

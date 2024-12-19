@@ -24,17 +24,17 @@ describe("day19", () => {
     },
   );
 
-  it.only.each`
+  it.each`
     towelSet                                          | desired     | expected
-    ${["r", "wr", "b", "g", "bwu", "rb", "gb", "br"]} | ${"brwrr"}  | ${true}
-    ${["r", "wr", "b", "g", "bwu", "rb", "gb", "br"]} | ${"bggr"}   | ${true}
-    ${["r", "wr", "b", "g", "bwu", "rb", "gb", "br"]} | ${"gbbr"}   | ${true}
-    ${["r", "wr", "b", "g", "bwu", "rb", "gb", "br"]} | ${"rrbgbr"} | ${true}
-    ${["r", "wr", "b", "g", "bwu", "rb", "gb", "br"]} | ${"ubwu"}   | ${false}
-    ${["r", "wr", "b", "g", "bwu", "rb", "gb", "br"]} | ${"bwurrg"} | ${true}
-    ${["r", "wr", "b", "g", "bwu", "rb", "gb", "br"]} | ${"brgr"}   | ${true}
-    ${["r", "wr", "b", "g", "bwu", "rb", "gb", "br"]} | ${"bbrgwb"} | ${false}
-    ${["r", "wr", "b", "g", "bwu", "rb", "gb", "br"]} | ${"bwurrg"} | ${true}
+    ${["r", "wr", "b", "g", "bwu", "rb", "gb", "br"]} | ${"brwrr"}  | ${2}
+    ${["r", "wr", "b", "g", "bwu", "rb", "gb", "br"]} | ${"bggr"}   | ${1}
+    ${["r", "wr", "b", "g", "bwu", "rb", "gb", "br"]} | ${"gbbr"}   | ${4}
+    ${["r", "wr", "b", "g", "bwu", "rb", "gb", "br"]} | ${"rrbgbr"} | ${6}
+    ${["r", "wr", "b", "g", "bwu", "rb", "gb", "br"]} | ${"ubwu"}   | ${0}
+    ${["r", "wr", "b", "g", "bwu", "rb", "gb", "br"]} | ${"bwurrg"} | ${1}
+    ${["r", "wr", "b", "g", "bwu", "rb", "gb", "br"]} | ${"brgr"}   | ${2}
+    ${["r", "wr", "b", "g", "bwu", "rb", "gb", "br"]} | ${"bbrgwb"} | ${0}
+    ${["r", "wr", "b", "g", "bwu", "rb", "gb", "br"]} | ${"bwurrg"} | ${1}
   `(
     "canMakePattern $desired with any of $towelSet = $expected",
     ({ desired, towelSet, expected }) => {
@@ -50,7 +50,7 @@ describe("day19", () => {
     expect(part1).toBe(6);
   });
 
-  it.skip("handles demo input for part 2 correctly", async () => {
+  it("handles demo input for part 2 correctly", async () => {
     const [, part2] = await day19(TEST_INPUT_FILE);
 
     expect(part2).toBe(16);
