@@ -37,35 +37,40 @@ export function canMakeNextPartOfPattern(
 export function canMakePattern(
   towelSet: string[],
   desired: string,
+  alreadyMade: Map<string, number> = new Map(),
   cantMake: string[] = [],
   index: number = 0,
 ): number {
   const lookingToMake = desired.slice(index);
 
+  if (alreadyMade.has(lookingToMake)) {
+    return alreadyMade.get(lookingToMake) || 0;
+  }
+
   if (cantMake.includes(lookingToMake)) {
     return 0;
   }
 
-  let waysToWin = 0;
+  let waysToMake = 0;
 
   for (let towel of towelSet) {
     if (canMakeNextPartOfPattern(towel, desired, index)) {
       let nextIndex = index + towel.length;
       if (nextIndex === desired.length) {
-        waysToWin++;
+        waysToMake++;
       } else {
-        waysToWin += canMakePattern(towelSet, desired, cantMake, nextIndex);
-
+        waysToMake += canMakePattern(towelSet, desired, alreadyMade, cantMake, nextIndex);
       }
     }
   };
 
-  if (waysToWin === 0) {
-    console.log('Wasnt able to make', lookingToMake);
+  if (waysToMake === 0) {
     cantMake.push(lookingToMake);
   }
 
-  return waysToWin;
+  alreadyMade.set(lookingToMake, waysToMake);
+
+  return waysToMake;
 }
 
 const day19: AdventFunction = async (
