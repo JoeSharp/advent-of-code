@@ -1,24 +1,14 @@
 import { AdventFunction } from "../../common/types";
 import { loadEntireFile } from "../../common/processFile";
 
-export type Towel = string[];
-export type TowelSet = Towel[];
-
 export interface TowelProblem {
-  towelSet: TowelSet;
+  towelSet: string[];
 
-  desired: Towel[];
+  desired: string[];
 }
 
-function parseTowel(input: string): Towel {
-  return input.trim().split("");
-}
-
-function parseTowelSet(input: string): TowelSet {
-  return input
-    .split(",")
-    .map((d) => d.trim())
-    .map(parseTowel) as TowelSet;
+function parseTowelSet(input: string): string[] {
+  return input.split(",").map((d) => d.trim());
 }
 
 async function loadTowelProblem(filename: string): Promise<TowelProblem> {
@@ -26,13 +16,13 @@ async function loadTowelProblem(filename: string): Promise<TowelProblem> {
 
   return {
     towelSet: parseTowelSet(contents[0]),
-    desired: contents.slice(2).map(parseTowel),
+    desired: contents.slice(2),
   };
 }
 
 export function canMakeNextPartOfPattern(
-  towel: Towel,
-  desired: Towel,
+  towel: string,
+  desired: string,
   index: number,
 ): boolean {
   if (towel.length + index > desired.length) return false;
@@ -45,24 +35,33 @@ export function canMakeNextPartOfPattern(
 }
 
 export function canMakePattern(
-  towelSet: TowelSet,
-  desired: Towel,
+  towelSet: string[],
+  desired: string,
+  cantMake: string[] = [],
   index: number = 0,
 ): boolean {
-    console.log(`Looking to make ${desired.join(',')} from ${index}`);
+  const lookingToMake = desired.slice(index);
 
-  return towelSet.findIndex((towel, ti) => {
+  if (cantMake.includes(lookingToMake)) {
+    return false;
+  }
+
+  for (let towel of towelSet) {
     if (canMakeNextPartOfPattern(towel, desired, index)) {
       let nextIndex = index + towel.length;
       if (nextIndex === desired.length) {
         return true;
       } else {
-        return canMakePattern(towelSet, desired, nextIndex);
+        const r = canMakePattern(towelSet, desired, cantMake, nextIndex);
+        if (r) return true;
       }
-    } else {
-      return false;
     }
-  }) !== -1;
+  };
+
+  console.log('Wasnt able to make', lookingToMake);
+  cantMake.push(lookingToMake);
+
+  return false;
 }
 
 async function part1(filename: string): Promise<number> {
