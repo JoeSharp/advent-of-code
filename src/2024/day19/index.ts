@@ -59,10 +59,16 @@ export function canMakePattern(
       if (nextIndex === desired.length) {
         waysToMake++;
       } else {
-        waysToMake += canMakePattern(towelSet, desired, alreadyMade, cantMake, nextIndex);
+        waysToMake += canMakePattern(
+          towelSet,
+          desired,
+          alreadyMade,
+          cantMake,
+          nextIndex,
+        );
       }
     }
-  };
+  }
 
   if (waysToMake === 0) {
     cantMake.push(lookingToMake);
@@ -77,8 +83,10 @@ const day19: AdventFunction = async (
   filename = "./src/2024/day19/input.txt",
 ) => {
   const problem = await loadTowelProblem(filename);
-  const solutions = problem.desired.map(d => canMakePattern(problem.towelSet, d));
-  const p1 = solutions.filter(s => s > 0).length;
+  const solutions = problem.desired.map((d) =>
+    canMakePattern(problem.towelSet, d),
+  );
+  const p1 = solutions.filter((s) => s > 0).length;
   const p2 = solutions.reduce((acc, curr) => acc + curr, 0);
 
   return [p1, p2];

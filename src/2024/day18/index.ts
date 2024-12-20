@@ -4,12 +4,12 @@ import {
   applyDirection,
   nextStepLeavesMap,
   gridArrayToStr,
+  posEqual,
   CROSS_DIRECTIONS,
   posToStr,
   Position,
   NONSENSE,
 } from "../../common/arrayUtils";
-import { PriorityQueue } from "../../common/buffers";
 
 export const START_POSITION: Position = [0, 0];
 
@@ -57,14 +57,62 @@ export function simulateCorruption(
 }
 
 interface NodeCost {
+  position: Position;
   cost: number;
   via: Position;
+  visited: boolean;
 }
 
 function getNeighbours(memory: MemoryCell[][], position: Position): Position[] {
   return CROSS_DIRECTIONS.filter((d) => !nextStepLeavesMap(memory, position, d))
     .map((d) => applyDirection(position, d))
     .filter(([r, c]) => memory[r][c] === MemoryCell.EMPTY);
+}
+
+function findShortestUnvisitedNode(
+  nodes: Map<string, NodeCost>,
+): NodeCost | undefined {
+  let nextNode: NodeCost | undefined;
+
+  nodes
+    .forEach((node) => {
+      if (node.visited) return;
+
+      if (nextNode === undefined) {
+        nextNode = node;
+        return;
+      }
+
+      if (nextNode.cost > node.cost) {
+        nextNode = node;
+        return;
+      }
+    });
+
+  return nextNode;
+}
+
+function createNodeMap(start: Position, memory: MemoryCell[][]) {
+  const nodes: Map<string, NodeCost> = new Map();
+  for (let r = 0; r < memory.length; r++) {
+    for (let c = 0; c < memory.length; c++) {
+      if (!(r === 0 && c === 0) && memory[r][c] === MemoryCell.EMPTY) {
+        const position: Position = [r, c];
+        const asStr = posToStr(position);
+        const nodeCost: NodeCost = {
+          cost: Infinity,
+          via: NONSENSE,
+          visited: false,
+          position
+        };
+        nodes.set(asStr, nodeCost);
+      }
+    }
+  }
+
+  nodes.set(posToStr(start), { position: start, cost: 0, via: NONSENSE, visited: false });
+
+  return nodes;
 }
 
 export function findBestRoute(
@@ -75,34 +123,31 @@ export function findBestRoute(
   console.log("Find Best Route");
   console.log(gridArrayToStr(memory));
 
+  const nodes: Map<string, NodeCost> = createNodeMap(start, memory);
+
   // Mark all nodes as infinity, except start
-  const unvisited: PriorityQueue<Position> = new PriorityQueue();
-  const reached: Map<string, NodeCost> = new Map();
-  for (let r = 0; r < memory.length; r++) {
-    for (let c = 0; c < memory.length; c++) {
-      if (!(r === 0 && c === 0) && memory[r][c] === MemoryCell.EMPTY) {
-        const position: Position = [r, c];
-        const asStr = posToStr(position);
-        const nodeCost: NodeCost = { cost: Infinity, via: NONSENSE };
-        reached.set(asStr, nodeCost);
-        unvisited.push(position, nodeCost.cost);
-      }
+  let node = findShortestUnvisitedNode(nodes);
+  while (!!node) {
+    if (posEqual(node.position, end)) {
+      // Read off the route
+      console.log('Route Found', nodes);
+
+
+      return [];
     }
-  }
 
-  reached.set(posToStr(start), { cost: 0, via: NONSENSE });
-  unvisited.push(START_POSITION, 0);
+    const neighbours = getNeighbours(memory, node.position);
+    const costToNeighbour = node.cost + 1;
 
-  //console.log("Reached", reached);
-  //console.log('Unvisited', unvisited.toString());
-
-  let index = 8;
-  while (!unvisited.isEmpty()) {
-    if (index-- < 0) break;
-    const next = unvisited.popBack();
-    const neighbours = getNeighbours(memory, next);
-
-    console.log("Evaluating", { next, neighbours });
+    neighbours.map(posToStr).map(p => nodes.get(p)).forEach(neighbourNode => {
+      if (costToNeighbour < neighbourNode.cost) {
+        neighbourNode.cost = costToNeighbour;
+        neighbourNode.via = node.position;
+      }
+    });
+    
+    node.visited = true;
+    node = findShortestUnvisitedNode(nodes);
   }
 
   // Set the non-visited node with the smallest current distance as the current node.
@@ -125,16 +170,21 @@ export async function loadCoordinates(filename: string): Promise<Position[]> {
 export const GRID_SIZE = 71; // 0 -> 70 inclusive
 export const DEFAULT_ITERATIONS = 1024;
 
+export async function findShortestRouteLength(filename: string, gridSize: number, iterations: number): Promise<number> {
+  const start: Position = [0, 0];
+  const end: Position = [gridSize - 1, gridSize - 1];
+
+  const coordinates = await loadCoordinates(filename);
+  const memory = simulateCorruption(gridSize, coordinates, iterations);
+  const route = findBestRoute(start, end, memory);
+  return route.length;
+}
+
+
 const day18: AdventFunction = async (
   filename = "./src/2024/day18/input.txt",
 ) => {
-  const start: Position = [0, 0];
-  const end: Position = [GRID_SIZE - 1, GRID_SIZE - 1];
-
-  const coordinates = await loadCoordinates(filename);
-  const memory = simulateCorruption(GRID_SIZE, coordinates, DEFAULT_ITERATIONS);
-  const route = findBestRoute(start, end, memory);
-  const part1 = route.length;
+  const part1 = await findShortestRouteLength(filename, GRID_SIZE, DEFAULT_ITERATIONS);
 
   return [part1, 1];
 };

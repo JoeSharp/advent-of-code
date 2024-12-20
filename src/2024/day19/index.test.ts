@@ -8,7 +8,7 @@ const TEST_INPUT_FILE = "./src/2024/day19/testInput.txt";
 
 describe("day19", () => {
   it.each`
-    towel         | desired        | index | expected
+    towel   | desired      | index | expected
     ${"fa"} | ${"fajog"}   | ${0}  | ${true}
     ${"fa"} | ${"fajog"}   | ${1}  | ${false}
     ${"jo"} | ${"fajog"}   | ${2}  | ${true}
