@@ -74,20 +74,20 @@ function findShortestUnvisitedNode(
 ): NodeCost | undefined {
   let nextNode: NodeCost | undefined;
 
-  nodes
-    .forEach((node) => {
-      if (node.visited) return;
+  nodes.forEach((node) => {
+    if (node.visited) return;
+    if (node.cost === Infinity) return;
 
-      if (nextNode === undefined) {
-        nextNode = node;
-        return;
-      }
+    if (nextNode === undefined) {
+      nextNode = node;
+      return;
+    }
 
-      if (nextNode.cost > node.cost) {
-        nextNode = node;
-        return;
-      }
-    });
+    if (nextNode.cost > node.cost) {
+      nextNode = node;
+      return;
+    }
+  });
 
   return nextNode;
 }
@@ -103,16 +103,41 @@ function createNodeMap(start: Position, memory: MemoryCell[][]) {
           cost: Infinity,
           via: NONSENSE,
           visited: false,
-          position
+          position,
         };
         nodes.set(asStr, nodeCost);
       }
     }
   }
 
-  nodes.set(posToStr(start), { position: start, cost: 0, via: NONSENSE, visited: false });
+  nodes.set(posToStr(start), {
+    position: start,
+    cost: 0,
+    via: NONSENSE,
+    visited: false,
+  });
 
   return nodes;
+}
+
+function readOffRoute(
+  start: Position,
+  end: Position,
+  nodes: Map<string, NodeCost>,
+): Position[] {
+  const endAsStr = posToStr(end);
+  let node = nodes.get(endAsStr);
+
+  let route: Position[] = [];
+
+  while (!!node && !posEqual(node.position, start)) {
+    route.unshift(node.position);
+
+    const viaAsStr = posToStr(node.via);
+    node = nodes.get(viaAsStr);
+  }
+
+  return route;
 }
 
 export function findBestRoute(
@@ -120,41 +145,31 @@ export function findBestRoute(
   end: Position,
   memory: MemoryCell[][],
 ): Position[] {
-  console.log("Find Best Route");
-  console.log(gridArrayToStr(memory));
-
   const nodes: Map<string, NodeCost> = createNodeMap(start, memory);
 
   // Mark all nodes as infinity, except start
   let node = findShortestUnvisitedNode(nodes);
   while (!!node) {
     if (posEqual(node.position, end)) {
-      // Read off the route
-      console.log('Route Found', nodes);
-
-
-      return [];
+      return readOffRoute(start, end, nodes);
     }
 
     const neighbours = getNeighbours(memory, node.position);
     const costToNeighbour = node.cost + 1;
 
-    neighbours.map(posToStr).map(p => nodes.get(p)).forEach(neighbourNode => {
-      if (costToNeighbour < neighbourNode.cost) {
-        neighbourNode.cost = costToNeighbour;
-        neighbourNode.via = node.position;
-      }
-    });
-    
+    neighbours
+      .map(posToStr)
+      .map((p) => nodes.get(p)!)
+      .forEach((neighbourNode) => {
+        if (costToNeighbour < neighbourNode.cost) {
+          neighbourNode.cost = costToNeighbour;
+          neighbourNode.via = node!.position;
+        }
+      });
+
     node.visited = true;
     node = findShortestUnvisitedNode(nodes);
   }
-
-  // Set the non-visited node with the smallest current distance as the current node.
-  // For each neighbor, N of the current node adds the current distance of the adjacent node with the weight of the edge connecting 0->1.
-  //   If it is smaller than the current distance of Node, set it as the new current distance of N.
-  // Mark the current node 1 as visited.
-  // Go to step 2 if there are any nodes are unvisited.
 
   return [];
 }
@@ -170,7 +185,11 @@ export async function loadCoordinates(filename: string): Promise<Position[]> {
 export const GRID_SIZE = 71; // 0 -> 70 inclusive
 export const DEFAULT_ITERATIONS = 1024;
 
-export async function findShortestRouteLength(filename: string, gridSize: number, iterations: number): Promise<number> {
+export async function findShortestRouteLength(
+  filename: string,
+  gridSize: number,
+  iterations: number,
+): Promise<number> {
   const start: Position = [0, 0];
   const end: Position = [gridSize - 1, gridSize - 1];
 
@@ -180,13 +199,44 @@ export async function findShortestRouteLength(filename: string, gridSize: number
   return route.length;
 }
 
+export async function findCoordinatesOfFirstObstructingCorruption(
+  filename: string,
+  gridSize: number,
+  startingIteration: number = 1
+): Promise<string> {
+  const start: Position = [0, 0];
+  const end: Position = [gridSize - 1, gridSize - 1];
+
+  const coordinates = await loadCoordinates(filename);
+  for (let i = startingIteration; i < coordinates.length; i++) {
+    console.log('Checking Corruptions', i);
+    const memory = simulateCorruption(gridSize, coordinates, i);
+    const route = findBestRoute(start, end, memory);
+    
+    // No route available!
+    if (route.length === 0) {
+      return posToStr(coordinates[i-1]);
+    }
+  }
+
+  return posToStr(NONSENSE);
+}
 
 const day18: AdventFunction = async (
   filename = "./src/2024/day18/input.txt",
 ) => {
-  const part1 = await findShortestRouteLength(filename, GRID_SIZE, DEFAULT_ITERATIONS);
+  const part1 = await findShortestRouteLength(
+    filename,
+    GRID_SIZE,
+    DEFAULT_ITERATIONS,
+  );
+  const part2 = await findCoordinatesOfFirstObstructingCorruption(
+    filename,
+    GRID_SIZE,
+    2824
+  );
 
-  return [part1, 1];
+  return [part1, part2];
 };
 
 export default day18;

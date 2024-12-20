@@ -73,7 +73,7 @@ export function gridArrayToStr(arr: any[][]): string {
 }
 
 export function posToStr([r, c]: Position): string {
-  return `${r}-${c}`;
+  return `${r},${c}`;
 }
 
 export function posAndDirToStr(pos: Position, dir: Position): string {
