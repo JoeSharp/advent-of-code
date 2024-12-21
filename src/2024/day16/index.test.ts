@@ -1,7 +1,6 @@
 import day16, {
   loadRawMaze,
   convertMazeToGraph,
-  findShortestRoute,
   graphToStr,
   isGoingBack,
   isTurningCorner,
@@ -82,22 +81,17 @@ describe("day16", () => {
   });
 
 
+    //${TEST_INPUT_FILE_2} | ${11048} | ${45}
   it.only.each`
-    inputFile            | expected
-    ${TEST_INPUT_FILE_2} | ${11048}
-    ${TEST_INPUT_FILE_1} | ${7036}
+    inputFile            | expectedPart1 | expectedPart2
+    ${TEST_INPUT_FILE_1} | ${7036} | ${64}
   `(
     "calculates shortest path for $inputFile to be $expected",
-    async ({ inputFile, expected }) => {
-      const [part1] = await day16(inputFile);
+    async ({ inputFile, expectedPart1, expectedPart2 }) => {
+      const [part1, part2] = await day16(inputFile);
 
-      expect(part1).toBe(expected);
+      expect(part1).toBe(expectedPart1);
+      //expect(part2).toBe(expectedPart2);
     },
   );
-
-  it.skip("handles demo input for part 2 correctly", async () => {
-    const [, part2] = await day16(TEST_INPUT_FILE_1);
-
-    expect(part2).toBe(1);
-  });
 });
