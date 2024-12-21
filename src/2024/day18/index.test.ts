@@ -24,8 +24,11 @@ describe("day18", () => {
   });
 
   it.only("handles demo input for part 2 correctly", async () => {
-    const part2 =
-      await findCoordinatesOfFirstObstructingCorruption(TEST_INPUT_FILE, 7, 12);
+    const part2 = await findCoordinatesOfFirstObstructingCorruption(
+      TEST_INPUT_FILE,
+      7,
+      12,
+    );
 
     expect(part2).toBe("6,1");
   });

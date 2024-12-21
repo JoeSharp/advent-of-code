@@ -1,11 +1,13 @@
 import { AdventFunction } from "../../common/types";
 import {
   Position,
+  posEqual,
   posToStr,
   dirToShortStr,
   findInstancesOf,
   gridArrayToStr,
   CROSS_DIRECTIONS,
+  NONSENSE,
   NORTH,
   SOUTH,
   WEST,
@@ -32,6 +34,7 @@ export interface Edge {
   from: Position;
   to: Position;
   direction: Position;
+  cost: number;
 }
 
 export interface Graph {
@@ -41,8 +44,8 @@ export interface Graph {
   edges: Edge[];
 }
 
-export function edgeToStr({ from, to, direction }: Edge): string {
-  return `from: ${posToStr(from)} ${dirToShortStr(direction)}   ${posToStr(to)}`;
+export function edgeToStr({ from, to, direction, cost }: Edge): string {
+  return `cost(${cost}): ${posToStr(from)} ${dirToShortStr(direction)}   ${posToStr(to)}`;
 }
 
 export function graphToStr({ start, end, nodes, edges }: Graph): string {
@@ -64,9 +67,11 @@ function findEdge(
   direction: Position,
 ): Edge | undefined {
   let position = node;
+  let cost = 0;
 
   while (contents[position[0]][position[1]] !== WALL) {
     position = applyDirection(position, direction);
+    cost++;
 
     if (
       contents[position[0]][position[1]] === EMPTY &&
@@ -76,6 +81,7 @@ function findEdge(
         from: node,
         to: position,
         direction,
+        cost,
       };
     }
   }
@@ -110,7 +116,7 @@ function nodeIsACorner(contents: string[][], position: Position) {
 
 export function convertMazeToGraph({ start, end, contents }: RawMaze): Graph {
   let nodes: Position[] = findInstancesOf(contents, (v) => v === EMPTY).filter(
-    (p) => nodeIsACorner(contents, p),
+    (p) => posEqual(p, start) || posEqual(p, end) || nodeIsACorner(contents, p),
   );
 
   let edges: Edge[] = nodes.flatMap((node) => findEdges(contents, node));
@@ -144,10 +150,159 @@ export async function loadRawMaze(filename: string): Promise<RawMaze> {
   };
 }
 
+export interface NavNode {
+  position: Position;
+  via: Position;
+  visited: boolean;
+  direction: Position;
+  cost: number;
+}
+
+function findCheapestUnvisited(navNodes: NavNode[]): NavNode | undefined {
+  let nextNode: NavNode | undefined;
+
+  navNodes.forEach((node) => {
+    if (node.visited) return;
+    if (node.cost === Infinity) return;
+
+    if (nextNode === undefined) {
+      nextNode = node;
+      return;
+    }
+
+    if (nextNode.cost > node.cost) {
+      nextNode = node;
+      return;
+    }
+  });
+
+  return nextNode;
+}
+
+export function isTurningCorner(
+  currentDirection: Position,
+  nextDirection: Position,
+): boolean {
+  return (
+    currentDirection[0] * nextDirection[0] === 0 &&
+    currentDirection[1] * nextDirection[1] === 0
+  );
+}
+
+export function isGoingBack(
+  currentDirection: Position,
+  nextDirection: Position,
+): boolean {
+  return (
+    currentDirection[0] === -1 * nextDirection[0] &&
+    currentDirection[1] === -1 * nextDirection[1]
+  );
+}
+
+function findNavNode(navNodes: NavNode[], position: Position): NavNode {
+  const index = navNodes.findIndex((n) => posEqual(n.position, position));
+
+  if (index === -1)
+    throw new Error(`Could not find ${posToStr(position)} in nav nodes`);
+
+  return navNodes[index];
+}
+
+interface JourneyStep {
+  position: Position;
+  cost: number;
+}
+
+export function readOffRoute(graph: Graph, nodes: NavNode[]): JourneyStep[] {
+  console.log("Read off route", nodes);
+
+  let node = findNavNode(nodes, graph.end);
+
+  let cost = 0;
+  let route: JourneyStep[] = [];
+
+  while (!!node && !posEqual(node.position, graph.start)) {
+    cost += node.cost;
+    route.unshift({
+      cost: node.cost,
+      position: node.position,
+    });
+
+    node = findNavNode(nodes, node.via);
+  }
+  route.unshift({
+    cost: 0,
+    position: graph.start,
+  });
+
+  return route;
+}
+
+export function findShortestRoute(graph: Graph): JourneyStep[] {
+  console.log("Finding shortest route", graphToStr(graph));
+
+  const navNodes: NavNode[] = graph.nodes.map((position) => {
+    let cost = Infinity;
+    if (posEqual(position, graph.start)) {
+      cost = 0;
+    }
+
+    return {
+      position,
+      direction: EAST,
+      via: NONSENSE,
+      visited: false,
+      cost,
+    };
+  });
+
+  console.log('Using nodes', navNodes);
+
+  let node = findCheapestUnvisited(navNodes);
+  while (node !== undefined) {
+    if (posEqual(node.position, graph.end)) {
+      return readOffRoute(graph, navNodes);
+    }
+
+    console.log("Visiting Node", node);
+    node.visited = true;
+    graph.edges
+      .filter(
+        (edge) =>
+          posEqual(edge.from, node!.position) &&
+          !isGoingBack(node!.direction, edge.direction),
+      )
+      .forEach((edge) => {
+        let cost = node!.cost + edge.cost;
+        if (isTurningCorner(node!.direction, edge.direction)) {
+          cost += ROTATE_SCORE;
+        }
+
+        const to = navNodes.filter((n) => posEqual(n.position, edge.to))[0];
+        if (to.cost > cost) {
+          to.cost = cost;
+          to.via = edge.from;
+          to.direction = edge.direction;
+          console.log("Found new quicker way to get", to);
+        }
+      });
+
+    node = findCheapestUnvisited(navNodes);
+  }
+
+  return [];
+}
+
 const day16: AdventFunction = async (
   filename = "./src/2024/day16/input.txt",
 ) => {
-  return [1, 1];
+  const rawMaze = await loadRawMaze(filename);
+  const graph = convertMazeToGraph(rawMaze);
+  const route = findShortestRoute(graph);
+  if (route.length === 0) throw new Error('No route found through maze');
+  const part1 = route[route.length - 1].cost;
+
+  return [part1, 1];
 };
 
 export default day16;

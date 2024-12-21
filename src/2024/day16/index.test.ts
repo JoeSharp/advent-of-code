@@ -1,11 +1,79 @@
-import day16, { loadRawMaze, convertMazeToGraph, graphToStr } from "./index";
-import { gridArrayToStr } from "../../common/arrayUtils";
+import day16, {
+  loadRawMaze,
+  convertMazeToGraph,
+  findShortestRoute,
+  graphToStr,
+  isGoingBack,
+  isTurningCorner,
+} from "./index";
+import {
+  gridArrayToStr,
+  NORTH,
+  SOUTH,
+  WEST,
+  EAST,
+} from "../../common/arrayUtils";
 
-const TEST_INPUT_FILE = "./src/2024/day16/testInput.txt";
+const TEST_INPUT_FILE_1 = "./src/2024/day16/testInput1.txt";
+const TEST_INPUT_FILE_2 = "./src/2024/day16/testInput2.txt";
 
 describe("day16", () => {
+  it.each`
+    current  | next     | expected
+    ${NORTH} | ${SOUTH} | ${true}
+    ${NORTH} | ${WEST}  | ${false}
+    ${NORTH} | ${EAST}  | ${false}
+    ${NORTH} | ${NORTH} | ${false}
+    ${EAST}  | ${SOUTH} | ${false}
+    ${EAST}  | ${WEST}  | ${true}
+    ${EAST}  | ${EAST}  | ${false}
+    ${EAST}  | ${NORTH} | ${false}
+    ${WEST}  | ${SOUTH} | ${false}
+    ${WEST}  | ${WEST}  | ${false}
+    ${WEST}  | ${EAST}  | ${true}
+    ${WEST}  | ${NORTH} | ${false}
+    ${SOUTH} | ${SOUTH} | ${false}
+    ${SOUTH} | ${WEST}  | ${false}
+    ${SOUTH} | ${EAST}  | ${false}
+    ${SOUTH} | ${NORTH} | ${true}
+  `(
+    "is going back $current, $next, $expected",
+    ({ current, next, expected }) => {
+      const result = isGoingBack(current, next);
+
+      expect(result).toBe(expected);
+    },
+  );
+
+  it.each`
+    current  | next     | expected
+    ${NORTH} | ${SOUTH} | ${false}
+    ${NORTH} | ${WEST}  | ${true}
+    ${NORTH} | ${EAST}  | ${true}
+    ${NORTH} | ${NORTH} | ${false}
+    ${EAST}  | ${SOUTH} | ${true}
+    ${EAST}  | ${WEST}  | ${false}
+    ${EAST}  | ${EAST}  | ${false}
+    ${EAST}  | ${NORTH} | ${true}
+    ${WEST}  | ${SOUTH} | ${true}
+    ${WEST}  | ${WEST}  | ${false}
+    ${WEST}  | ${EAST}  | ${false}
+    ${WEST}  | ${NORTH} | ${true}
+    ${SOUTH} | ${SOUTH} | ${false}
+    ${SOUTH} | ${WEST}  | ${true}
+    ${SOUTH} | ${EAST}  | ${true}
+    ${SOUTH} | ${NORTH} | ${false}
+  `(
+    "is turning corner $current, $next, $expected",
+    ({ current, next, expected }) => {
+      const result = isTurningCorner(current, next);
+
+      expect(result).toBe(expected);
+    },
+  );
+
   it("loadRawMaze", async () => {
-    const rawMaze = await loadRawMaze(TEST_INPUT_FILE);
+    const rawMaze = await loadRawMaze(TEST_INPUT_FILE_1);
 
     expect(rawMaze.start).toStrictEqual([13, 1]);
     expect(rawMaze.end).toStrictEqual([1, 13]);
@@ -13,23 +81,22 @@ describe("day16", () => {
     expect(rawMaze.contents[0].length).toBe(15);
   });
 
-  it.only("convertMazeToGraph", async () => {
-    const rawMaze = await loadRawMaze(TEST_INPUT_FILE);
-    console.log(gridArrayToStr(rawMaze.contents));
 
-    const graph = convertMazeToGraph(rawMaze);
+  it.only.each`
+    inputFile            | expected
+    ${TEST_INPUT_FILE_2} | ${11048}
+    ${TEST_INPUT_FILE_1} | ${7036}
+  `(
+    "calculates shortest path for $inputFile to be $expected",
+    async ({ inputFile, expected }) => {
+      const [part1] = await day16(inputFile);
 
-    console.log(graphToStr(graph));
-  });
-
-  it.skip("handles demo input for part 1 correctly", async () => {
-    const [part1] = await day16(TEST_INPUT_FILE);
-
-    expect(part1).toBe(11048);
-  });
+      expect(part1).toBe(expected);
+    },
+  );
 
   it.skip("handles demo input for part 2 correctly", async () => {
-    const [, part2] = await day16(TEST_INPUT_FILE);
+    const [, part2] = await day16(TEST_INPUT_FILE_1);
 
     expect(part2).toBe(1);
   });

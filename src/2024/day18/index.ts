@@ -202,20 +202,19 @@ export async function findShortestRouteLength(
 export async function findCoordinatesOfFirstObstructingCorruption(
   filename: string,
   gridSize: number,
-  startingIteration: number = 1
+  startingIteration: number = 1,
 ): Promise<string> {
   const start: Position = [0, 0];
   const end: Position = [gridSize - 1, gridSize - 1];
 
   const coordinates = await loadCoordinates(filename);
   for (let i = startingIteration; i < coordinates.length; i++) {
-    console.log('Checking Corruptions', i);
     const memory = simulateCorruption(gridSize, coordinates, i);
     const route = findBestRoute(start, end, memory);
-    
+
     // No route available!
     if (route.length === 0) {
-      return posToStr(coordinates[i-1]);
+      return posToStr(coordinates[i - 1]);
     }
   }
 
@@ -233,7 +232,7 @@ const day18: AdventFunction = async (
   const part2 = await findCoordinatesOfFirstObstructingCorruption(
     filename,
     GRID_SIZE,
-    2824
+    2824,
   );
 
   return [part1, part2];
