@@ -150,12 +150,18 @@ export async function loadRawMaze(filename: string): Promise<RawMaze> {
   };
 }
 
-export interface NavNode {
-  position: Position;
+
+export interface NavOption {
   via: Position;
-  visited: boolean;
   direction: Position;
   cost: number;
+
+}
+
+export interface NavNode {
+  position: Position;
+  visited: boolean;
+  options: NavOption[];
 }
 
 function findCheapestUnvisited(navNodes: NavNode[]): NavNode | undefined {
@@ -163,14 +169,14 @@ function findCheapestUnvisited(navNodes: NavNode[]): NavNode | undefined {
 
   navNodes.forEach((node) => {
     if (node.visited) return;
-    if (node.cost === Infinity) return;
+    if (node.options.length === 0) return;
 
     if (nextNode === undefined) {
       nextNode = node;
       return;
     }
 
-    if (nextNode.cost > node.cost) {
+    if (nextNode.options[0].cost > node.options[0].cost) {
       nextNode = node;
       return;
     }
@@ -222,13 +228,15 @@ export function readOffRoute(graph: Graph, nodes: NavNode[]): JourneyStep[] {
   let route: JourneyStep[] = [];
 
   while (!!node && !posEqual(node.position, graph.start)) {
-    cost += node.cost;
+    if (node.options.length === 0) throw new Error(`No options when reading off route ${posToStr(node.position)}`);
+
+    cost += node.options[0].cost;
     route.unshift({
-      cost: node.cost,
+      cost: node.options[0].cost,
       position: node.position,
     });
 
-    node = findNavNode(nodes, node.via);
+    node = findNavNode(nodes, node.options[0].via);
   }
   route.unshift({
     cost: 0,
@@ -249,10 +257,12 @@ export function findShortestRoute(graph: Graph): JourneyStep[] {
 
     return {
       position,
-      direction: EAST,
-      via: NONSENSE,
       visited: false,
-      cost,
+      options: [{
+        direction: EAST,
+        via: NONSENSE,
+        cost
+      }]
     };
   });
 
@@ -260,9 +270,6 @@ export function findShortestRoute(graph: Graph): JourneyStep[] {
 
   let node = findCheapestUnvisited(navNodes);
   while (node !== undefined) {
-    if (posEqual(node.position, graph.end)) {
-      return readOffRoute(graph, navNodes);
-    }
 
     console.log("Visiting Node", node);
     node.visited = true;
@@ -270,19 +277,21 @@ export function findShortestRoute(graph: Graph): JourneyStep[] {
       .filter(
         (edge) =>
           posEqual(edge.from, node!.position) &&
-          !isGoingBack(node!.direction, edge.direction),
+            !isGoingBack(node!.options[0].direction, edge.direction),
       )
       .forEach((edge) => {
-        let cost = node!.cost + edge.cost;
-        if (isTurningCorner(node!.direction, edge.direction)) {
+        let cost = node!.options[0].cost + edge.cost;
+        if (isTurningCorner(node!.options[0].direction, edge.direction)) {
           cost += ROTATE_SCORE;
         }
 
         const to = navNodes.filter((n) => posEqual(n.position, edge.to))[0];
-        if (to.cost > cost) {
-          to.cost = cost;
-          to.via = edge.from;
-          to.direction = edge.direction;
+        if (to.options.length === 0 || to.options[0].cost > cost) {
+          to.options = [{
+            cost,
+            via: edge.from,
+            direction: edge.direction
+          }];
           console.log("Found new quicker way to get", to);
         }
       });
@@ -290,7 +299,7 @@ export function findShortestRoute(graph: Graph): JourneyStep[] {
     node = findCheapestUnvisited(navNodes);
   }
 
-  return [];
+  return readOffRoute(graph, navNodes);
 }
 
 const day16: AdventFunction = async (
