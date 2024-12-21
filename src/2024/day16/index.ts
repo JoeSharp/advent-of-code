@@ -1,5 +1,5 @@
 import { AdventFunction } from "../../common/types";
-import { loadRawMaze } from "../../common/mazeUtils";
+import { loadRawMaze, EMPTY, WALL } from "../../common/mazeUtils";
 import {
   Position,
   posEqual,
