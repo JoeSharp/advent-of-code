@@ -1,4 +1,5 @@
 import { AdventFunction } from "../../common/types";
+import { loadRawMaze } from "../../common/mazeUtils";
 import {
   Position,
   posEqual,
@@ -15,11 +16,6 @@ import {
   applyDirection,
 } from "../../common/arrayUtils";
 import { loadEntireFileAsGrid } from "../../common/processFile";
-
-export const START = "S";
-export const END = "E";
-export const WALL = "#";
-export const EMPTY = ".";
 
 export const MOVE_SCORE = 1;
 export const ROTATE_SCORE = 1000;
@@ -129,33 +125,10 @@ export function convertMazeToGraph({ start, end, contents }: RawMaze): Graph {
   };
 }
 
-export async function loadRawMaze(filename: string): Promise<RawMaze> {
-  const contents = await loadEntireFileAsGrid(filename);
-
-  const sTiles = findInstancesOf(contents, (v) => v === START);
-  const eTiles = findInstancesOf(contents, (v) => v === END);
-
-  if (sTiles.length !== 1) throw new Error("Multiple start points?");
-  if (eTiles.length !== 1) throw new Error("Multiple end points?");
-
-  const start = sTiles[0];
-  const end = eTiles[0];
-  contents[start[0]][start[1]] = EMPTY;
-  contents[end[0]][end[1]] = EMPTY;
-
-  return {
-    contents,
-    start,
-    end,
-  };
-}
-
-
 export interface NavOption {
   via: Position;
   direction: Position;
   cost: number;
-
 }
 
 export interface NavNode {
@@ -220,14 +193,16 @@ interface JourneyStep {
 }
 
 export function readOffRoute(graph: Graph, nodes: NavNode[]): JourneyStep[] {
-
   let node = findNavNode(nodes, graph.end);
 
   let cost = 0;
   let route: JourneyStep[] = [];
 
   while (!!node && !posEqual(node.position, graph.start)) {
-    if (node.options.length === 0) throw new Error(`No options when reading off route ${posToStr(node.position)}`);
+    if (node.options.length === 0)
+      throw new Error(
+        `No options when reading off route ${posToStr(node.position)}`,
+      );
 
     cost += node.options[0].cost;
     route.unshift({
@@ -255,11 +230,13 @@ export function findShortestRoute(graph: Graph): NavNode[] {
     return {
       position,
       visited: false,
-      options: [{
-        direction: EAST,
-        via: NONSENSE,
-        cost
-      }]
+      options: [
+        {
+          direction: EAST,
+          via: NONSENSE,
+          cost,
+        },
+      ],
     };
   });
 
@@ -270,7 +247,7 @@ export function findShortestRoute(graph: Graph): NavNode[] {
       .filter(
         (edge) =>
           posEqual(edge.from, node!.position) &&
-            !isGoingBack(node!.options[0].direction, edge.direction),
+          !isGoingBack(node!.options[0].direction, edge.direction),
       )
       .forEach((edge) => {
         let cost = node!.options[0].cost + edge.cost;
@@ -280,10 +257,10 @@ export function findShortestRoute(graph: Graph): NavNode[] {
 
         const to = navNodes.filter((n) => posEqual(n.position, edge.to))[0];
         const option = {
-            cost,
-            via: edge.from,
-            direction: edge.direction
-          };
+          cost,
+          via: edge.from,
+          direction: edge.direction,
+        };
         if (to.options.length === 0) {
           to.options = [option];
         } else if (to.options[0].cost > cost) {
@@ -301,21 +278,34 @@ export function findShortestRoute(graph: Graph): NavNode[] {
   return navNodes;
 }
 
-function calcDistance(from: Position, to: Position, direction: Position): number {
-  const d = from.map((f, i) => f - to[i]).map((diff, i) => diff * direction[i]).reduce((acc, curr) => acc + curr, 0);
+function calcDistance(
+  from: Position,
+  to: Position,
+  direction: Position,
+): number {
+  const d = from
+    .map((f, i) => f - to[i])
+    .map((diff, i) => diff * direction[i])
+    .reduce((acc, curr) => acc + curr, 0);
   //console.log('Calc Distance', {from, to, direction, d});
   return d;
 }
 
-function countBack(graph: Graph, navNodes: NavNode[], current: Position): number {
+function countBack(
+  graph: Graph,
+  navNodes: NavNode[],
+  current: Position,
+): number {
   const node = findNavNode(navNodes, current);
 
-  return node.options.map(option => {
-    const distance = calcDistance(current, option.via, option.direction);
-    if (posEqual(graph.start, option.via)) return distance;
+  return node.options
+    .map((option) => {
+      const distance = calcDistance(current, option.via, option.direction);
+      if (posEqual(graph.start, option.via)) return distance;
 
-    return distance + countBack(graph, navNodes, option.via);
-  }).reduce((acc, curr) => acc + curr, 0);
+      return distance + countBack(graph, navNodes, option.via);
+    })
+    .reduce((acc, curr) => acc + curr, 0);
 }
 
 const day16: AdventFunction = async (
@@ -327,7 +317,7 @@ const day16: AdventFunction = async (
   const route = readOffRoute(graph, navNodes);
   console.log("PART2", JSON.stringify(navNodes, null, 2));
   const part2 = countBack(graph, navNodes, graph.end);
-  if (route.length === 0) throw new Error('No route found through maze');
+  if (route.length === 0) throw new Error("No route found through maze");
   const part1 = route[route.length - 1].cost;
 
   return [part1, part2];

@@ -80,11 +80,10 @@ describe("day16", () => {
     expect(rawMaze.contents[0].length).toBe(15);
   });
 
-
-    //${TEST_INPUT_FILE_2} | ${11048} | ${45}
+  //${TEST_INPUT_FILE_2} | ${11048} | ${45}
   it.only.each`
     inputFile            | expectedPart1 | expectedPart2
-    ${TEST_INPUT_FILE_1} | ${7036} | ${64}
+    ${TEST_INPUT_FILE_1} | ${7036}       | ${64}
   `(
     "calculates shortest path for $inputFile to be $expected",
     async ({ inputFile, expectedPart1, expectedPart2 }) => {
