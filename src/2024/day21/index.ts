@@ -66,30 +66,48 @@ function posDiff(a: Position, b: Position): Position {
 }
 
 const dirForDigitsCache: Map<string, string[]> = new Map();
-dirForDigitsCache.set(fromToStr('9', '0'), '<vvv'.split(''));
-dirForDigitsCache.set(fromToStr('9', BUTTON_A), 'vvv'.split(''));
-dirForDigitsCache.set(fromToStr('8', '0'), 'vvv'.split(''));
-dirForDigitsCache.set(fromToStr('8', BUTTON_A), '>vvv'.split(''));
-dirForDigitsCache.set(fromToStr('7', '0'), '>vvv'.split(''));
-dirForDigitsCache.set(fromToStr('7', BUTTON_A), '>>vvv'.split(''));
-dirForDigitsCache.set(fromToStr('6', '0'), '<vv'.split(''));
-dirForDigitsCache.set(fromToStr('6', BUTTON_A), 'vv'.split(''));
-dirForDigitsCache.set(fromToStr('5', '0'), 'vv'.split(''));
-dirForDigitsCache.set(fromToStr('5', BUTTON_A), '>vv'.split(''));
-dirForDigitsCache.set(fromToStr('4', '0'), '>vv'.split(''));
-dirForDigitsCache.set(fromToStr('4', BUTTON_A), '>>vv'.split(''));
-dirForDigitsCache.set(fromToStr('3', '0'), '<v'.split(''));
-dirForDigitsCache.set(fromToStr('3', BUTTON_A), 'v'.split(''));
-dirForDigitsCache.set(fromToStr('2', '0'), 'v'.split(''));
-dirForDigitsCache.set(fromToStr('2', BUTTON_A), '>v'.split(''));
-dirForDigitsCache.set(fromToStr('1', '0'), '>v'.split(''));
-dirForDigitsCache.set(fromToStr('1', BUTTON_A), '>>v'.split(''));
+// Top Row
+dirForDigitsCache.set(fromToStr("9", "0"), "<vvv".split(""));
+dirForDigitsCache.set(fromToStr("9", BUTTON_A), "vvv".split(""));
+dirForDigitsCache.set(fromToStr("8", "0"), "vvv".split(""));
+dirForDigitsCache.set(fromToStr("8", BUTTON_A), ">vvv".split(""));
+dirForDigitsCache.set(fromToStr("7", "0"), ">vvv".split(""));
+dirForDigitsCache.set(fromToStr("7", BUTTON_A), ">>vvv".split(""));
+// And back, avoiding space
+dirForDigitsCache.set(fromToStr("0", "7"), "^^^<".split(""));
+dirForDigitsCache.set(fromToStr(BUTTON_A, "7"), "^^^<<".split(""));
+
+// MIddle row
+dirForDigitsCache.set(fromToStr("6", "0"), "<vv".split(""));
+dirForDigitsCache.set(fromToStr("6", BUTTON_A), "vv".split(""));
+dirForDigitsCache.set(fromToStr("5", "0"), "vv".split(""));
+dirForDigitsCache.set(fromToStr("5", BUTTON_A), ">vv".split(""));
+dirForDigitsCache.set(fromToStr("4", "0"), ">vv".split(""));
+dirForDigitsCache.set(fromToStr("4", BUTTON_A), ">>vv".split(""));
+//
+// And back, avoiding space
+dirForDigitsCache.set(fromToStr("0", "4"), "^^<".split(""));
+dirForDigitsCache.set(fromToStr(BUTTON_A, "4"), "^^<<".split(""));
+
+// Third row
+dirForDigitsCache.set(fromToStr("3", "0"), "<v".split(""));
+dirForDigitsCache.set(fromToStr("3", BUTTON_A), "v".split(""));
+dirForDigitsCache.set(fromToStr("2", "0"), "v".split(""));
+dirForDigitsCache.set(fromToStr("2", BUTTON_A), ">v".split(""));
+dirForDigitsCache.set(fromToStr("1", "0"), ">v".split(""));
+dirForDigitsCache.set(fromToStr("1", BUTTON_A), ">>v".split(""));
+//
+// And back, avoiding space
+dirForDigitsCache.set(fromToStr("0", "1"), "^<".split(""));
+dirForDigitsCache.set(fromToStr(BUTTON_A, "1"), "^<<".split(""));
 
 const dirForDirCache: Map<string, string[]> = new Map();
-dirForDirCache.set(fromToStr('<', '^'), '>^'.split(''));
-dirForDirCache.set(fromToStr('<', BUTTON_A), '>>^'.split(''));
-dirForDirCache.set(fromToStr('^', '<'), 'v<'.split(''));
-dirForDirCache.set(fromToStr(BUTTON_A, '<'), 'v<<'.split(''));
+// Left to A and UP
+dirForDirCache.set(fromToStr("<", "^"), ">^".split(""));
+dirForDirCache.set(fromToStr("<", BUTTON_A), ">>^".split(""));
+// UP and A to LEFT
+dirForDirCache.set(fromToStr("^", "<"), "v<".split(""));
+dirForDirCache.set(fromToStr(BUTTON_A, "<"), "v<<".split(""));
 
 export function getFromAtoB(
   a: string,
@@ -134,7 +152,8 @@ export function enterCode(
 
   let currentDest = BUTTON_A;
   let destPosition = destButtons.get(currentDest);
-  if (!destPosition) throw new Error(`Could not found a position ${currentDest}`);
+  if (!destPosition)
+    throw new Error(`Could not found a position ${currentDest}`);
 
   buttons.map((button) => {
     if (button === BUTTON_A) {

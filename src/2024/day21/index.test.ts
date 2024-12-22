@@ -5,8 +5,10 @@ import day21, {
   findDigitButton,
   findArrowButton,
 } from "./index";
+import { loadEntireFile } from '../../common/processFile';
 
 const TEST_INPUT_FILE = "./src/2024/day21/testInput.txt";
+const REAL_INPUT_FILE = "./src/2024/day21/input.txt";
 
 describe("day21", () => {
   it.each`
@@ -38,15 +40,23 @@ describe("day21", () => {
     expect(result).toBe(expected);
   });
 
-  /*
+  it("handles all the real input in a reciprocal manner", async () => {
+    const contents = await loadEntireFile(REAL_INPUT_FILE);
+
+    contents.forEach((input) => {
+      const result = calculateChainedButtons(input);
+      const reversed = enterChainedCode(result);
+      expect(reversed).toBe(input);
+    });
+  });
+
+  it.each`
+    input     | expected
+    ${"379A"} | ${"<v<A>>^AvA^A<vA<AA>>^AAvA<^A>AAvA^A<vA>^AA<A>A<v<A>A>^AAAvA<^A>A"}
     ${"029A"} | ${"<vA<AA>>^AvAA<^A>A<v<A>>^AvA^A<vA>^A<v<A>^A>AAvA^A<v<A>A>^AAAvA<^A>A"}
     ${"980A"} | ${"<v<A>>^AAAvA^A<vA<AA>>^AvAA<^A>A<v<A>A>^AAAvA<^A>A<vA>^A<A>A"}
     ${"179A"} | ${"<v<A>>^A<vA<A>>^AAvAA<^A>A<v<A>>^AAvA^A<vA>^AA<A>A<v<A>A>^AAAvA<^A>A"}
     ${"456A"} | ${"<v<A>>^AA<vA<A>>^AAvAA<^A>A<vA>^A<A>A<vA>^A<A>A<v<A>A>^AAvA<^A>A"}
-    */
-  it.only.each`
-    input     | expected
-    ${"379A"} | ${"<v<A>>^AvA^A<vA<AA>>^AAvA<^A>AAvA^A<vA>^AA<A>A<v<A>A>^AAAvA<^A>A"}
   `("calculates chained button presses for $input", ({ input, expected }) => {
     const result = calculateChainedButtons(input);
     const reversed = enterChainedCode(result);
