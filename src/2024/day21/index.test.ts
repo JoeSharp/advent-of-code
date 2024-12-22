@@ -1,8 +1,43 @@
-import day21, { calculateButtonPresses, extractNumeric } from "./index";
+import day21, {
+  calculateChainedButtons,
+  extractNumeric,
+  enterChainedCode,
+  findDigitButton,
+  findArrowButton,
+} from "./index";
 
 const TEST_INPUT_FILE = "./src/2024/day21/testInput.txt";
 
 describe("day21", () => {
+  it.each`
+    input     | expected
+    ${[0, 0]} | ${"7"}
+    ${[0, 1]} | ${"8"}
+    ${[0, 2]} | ${"9"}
+    ${[1, 0]} | ${"4"}
+    ${[1, 1]} | ${"5"}
+    ${[1, 2]} | ${"6"}
+    ${[2, 0]} | ${"1"}
+    ${[2, 1]} | ${"2"}
+    ${[2, 2]} | ${"3"}
+    ${[3, 1]} | ${"0"}
+    ${[3, 2]} | ${"A"}
+  `("findDigitButton $input = $expected", ({ input, expected }) => {
+    const result = findDigitButton(input);
+    expect(result).toBe(expected);
+  });
+  it.each`
+    input     | expected
+    ${[0, 1]} | ${"^"}
+    ${[0, 2]} | ${"A"}
+    ${[1, 0]} | ${"<"}
+    ${[1, 1]} | ${"v"}
+    ${[1, 2]} | ${">"}
+  `("findArrowButton $input = $expected", ({ input, expected }) => {
+    const result = findArrowButton(input);
+    expect(result).toBe(expected);
+  });
+
   /*
     ${"029A"} | ${"<vA<AA>>^AvAA<^A>A<v<A>>^AvA^A<vA>^A<v<A>^A>AAvA^A<v<A>A>^AAAvA<^A>A"}
     ${"980A"} | ${"<v<A>>^AAAvA^A<vA<AA>>^AvAA<^A>A<v<A>A>^AAAvA<^A>A<vA>^A<A>A"}
@@ -12,9 +47,16 @@ describe("day21", () => {
   it.only.each`
     input     | expected
     ${"379A"} | ${"<v<A>>^AvA^A<vA<AA>>^AAvA<^A>AAvA^A<vA>^AA<A>A<v<A>A>^AAAvA<^A>A"}
-  `("calculates button presses for $input", ({ input, expected }) => {
-    const result = calculateButtonPresses(input);
+  `("calculates chained button presses for $input", ({ input, expected }) => {
+    const result = calculateChainedButtons(input);
+    const reversed = enterChainedCode(result);
+    const reversedExp = enterChainedCode(expected);
+
     expect(result.length).toBe(expected.length);
+    //console.log(`${expected}\n${result}\n`);
+
+    expect(reversed).toBe(input);
+    expect(reversedExp).toBe(input);
   });
 
   it.each`

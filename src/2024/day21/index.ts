@@ -2,8 +2,10 @@ import { AdventFunction } from "../../common/types";
 import { loadEntireFile } from "../../common/processFile";
 import {
   Position,
+  posEqual,
   dirToShortStr,
   dirFromShortStr,
+  applyDirection,
   NORTH,
   SOUTH,
   EAST,
@@ -11,15 +13,36 @@ import {
 } from "../../common/arrayUtils";
 
 export const BUTTON_A = "A";
+export const EMPTY_BUTTON = ".";
 
 function fromToStr(from: string, to: string): string {
   return `${from}-${to}`;
 }
 
+export function findButton(
+  button: Position,
+  buttons: Map<string, Position>,
+): string {
+  for (let [k, v] of buttons) {
+    if (posEqual(button, v)) {
+      return k;
+    }
+  }
+
+  throw new Error(`Cannot find button at location ${dirToShortStr(button)}`);
+}
+
+export function findDigitButton(button: Position): string {
+  return findButton(button, digitLocations);
+}
+export function findArrowButton(button: Position): string {
+  return findButton(button, arrowLocations);
+}
+
 // Avoid bottom left
 const digitLocations: Map<string, Position> = new Map();
-digitLocations.set(BUTTON_A, [3, 2]);
 digitLocations.set("0", [3, 1]);
+digitLocations.set(BUTTON_A, [3, 2]);
 digitLocations.set("1", [2, 0]);
 digitLocations.set("2", [2, 1]);
 digitLocations.set("3", [2, 2]);
@@ -32,8 +55,8 @@ digitLocations.set("9", [0, 2]);
 
 // Avoid top left
 const arrowLocations: Map<string, Position> = new Map();
-arrowLocations.set(BUTTON_A, [0, 2]);
 arrowLocations.set(dirToShortStr(NORTH), [0, 1]);
+arrowLocations.set(BUTTON_A, [0, 2]);
 arrowLocations.set(dirToShortStr(WEST), [1, 0]);
 arrowLocations.set(dirToShortStr(SOUTH), [1, 1]);
 arrowLocations.set(dirToShortStr(EAST), [1, 2]);
@@ -43,7 +66,30 @@ function posDiff(a: Position, b: Position): Position {
 }
 
 const dirForDigitsCache: Map<string, string[]> = new Map();
+dirForDigitsCache.set(fromToStr('9', '0'), '<vvv'.split(''));
+dirForDigitsCache.set(fromToStr('9', BUTTON_A), 'vvv'.split(''));
+dirForDigitsCache.set(fromToStr('8', '0'), 'vvv'.split(''));
+dirForDigitsCache.set(fromToStr('8', BUTTON_A), '>vvv'.split(''));
+dirForDigitsCache.set(fromToStr('7', '0'), '>vvv'.split(''));
+dirForDigitsCache.set(fromToStr('7', BUTTON_A), '>>vvv'.split(''));
+dirForDigitsCache.set(fromToStr('6', '0'), '<vv'.split(''));
+dirForDigitsCache.set(fromToStr('6', BUTTON_A), 'vv'.split(''));
+dirForDigitsCache.set(fromToStr('5', '0'), 'vv'.split(''));
+dirForDigitsCache.set(fromToStr('5', BUTTON_A), '>vv'.split(''));
+dirForDigitsCache.set(fromToStr('4', '0'), '>vv'.split(''));
+dirForDigitsCache.set(fromToStr('4', BUTTON_A), '>>vv'.split(''));
+dirForDigitsCache.set(fromToStr('3', '0'), '<v'.split(''));
+dirForDigitsCache.set(fromToStr('3', BUTTON_A), 'v'.split(''));
+dirForDigitsCache.set(fromToStr('2', '0'), 'v'.split(''));
+dirForDigitsCache.set(fromToStr('2', BUTTON_A), '>v'.split(''));
+dirForDigitsCache.set(fromToStr('1', '0'), '>v'.split(''));
+dirForDigitsCache.set(fromToStr('1', BUTTON_A), '>>v'.split(''));
+
 const dirForDirCache: Map<string, string[]> = new Map();
+dirForDirCache.set(fromToStr('<', '^'), '>^'.split(''));
+dirForDirCache.set(fromToStr('<', BUTTON_A), '>>^'.split(''));
+dirForDirCache.set(fromToStr('^', '<'), 'v<'.split(''));
+dirForDirCache.set(fromToStr(BUTTON_A, '<'), 'v<<'.split(''));
 
 export function getFromAtoB(
   a: string,
@@ -60,18 +106,19 @@ export function getFromAtoB(
   const aLocation = buttonLocations.get(a);
   const bLocation = buttonLocations.get(b);
 
-  if (!aLocation || !bLocation) throw new Error(`Could not find location for a: ${a} and b:${b}`);
+  if (!aLocation || !bLocation)
+    throw new Error(`Could not find location for a: ${a} and b:${b}`);
 
   const [vert, horz] = posDiff(aLocation, bLocation);
 
   const vertDirection = vert > 0 ? SOUTH : NORTH;
   const horzDirection = horz > 0 ? EAST : WEST;
 
-  for (let i = 0; i < Math.abs(vert); i++) {
-    result.push(dirToShortStr(vertDirection));
-  }
   for (let i = 0; i < Math.abs(horz); i++) {
     result.push(dirToShortStr(horzDirection));
+  }
+  for (let i = 0; i < Math.abs(vert); i++) {
+    result.push(dirToShortStr(vertDirection));
   }
 
   cache.set(asStr, result);
@@ -80,6 +127,37 @@ export function getFromAtoB(
 }
 
 export function enterCode(
+  buttons: string[],
+  destButtons: Map<string, Position>,
+): string[] {
+  let result: string[] = [];
+
+  let currentDest = BUTTON_A;
+  let destPosition = destButtons.get(currentDest);
+  if (!destPosition) throw new Error(`Could not found a position ${currentDest}`);
+
+  buttons.map((button) => {
+    if (button === BUTTON_A) {
+      result.push(currentDest);
+    } else {
+      const direction = dirFromShortStr(button);
+      destPosition = applyDirection(destPosition!, direction);
+      currentDest = findButton(destPosition, destButtons);
+    }
+  });
+
+  return result;
+}
+
+export function enterDigitCode(code: string[]) {
+  return enterCode(code, digitLocations);
+}
+
+export function enterArrowCode(code: string[]) {
+  return enterCode(code, arrowLocations);
+}
+
+export function calcDigitsToEnterCode(
   code: string[],
   buttonLocations: Map<string, Position>,
   cache: Map<string, string[]>,
@@ -88,8 +166,10 @@ export function enterCode(
   let current = BUTTON_A;
 
   for (let i = 0; i < code.length; i++) {
-    const forTransition = getFromAtoB(current, code[i], buttonLocations, cache);
-    forTransition.forEach((b) => result.push(b));
+    getFromAtoB(current, code[i], buttonLocations, cache).forEach((b) =>
+      result.push(b),
+    );
+
     result.push(BUTTON_A);
 
     current = code[i];
@@ -98,19 +178,33 @@ export function enterCode(
 }
 
 export function calcButtonsToHitDigits(digits: string[]): string[] {
-  return enterCode(digits, digitLocations, dirForDigitsCache);
+  return calcDigitsToEnterCode(digits, digitLocations, dirForDigitsCache);
 }
 
 export function calButtonsToHitDirections(directions: string[]): string[] {
-  return enterCode(directions, arrowLocations, dirForDirCache);
+  return calcDigitsToEnterCode(directions, arrowLocations, dirForDirCache);
 }
 
-export function calculateButtonPresses(pinCode: string): string {
+export function enterChainedCode(code: string): string {
+  const robot2 = enterArrowCode(code.split(""));
+  const robot1 = enterArrowCode(robot2);
+  const pinCode = enterDigitCode(robot1);
+  console.log("Calc Button Presses", {
+    code,
+    pinCode,
+    robot1,
+    robot2,
+  });
+  return pinCode.join("");
+}
+
+export function calculateChainedButtons(pinCode: string): string {
   const digits = pinCode.split("");
 
   const robot1 = calcButtonsToHitDigits(digits);
   const robot2 = calButtonsToHitDirections(robot1);
   const robot3 = calButtonsToHitDirections(robot2);
+
   console.log("Calc Button Presses", { pinCode, robot1, robot2, robot3 });
 
   return robot3.join("");
@@ -121,7 +215,7 @@ export function extractNumeric(pinCode: string): number {
 }
 
 export function calculateComplexity(pinCode: string): number {
-  const sequence = calculateButtonPresses(pinCode);
+  const sequence = calculateChainedButtons(pinCode);
   const numericPart = extractNumeric(pinCode);
   console.log("Calculate Complexity", {
     pinCode,
