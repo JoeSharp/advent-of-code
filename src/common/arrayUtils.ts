@@ -45,15 +45,30 @@ export function countSameNeighbours(grid: string[][], pos: Position): number {
 }
 
 export function dirToShortStr(dir: Position): string {
-  if (posEqual(dir, NORTH)) return "⬆️";
-  if (posEqual(dir, SOUTH)) return "⬇️";
-  if (posEqual(dir, WEST)) return "⬅️";
-  if (posEqual(dir, EAST)) return "➡️";
+  if (posEqual(dir, NORTH)) return "^";
+  if (posEqual(dir, SOUTH)) return "v";
+  if (posEqual(dir, WEST)) return "<";
+  if (posEqual(dir, EAST)) return ">";
   if (posEqual(dir, NORTH_WEST)) return "↖️";
   if (posEqual(dir, NORTH_EAST)) return "↗️";
   if (posEqual(dir, SOUTH_WEST)) return "↙️";
   if (posEqual(dir, SOUTH_EAST)) return "↘️";
   return ".";
+}
+
+export function dirFromShortStr(input: string): Position {
+  switch (input) {
+    case "^":
+      return NORTH;
+    case "v":
+      return SOUTH;
+    case "<":
+      return WEST;
+    case ">":
+      return EAST;
+  }
+
+  return NONSENSE;
 }
 
 export function dirToStr(dir: Position): string {
