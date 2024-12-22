@@ -27,7 +27,7 @@ function indexOfPos(path: Position[], toFind: Position): number {
 function groupCheats(cheats: Cheat[]): Map<number, Cheat[]> {
   let result: Map<number, Cheat[]> = new Map();
 
-  cheats.forEach(cheat => {
+  cheats.forEach((cheat) => {
     if (!result.has(cheat.saves)) {
       result.set(cheat.saves, []);
     }
@@ -62,13 +62,13 @@ export function findCheats(contents: string[][], path: Position[]): Cheat[] {
             cheats.push({
               from: eitherSide[0],
               to: eitherSide[1],
-              saves: (secondIndex - firstIndex) - 2
+              saves: secondIndex - firstIndex - 2,
             });
           } else {
             cheats.push({
               from: eitherSide[1],
               to: eitherSide[0],
-              saves: (firstIndex - secondIndex) - 2
+              saves: firstIndex - secondIndex - 2,
             });
           }
         }
