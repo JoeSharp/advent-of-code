@@ -1,6 +1,8 @@
 import { AdventFunction } from "../../common/types";
 
-const dayX: AdventFunction = async (filename = "./src/2025/dayX/input.txt") => {
+const dayX: AdventFunction = async (
+  filename = "./src/2025/day06/input.txt"
+) => {
   return [1, 1];
 };
 

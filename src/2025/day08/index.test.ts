@@ -1,6 +1,6 @@
 import dayX from "./index";
 
-const TEST_INPUT_FILE = "./src/2025/dayX/testInput.txt";
+const TEST_INPUT_FILE = "./src/2025/day08/testInput.txt";
 
 describe("day08", () => {
   it("handles demo input for part 1 correctly", async () => {
