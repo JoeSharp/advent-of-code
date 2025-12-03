@@ -13,7 +13,7 @@ Once modified, the following command will run that days challenge and print out 
 Run
 
 ```
-npm start
+npm start -- -y 2025 -d 01
 ```
 
 ## To run tests
@@ -30,5 +30,5 @@ There are also extensive tests for all the consituent parts of solutions. I used
 To run tests
 
 ```
-npm run test
+npm run test 2025/01
 ```

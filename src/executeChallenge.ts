@@ -3,11 +3,13 @@ import { AdventFunction } from "./common/types";
 import FNS_2022 from "./2022";
 import FNS_2023 from "./2023";
 import FNS_2024 from "./2024";
+import FNS_2025 from "./2025";
 
 const years: Map<number, Map<number, AdventFunction>> = new Map();
 years.set(2022, FNS_2022);
 years.set(2023, FNS_2023);
 years.set(2024, FNS_2024);
+years.set(2025, FNS_2025);
 
 function executeChallenge(year: number, day: number) {
   simpleLogger.info(`Executing Advent Year: ${year}, Day: ${day}`);
