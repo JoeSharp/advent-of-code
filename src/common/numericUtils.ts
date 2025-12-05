@@ -3,7 +3,7 @@ export const numericSort = (a: number, b: number): number => a - b;
 export const isDivisibleBy = (a: number, divisor: number): boolean =>
   a % divisor === 0;
 export const isInteger = (a: number): boolean => Math.round(a) === a;
-
+export const sum = (acc: number, curr: number) => acc + curr;
 export function factors(a: number): number[] {
   const result: number[] = [];
 
