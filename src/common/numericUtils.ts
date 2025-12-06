@@ -44,3 +44,19 @@ export function lcmMultiples(a: number, b: number): number[] {
   const lcm = lowestCommonMultiple(a, b);
   return [lcm / a, lcm / b];
 }
+
+export function intoDigits(value: number, pad: number): number[] {
+  const digits: number[] = [];
+  let remaining = value;
+
+  while (remaining > 0) {
+    digits.unshift(remaining % 10);
+    remaining = Math.floor(remaining / 10);
+  }
+
+  while(digits.length < pad) {
+    digits.push(0);
+  }
+
+  return digits;
+}

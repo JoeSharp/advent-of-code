@@ -7,9 +7,21 @@ import {
   highestCommonFactor,
   lowestCommonMultiple,
   lcmMultiples,
+  intoDigits,
 } from "./numericUtils";
 
 describe("numericUtils", () => {
+  describe('intoDigits', () => {
+    it.each`
+      value | expected
+      ${56} | ${[5, 6]}
+      ${4567} | ${[4, 5, 6, 7]}
+    `('split $value into $expected', ({ value, expected }) => {
+      const result = intoDigits(value);
+
+      expect(result).toStrictEqual(expected);
+    });
+  });
   describe("reverseNumericSort", () => {
     it("sorts in reverse order", () => {
       const items = [8, 3, 90, 7, 54];
