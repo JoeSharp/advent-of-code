@@ -54,9 +54,13 @@ export function intoDigits(value: number, pad: number): number[] {
     remaining = Math.floor(remaining / 10);
   }
 
-  while(digits.length < pad) {
+  while (digits.length < pad) {
     digits.push(0);
   }
 
   return digits;
+}
+
+export function fromDigits(values: number[]): number {
+  return values.reduce((acc, curr) => acc * 10 + curr, 0);
 }
